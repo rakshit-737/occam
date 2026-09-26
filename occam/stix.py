@@ -1,11 +1,13 @@
-"""Minimal STIX 2.1 export (hand-built dicts; no python-stix2 dependency).
+"""STIX 2.1 export (hand-built dicts) with optional python-stix2 validation.
 
-Actor names in exports are the synthetic fixture names. Exports carry the
-confidence grade and full ACH matrix as a `note` so downstream consumers
-cannot strip the uncertainty from the conclusion.
+Exports carry the confidence grade and full ACH matrix as a ``note`` so
+downstream consumers cannot strip the uncertainty from the conclusion.
+``validate`` round-trips a bundle through ``stix2.parse`` (strict, no custom
+properties) when the optional ``stix`` extra is installed.
 """
 from __future__ import annotations
 
+import json
 import uuid
 from datetime import datetime, timezone
 
@@ -24,7 +26,7 @@ def _now() -> str:
 
 
 def _pattern(t: str, v: str) -> str | None:
-    v = v.replace("'", "\'")
+    v = v.replace("\\", "\\\\").replace("'", "\\'")
     return {
         "ipv4": f"[ipv4-addr:value = '{v}']",
         "domain": f"[domain-name:value = '{v}']",
@@ -53,7 +55,19 @@ def export(extraction: ExtractionResult | None = None, assessment: Assessment | 
         objs.append({"type": "note", "spec_version": "2.1", "id": _id("note", assessment.question + now),
                      "created": now, "modified": now,
                      "abstract": f"ACH assessment: {assessment.leading.hypothesis.label} ({assessment.confidence} confidence)",
-                     "content": str(assessment.to_dict()),
+                     "content": json.dumps(assessment.to_dict(), indent=1),
                      "confidence": _CONF[assessment.confidence],
                      "object_refs": ref_ids})
     return {"type": "bundle", "id": f"bundle--{uuid.uuid4()}", "objects": objs}
+
+
+def validate(bundle: dict) -> int:
+    """Strictly parse a bundle with python-stix2; returns the object count.
+
+    Raises ``ImportError`` if python-stix2 is missing and a ``stix2``
+    exception if any object violates the STIX 2.1 specification.
+    """
+    import stix2
+
+    parsed = stix2.parse(json.dumps(bundle), allow_custom=False, version="2.1")
+    return len(parsed.objects)
