@@ -211,6 +211,18 @@ def crossfit_calibrate(outcomes: list[Outcome], bins: int = 10, prior: float = 1
     return out
 
 
+def crossfit_grade_calibrate(outcomes: list[Outcome]) -> list[float]:
+    """Replace each stated probability with the learned probability of its ACH
+    grade, fitted on the *other* group fold (see :class:`occam.calibration.GradeCalibrator`)."""
+    from .calibration import GradeCalibrator
+
+    cal = {}
+    for f in (0, 1):
+        tr = [o for o in outcomes if _fold(o.incident.group) != f]
+        cal[f] = GradeCalibrator().fit([o.attribution.confidence for o in tr], [o.correct for o in tr])
+    return [cal[_fold(o.incident.group)][o.attribution.confidence] for o in outcomes]
+
+
 def summarize(outcomes: list[Outcome], probs: list[float] | None = None) -> dict[str, float]:
     n = len(outcomes) or 1
     probs = [o.attribution.probability for o in outcomes] if probs is None else probs
