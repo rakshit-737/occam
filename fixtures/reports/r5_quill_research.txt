@@ -1,0 +1,2 @@
+SYNTHETIC REPORT R5. A research lab received a malicious link in an email. QUILLRAT used DNS tunneling to
+ns1.quill-resolve.example and staged documents were uploaded to a file-sharing service. WMI was used for execution.
