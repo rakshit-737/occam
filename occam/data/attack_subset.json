@@ -1,0 +1,41 @@
+{
+  "_note": "Small hand-curated subset of MITRE ATT&CK Enterprise technique IDs/names (public, (c) MITRE, used under the ATT&CK terms of use). Keywords are OCCAM's own. Load the full matrix with `occam load-attack`.",
+  "techniques": [
+    {"id": "T1566.001", "name": "Spearphishing Attachment", "tactic": "initial-access", "keywords": ["spearphishing attachment", "malicious attachment", "weaponized document", "malicious word document", "phishing email with an attachment"]},
+    {"id": "T1566.002", "name": "Spearphishing Link", "tactic": "initial-access", "keywords": ["spearphishing link", "phishing link", "malicious link in an email"]},
+    {"id": "T1190", "name": "Exploit Public-Facing Application", "tactic": "initial-access", "keywords": ["exploited a public-facing", "exploit public-facing", "exploited the vpn appliance", "exploited an internet-facing"]},
+    {"id": "T1195.002", "name": "Compromise Software Supply Chain", "tactic": "initial-access", "keywords": ["supply chain compromise", "trojanized update", "compromised software update"]},
+    {"id": "T1078", "name": "Valid Accounts", "tactic": "defense-evasion", "keywords": ["valid accounts", "stolen credentials to log in", "legitimate credentials"], "common": true},
+    {"id": "T1059.001", "name": "PowerShell", "tactic": "execution", "keywords": ["powershell"], "common": true},
+    {"id": "T1059.003", "name": "Windows Command Shell", "tactic": "execution", "keywords": ["cmd.exe", "command shell"], "common": true},
+    {"id": "T1047", "name": "Windows Management Instrumentation", "tactic": "execution", "keywords": ["wmi", "windows management instrumentation", "wmic"]},
+    {"id": "T1053.005", "name": "Scheduled Task", "tactic": "persistence", "keywords": ["scheduled task", "schtasks"]},
+    {"id": "T1547.001", "name": "Registry Run Keys / Startup Folder", "tactic": "persistence", "keywords": ["run key", "startup folder", "currentversion\\run"]},
+    {"id": "T1003.001", "name": "LSASS Memory", "tactic": "credential-access", "keywords": ["lsass", "credential dumping from memory", "mimikatz"]},
+    {"id": "T1110", "name": "Brute Force", "tactic": "credential-access", "keywords": ["brute force", "password spraying"]},
+    {"id": "T1021.002", "name": "SMB/Windows Admin Shares", "tactic": "lateral-movement", "keywords": ["admin shares", "admin$", "smb lateral movement", "psexec"]},
+    {"id": "T1570", "name": "Lateral Tool Transfer", "tactic": "lateral-movement", "keywords": ["lateral tool transfer", "copied the tool to other hosts"]},
+    {"id": "T1027", "name": "Obfuscated Files or Information", "tactic": "defense-evasion", "keywords": ["obfuscated", "packed payload", "encoded payload"], "common": true},
+    {"id": "T1070.001", "name": "Clear Windows Event Logs", "tactic": "defense-evasion", "keywords": ["cleared event logs", "wevtutil", "clear windows event logs"]},
+    {"id": "T1071.001", "name": "Web Protocols", "tactic": "command-and-control", "keywords": ["http c2", "https beacon", "over http", "web protocols"], "common": true},
+    {"id": "T1071.004", "name": "DNS", "tactic": "command-and-control", "keywords": ["dns tunneling", "dns c2", "over dns"]},
+    {"id": "T1090.003", "name": "Multi-hop Proxy", "tactic": "command-and-control", "keywords": ["multi-hop proxy", "tor network", "relay network of compromised routers"]},
+    {"id": "T1105", "name": "Ingress Tool Transfer", "tactic": "command-and-control", "keywords": ["downloaded additional tools", "ingress tool transfer", "second-stage payload"], "common": true},
+    {"id": "T1041", "name": "Exfiltration Over C2 Channel", "tactic": "exfiltration", "keywords": ["exfiltrated over the c2", "exfiltration over c2"]},
+    {"id": "T1567.002", "name": "Exfiltration to Cloud Storage", "tactic": "exfiltration", "keywords": ["cloud storage", "uploaded to a file-sharing service"]},
+    {"id": "T1486", "name": "Data Encrypted for Impact", "tactic": "impact", "keywords": ["encrypted files", "ransomware", "ransom note"]},
+    {"id": "T1485", "name": "Data Destruction", "tactic": "impact", "keywords": ["wiper", "data destruction", "overwrote files", "destroyed data"]},
+    {"id": "T1490", "name": "Inhibit System Recovery", "tactic": "impact", "keywords": ["vssadmin", "shadow copies", "inhibit system recovery", "deleted backups"]},
+    {"id": "T1489", "name": "Service Stop", "tactic": "impact", "keywords": ["stopped services", "service stop", "disabled services"]},
+    {"id": "T1498", "name": "Network Denial of Service", "tactic": "impact", "keywords": ["ddos", "denial of service"]}
+  ],
+  "tools": [
+    {"id": "tool:mimikatz", "name": "Mimikatz", "keywords": ["mimikatz"]},
+    {"id": "tool:psexec", "name": "PsExec", "keywords": ["psexec"]},
+    {"id": "tool:cobaltstrike", "name": "Cobalt Strike", "keywords": ["cobalt strike", "beacon payload"]},
+    {"id": "tool:emberload", "name": "EMBERLOAD (fictional)", "keywords": ["emberload"]},
+    {"id": "tool:glasswipe", "name": "GLASSWIPE (fictional)", "keywords": ["glasswipe"]},
+    {"id": "tool:tidecrypt", "name": "TIDECRYPT (fictional)", "keywords": ["tidecrypt"]},
+    {"id": "tool:quillrat", "name": "QUILLRAT (fictional)", "keywords": ["quillrat"]}
+  ]
+}
