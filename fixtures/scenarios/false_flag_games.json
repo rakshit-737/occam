@@ -1,0 +1,17 @@
+{
+  "question": "Who deployed the wiper against the (synthetic) international games network?",
+  "_inspired_by": "Structure mirrors the publicly documented Olympic Destroyer false-flag pattern (planted code/metadata overlaps pointing at several groups). All actors are fictional.",
+  "actors": "../actors.json",
+  "expected": {"not_leading": "H-EMBER", "max_confidence": "moderate"},
+  "evidence": [
+    {"id": "E1", "description": "PE rich-header metadata byte-identical to an EMBER sample", "kind": "metadata", "points_to": ["EMBER"], "reliability": "B", "credibility": 2},
+    {"id": "E2", "description": "Code-overlap: wiper shares a routine with EMBER's TIDECRYPT", "kind": "code_overlap", "points_to": ["EMBER"], "reliability": "B", "credibility": 2},
+    {"id": "E3", "description": "Language artifacts / comments in EMBER's usual locale", "kind": "language_artifact", "points_to": ["EMBER"], "reliability": "C", "credibility": 3},
+    {"id": "E4", "description": "Code-overlap string also found in a QUILL sample", "kind": "code_overlap", "points_to": ["QUILL"], "reliability": "C", "credibility": 3},
+    {"id": "E5", "description": "GLASSWIPE wiper deployed", "kind": "tool", "value": "tool:glasswipe", "reliability": "A", "credibility": 2},
+    {"id": "E6", "description": "Data destroyed, shadow copies deleted", "kind": "ttp", "value": "T1485", "reliability": "A", "credibility": 1},
+    {"id": "E7", "description": "Recovery inhibited via vssadmin", "kind": "ttp", "value": "T1490", "reliability": "A", "credibility": 1},
+    {"id": "E8", "description": "Lateral movement via admin shares with harvested creds", "kind": "ttp", "value": "T1021.002", "reliability": "B", "credibility": 2},
+    {"id": "E9", "description": "Victim is a major international sporting event", "kind": "victimology", "value": "major-events", "reliability": "A", "credibility": 1}
+  ]
+}
