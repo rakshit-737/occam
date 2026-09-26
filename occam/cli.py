@@ -132,6 +132,12 @@ def cmd_attribute(a) -> int:
     candidates = ACHAttributor(data.actor_profiles(), kb, shortlist=a.shortlist).candidates(ev)
     eng = ACHEngine(candidates, ev, f"Which ATT&CK group conducted the activity in {p.name}?", kb=kb)
     asmt = eng.assess()
+    if getattr(a, "calibration", None):
+        from .calibration import GradeCalibrator
+
+        p_cal = GradeCalibrator.load(a.calibration)[asmt.confidence]
+        asmt.rationale.append(f"Calibrated probability for a {asmt.confidence.upper()} grade: {p_cal:.2f} "
+                              f"(learned map {a.calibration}).")
     if a.json:
         _dump(asmt.to_dict())
     else:
@@ -217,6 +223,7 @@ def main(argv: list[str] | None = None) -> int:
     s = sub.add_parser("attribute", help="attribute a report to ATT&CK groups with ACH (needs enterprise-attack.json)")
     s.add_argument("file")
     s.add_argument("--attack", required=True, help="path to MITRE ATT&CK enterprise-attack STIX bundle")
+    s.add_argument("--calibration", help="learned grade->probability map (results/grade_calibration.json)")
     s.add_argument("--shortlist", type=int, default=8, help="candidate groups kept by TTP similarity (default 8)")
     s.add_argument("--classifier", help="trained model from `occam train-classifier` (adds ML technique hits)")
     s.add_argument("--json", action="store_true")
