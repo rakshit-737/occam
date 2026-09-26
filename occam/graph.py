@@ -51,14 +51,16 @@ def _weights(events: Mapping[str, dict[str, Iterable[str]]]) -> dict[str, dict[s
     for ev, f in feats.items():
         out[ev] = {
             x: math.log((1 + n) / (1 + df[x])) * (INFRA_WEIGHT if x.startswith("infrastructure:") else 1.0)
-            for x in f
+            for x in sorted(f)
             if df[x] < n  # a feature present in every event carries no signal
         }
     return out
 
 
 def weighted_jaccard(a: dict[str, float], b: dict[str, float]) -> float:
-    keys = a.keys() | b.keys()
+    # sorted: float summation order must not depend on PYTHONHASHSEED, or
+    # near-tied similarities flip and Louvain output changes run to run.
+    keys = sorted(a.keys() | b.keys())
     num = sum(min(a.get(k, 0.0), b.get(k, 0.0)) for k in keys)
     den = sum(max(a.get(k, 0.0), b.get(k, 0.0)) for k in keys)
     return num / den if den else 0.0
@@ -89,10 +91,17 @@ def similarity_graph(events: Mapping[str, dict[str, Iterable[str]]], min_sim: fl
 def louvain_clusters(events: Mapping[str, dict[str, Iterable[str]]], resolution: float = 1.0,
                      min_sim: float = 0.05, seed: int = 0, knn: int | None = 5) -> dict[str, int]:
     """event id -> community index."""
+    import networkx as nx
     from networkx.algorithms.community import louvain_communities
 
     g = similarity_graph(events, min_sim, knn)
-    comms = louvain_communities(g, weight="weight", resolution=resolution, seed=seed)
+    # networkx Louvain iterates over Python sets of nodes internally; with str
+    # node ids that order follows PYTHONHASHSEED, so results change run to run.
+    # Integer labels hash deterministically, making the seeded result reproducible.
+    names = list(g.nodes)
+    gi = nx.convert_node_labels_to_integers(g, ordering="default")
+    comms = [{names[i] for i in c}
+             for c in louvain_communities(gi, weight="weight", resolution=resolution, seed=seed)]
     out: dict[str, int] = {}
     for i, c in enumerate(sorted(comms, key=lambda c: (-len(c), sorted(c)[0]))):
         for ev in c:

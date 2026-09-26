@@ -79,7 +79,8 @@ def main(argv: list[str] | None = None) -> int:
     # Hyper-parameters are tuned on DEV groups (even ATT&CK G-number) and
     # reported on disjoint TEST groups (odd G-number): no test label is seen.
     def split(parity: int) -> tuple[dict, dict]:
-        keep = {e for e, g in truth.items() if int(g.lstrip("G")) % 2 == parity}
+        # list, not set: dict (= graph node) order must not depend on PYTHONHASHSEED
+        keep = [e for e, g in truth.items() if int(g.lstrip("G")) % 2 == parity]
         return {e: events[e] for e in keep}, {e: truth[e] for e in keep}
 
     (dev_ev, dev_tr), (test_ev, test_tr) = split(0), split(1)
