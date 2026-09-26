@@ -1,0 +1,2 @@
+SYNTHETIC REPORT R4. During the games, GLASSWIPE destroyed data across the ticketing network after lateral movement over
+admin$ with PsExec. vssadmin removed backups; services were stopped. Infrastructure overlapped with 203.0.113.77.
