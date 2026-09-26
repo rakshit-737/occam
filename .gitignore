@@ -13,3 +13,4 @@ enterprise-attack.json
 *.pkl
 models/
 .ruff_cache/
+site/

@@ -1,0 +1,11 @@
+.git
+ui/node_modules
+ui/dist
+site
+results
+docs
+*.log
+*.err
+**/__pycache__
+.pytest_cache
+.ruff_cache
