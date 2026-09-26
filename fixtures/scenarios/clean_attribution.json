@@ -1,0 +1,14 @@
+{
+  "question": "Who conducted the 2026 research-institute intrusion (synthetic)?",
+  "actors": "../actors.json",
+  "expected": {"leading": "H-QUILL", "confidence": "high"},
+  "evidence": [
+    {"id": "E1", "description": "QUILLRAT implant recovered from two hosts", "kind": "tool", "value": "tool:quillrat", "reliability": "A", "credibility": 1},
+    {"id": "E2", "description": "C2 over DNS to known QUILL resolver infrastructure", "kind": "infrastructure", "value": "infra:quill-dns-c2", "reliability": "A", "credibility": 2},
+    {"id": "E3", "description": "Initial access via spearphishing link", "kind": "ttp", "value": "T1566.002", "reliability": "B", "credibility": 2},
+    {"id": "E4", "description": "WMI used for remote execution", "kind": "ttp", "value": "T1047", "reliability": "B", "credibility": 2},
+    {"id": "E5", "description": "Staged data uploaded to cloud storage", "kind": "ttp", "value": "T1567.002", "reliability": "B", "credibility": 2},
+    {"id": "E6", "description": "Victim is a defense research institute", "kind": "victimology", "value": "research", "reliability": "A", "credibility": 1},
+    {"id": "E7", "description": "PowerShell used throughout (common)", "kind": "ttp", "value": "T1059.001", "reliability": "A", "credibility": 1}
+  ]
+}
