@@ -70,7 +70,7 @@ def _print_assessment(a, evidence) -> None:
     print("\nWhat would change this conclusion:")
     for r in a.what_would_change:
         print(f"  - {r}")
-    print("\nNOTE: decision-support output on synthetic data; attribution requires human analytic review.")
+    print("\nNOTE: decision-support output, not a finding; attribution requires human analytic review.")
 
 
 def cmd_ach(a) -> int:
@@ -89,6 +89,42 @@ def cmd_load_attack(a) -> int:
     out = convert_stix_bundle(bundle)
     Path(a.out).write_text(json.dumps(out, indent=1), encoding="utf-8")
     print(f"wrote {len(out['techniques'])} techniques, {len(out['tools'])} tools -> {a.out}")
+    return 0
+
+
+def cmd_attribute(a) -> int:
+    """Report text -> span-anchored TTPs/software -> ACH over real ATT&CK group profiles."""
+    from .attribution import ACHAttributor, evidence_from_items
+    from .knowledge import AttackData
+
+    data = AttackData.load(a.attack)
+    kb = data.to_kb()
+    p = Path(a.file)
+    text = p.read_text(encoding="utf-8", errors="replace")
+    r = extract(text, p.name, kb)
+    items = sorted(r.technique_ids() | {h.technique_id for h in r.tools})
+    if not items:
+        print("no ATT&CK techniques or software found in the report; nothing to attribute")
+        return 1
+    ev = evidence_from_items(items, kb)
+    spans = {h.technique_id: h.span for h in r.techniques + r.tools}
+    for e in ev:
+        s = spans.get(e.value)
+        if s:
+            e.description += f"  <- {s.text!r} @{s.start}"
+    candidates = ACHAttributor(data.actor_profiles(), kb, shortlist=a.shortlist).candidates(ev)
+    eng = ACHEngine(candidates, ev, f"Which ATT&CK group conducted the activity in {p.name}?", kb=kb)
+    asmt = eng.assess()
+    if a.json:
+        _dump(asmt.to_dict())
+    else:
+        print(f"{len(items)} evidence items from {p.name}; {len(candidates)} candidate groups "
+              f"(top-{a.shortlist} by TTP similarity) + unknown / false-flag hypotheses\n")
+        print("EVIDENCE (each linked to its source span):")
+        for e in ev:
+            print(f"  {e.id:<5} {e.description}")
+        print()
+        _print_assessment(asmt, ev)
     return 0
 
 
@@ -140,6 +176,13 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("bundle")
     s.add_argument("--out", default="attack_kb.json")
     s.set_defaults(func=cmd_load_attack)
+
+    s = sub.add_parser("attribute", help="attribute a report to ATT&CK groups with ACH (needs enterprise-attack.json)")
+    s.add_argument("file")
+    s.add_argument("--attack", required=True, help="path to MITRE ATT&CK enterprise-attack STIX bundle")
+    s.add_argument("--shortlist", type=int, default=8, help="candidate groups kept by TTP similarity (default 8)")
+    s.add_argument("--json", action="store_true")
+    s.set_defaults(func=cmd_attribute)
 
     s = sub.add_parser("demo", help="run all demo scenarios on bundled synthetic fixtures")
     s.set_defaults(func=cmd_demo)

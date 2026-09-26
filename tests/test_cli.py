@@ -24,3 +24,11 @@ def test_extract_navigator(capsys):
 
 def test_bad_override_is_clean_error():
     assert main(["ach", str(FIX / "scenarios" / "clean_attribution.json"), "--override", "E1:H-NOPE=I"]) == 2
+
+
+def test_attribute_against_attack_bundle(capsys, tmp_path):
+    rep = tmp_path / "r.txt"
+    rep.write_text("The actor used EmberLock ransomware and encrypted files after spearphishing attachment lures.")
+    assert main(["attribute", str(rep), "--attack", str(FIX / "mini_attack.json"), "--shortlist", "2"]) == 0
+    out = capsys.readouterr().out
+    assert "CONFIDENCE" in out and "<- " in out
