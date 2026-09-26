@@ -1,0 +1,11 @@
+services:
+  occam:
+    build: .
+    # published on the loopback interface only: the API has no authentication
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      OCCAM_FIXTURES: /app/fixtures
+    read_only: true
+    tmpfs:
+      - /tmp
