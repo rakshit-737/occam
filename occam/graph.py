@@ -64,27 +64,34 @@ def weighted_jaccard(a: dict[str, float], b: dict[str, float]) -> float:
     return num / den if den else 0.0
 
 
-def similarity_graph(events: Mapping[str, dict[str, Iterable[str]]], min_sim: float = 0.05):
+def similarity_graph(events: Mapping[str, dict[str, Iterable[str]]], min_sim: float = 0.05, knn: int | None = None):
     import networkx as nx
 
     w = _weights(events)
     ids = list(events)
     g = nx.Graph()
     g.add_nodes_from(ids)
+    sims: dict[str, list[tuple[float, str]]] = {a: [] for a in ids}
     for i, a in enumerate(ids):
         for b in ids[i + 1:]:
             s = weighted_jaccard(w[a], w[b])
             if s >= min_sim:
-                g.add_edge(a, b, weight=s)
+                sims[a].append((s, b))
+                sims[b].append((s, a))
+    for a, lst in sims.items():
+        # mutual-kNN-style sparsification: keep each node's k strongest edges.
+        # Without it, generic TTP overlap links everything into one giant component.
+        for s, b in sorted(lst, reverse=True)[:knn] if knn else lst:
+            g.add_edge(a, b, weight=s)
     return g
 
 
 def louvain_clusters(events: Mapping[str, dict[str, Iterable[str]]], resolution: float = 1.0,
-                     min_sim: float = 0.05, seed: int = 0) -> dict[str, int]:
+                     min_sim: float = 0.05, seed: int = 0, knn: int | None = 5) -> dict[str, int]:
     """event id -> community index."""
     from networkx.algorithms.community import louvain_communities
 
-    g = similarity_graph(events, min_sim)
+    g = similarity_graph(events, min_sim, knn)
     comms = louvain_communities(g, weight="weight", resolution=resolution, seed=seed)
     out: dict[str, int] = {}
     for i, c in enumerate(sorted(comms, key=lambda c: (-len(c), sorted(c)[0]))):
