@@ -32,3 +32,16 @@ def test_attribute_against_attack_bundle(capsys, tmp_path):
     assert main(["attribute", str(rep), "--attack", str(FIX / "mini_attack.json"), "--shortlist", "2"]) == 0
     out = capsys.readouterr().out
     assert "CONFIDENCE" in out and "<- " in out
+
+
+def test_train_classifier_and_use_it(capsys, tmp_path):
+    import pytest
+
+    pytest.importorskip("sklearn")
+    model = tmp_path / "m.pkl"
+    assert main(["train-classifier", "--attack", str(FIX / "mini_attack.json"), "--threshold", "0.3", "--out", str(model)]) == 0
+    rep = tmp_path / "r.txt"
+    rep.write_text("Victim files were encrypted by the ransomware and a note was dropped.")
+    capsys.readouterr()
+    assert main(["extract", str(rep), "--classifier", str(model)]) == 0
+    assert '"technique_id"' in capsys.readouterr().out

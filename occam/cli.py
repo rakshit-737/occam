@@ -22,10 +22,18 @@ def _dump(obj) -> None:
     print(json.dumps(obj, indent=2, default=str))
 
 
+def _classifier(path: str | None):
+    if not path:
+        return None
+    from .classifier import TechniqueClassifier
+
+    return TechniqueClassifier.load(path)
+
+
 def cmd_extract(a) -> int:
     kb = load(a.kb)
     p = Path(a.file)
-    r = extract(p.read_text(encoding="utf-8"), p.name, kb)
+    r = extract(p.read_text(encoding="utf-8"), p.name, kb, classifier=_classifier(a.classifier))
     if a.navigator:
         _dump(navigator_layer(r))
     elif a.stix:
@@ -101,7 +109,7 @@ def cmd_attribute(a) -> int:
     kb = data.to_kb()
     p = Path(a.file)
     text = p.read_text(encoding="utf-8", errors="replace")
-    r = extract(text, p.name, kb)
+    r = extract(text, p.name, kb, classifier=_classifier(a.classifier))
     items = sorted(r.technique_ids() | {h.technique_id for h in r.tools})
     if not items:
         print("no ATT&CK techniques or software found in the report; nothing to attribute")
@@ -125,6 +133,24 @@ def cmd_attribute(a) -> int:
             print(f"  {e.id:<5} {e.description}")
         print()
         _print_assessment(asmt, ev)
+    return 0
+
+
+def cmd_train_classifier(a) -> int:
+    """Train the sentence-level technique classifier on ATT&CK procedures (+ TRAM2)."""
+    from .classifier import TechniqueClassifier, training_corpus
+    from .knowledge import AttackData
+
+    data = AttackData.load(a.attack)
+    texts, labels = training_corpus(data)
+    if a.tram:
+        rows = json.loads(Path(a.tram).read_text(encoding="utf-8"))
+        texts += [r["sentence"] for r in rows]
+        labels += [set(r["labels"]) for r in rows]
+    clf = TechniqueClassifier(threshold=a.threshold, names={t: v.name for t, v in data.techniques.items()})
+    clf.fit(texts, labels)
+    clf.save(a.out)
+    print(f"trained on {len(texts)} sentences, {len(clf.classes)} techniques -> {a.out}")
     return 0
 
 
@@ -157,6 +183,7 @@ def main(argv: list[str] | None = None) -> int:
     g = s.add_mutually_exclusive_group()
     g.add_argument("--navigator", action="store_true", help="emit ATT&CK Navigator layer")
     g.add_argument("--stix", action="store_true", help="emit STIX 2.1 bundle")
+    s.add_argument("--classifier", help="trained model from `occam train-classifier` (adds ML technique hits)")
     s.set_defaults(func=cmd_extract)
 
     s = sub.add_parser("cluster", help="cluster *.txt reports in a directory into campaigns")
@@ -181,8 +208,16 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("file")
     s.add_argument("--attack", required=True, help="path to MITRE ATT&CK enterprise-attack STIX bundle")
     s.add_argument("--shortlist", type=int, default=8, help="candidate groups kept by TTP similarity (default 8)")
+    s.add_argument("--classifier", help="trained model from `occam train-classifier` (adds ML technique hits)")
     s.add_argument("--json", action="store_true")
     s.set_defaults(func=cmd_attribute)
+
+    s = sub.add_parser("train-classifier", help="train the text->technique classifier (needs the `ml` extra)")
+    s.add_argument("--attack", required=True, help="path to enterprise-attack STIX bundle")
+    s.add_argument("--tram", help="optional TRAM2 multi_label.json for extra training sentences")
+    s.add_argument("--threshold", type=float, default=0.8, help="decision threshold stored with the model")
+    s.add_argument("--out", default="occam_classifier.pkl")
+    s.set_defaults(func=cmd_train_classifier)
 
     s = sub.add_parser("demo", help="run all demo scenarios on bundled synthetic fixtures")
     s.set_defaults(func=cmd_demo)
