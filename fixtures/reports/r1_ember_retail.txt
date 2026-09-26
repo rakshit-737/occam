@@ -1,0 +1,3 @@
+SYNTHETIC REPORT R1. The intrusion began with a phishing email with an attachment: a malicious Word document
+dropped EMBERLOAD, which beaconed to update-cdn-sync[.]xyz (185.220.101.47). The operators created a scheduled task
+for persistence, dumped LSASS with Mimikatz and later encrypted files, leaving a ransom note.
