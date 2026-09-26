@@ -1,6 +1,8 @@
 # OCCAM
 
 [![ci](https://github.com/rakshit-737/occam/actions/workflows/ci.yml/badge.svg)](https://github.com/rakshit-737/occam/actions/workflows/ci.yml)
+[![docs](https://github.com/rakshit-737/occam/actions/workflows/docs.yml/badge.svg)](https://rakshit-737.github.io/occam/)
+[![release](https://img.shields.io/github/v/release/rakshit-737/occam)](https://github.com/rakshit-737/occam/releases)
 ![python](https://img.shields.io/badge/python-3.10%E2%80%933.14-blue)
 [![license: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 ![core deps](https://img.shields.io/badge/core%20dependencies-0-brightgreen)
@@ -8,6 +10,8 @@
 **Auditable threat-intel reasoning. OCCAM extracts ATT&CK TTPs from report prose, clusters activity into campaigns, and runs Analysis of Competing Hypotheses (ACH) attribution. Its confidence levels hold up against false flags, and it is benchmarked on real MITRE ATT&CK, TRAM2 and APTnotes data.**
 
 MISP stores indicators. ATT&CK Navigator paints heatmaps. Neither one *reasons*. OCCAM reads threat reporting and extracts ATT&CK techniques, software and IOCs, and each hit is anchored to the span of source text it came from. It then groups activity into campaigns on a Diamond-model graph. For attribution it builds a transparent **Heuer ACH matrix** that always includes *unknown actor* and *false flag* hypotheses. Confidence is graded to go **down** when the case rests on evidence that is cheap to plant.
+
+**Docs:** <https://rakshit-737.github.io/occam/> · **Live static workbench demo:** <https://rakshit-737.github.io/occam/demo/> · **Image:** `ghcr.io/rakshit-737/occam`
 
 > The rules and models propose; the ACH matrix and the analyst decide. Every cell can be overridden, and the result recomputes deterministically.
 
@@ -19,7 +23,8 @@ MISP stores indicators. ATT&CK Navigator paints heatmaps. Neither one *reasons*.
 | How often is a wrong answer given at ≥0.8 stated probability under false flags? | same | **0.0%** | 70.8% |
 | Brier score under false flags (lower is better) | same | **0.199** | 0.700 |
 | When the true group is untracked, how often is the answer correctly "unknown"? | same, true group removed | **46%** (64% with shortlist) | 0% (baseline always names someone) |
-| Closed-world top-1 attribution accuracy | same | 30% | **53%** |
+| Closed-world top-1 attribution accuracy | same | 30% (40% with opt-in support-aware ranking) | **53%** |
+| Closed-world Brier with the learned grade map (cross-fitted) | same | **0.156** | 0.179 |
 | TTP extraction, document micro-F1 | TRAM2, 151 reports, 5-fold CV | **0.710** (TF-IDF+LR) | 0.387 (keyword) |
 | Campaign clustering ARI (held-out groups) | 509 ATT&CK activity slices | **0.249** (kNN-Louvain) | 0.107 (single linkage) |
 
@@ -104,6 +109,9 @@ Protocol ([ADR 0004](docs/adr/0004-leave-one-report-out-evaluation.md)):
 | false_flag | TTP-similarity baseline | 0.113 [0.08-0.15] | **0.113** | 0.880 | 0.700 [0.67-0.74] | 0.755 | 0.708 |
 | false_flag | OCCAM ACH | **0.734** [0.68-0.78] | 0.022 | **0.011** | **0.199** [0.19-0.21] | 0.144 | **0.000** |
 | false_flag | OCCAM ACH + top-5 shortlist | 0.679 [0.62-0.73] | 0.018 | **0.011** | 0.206 [0.20-0.22] | **0.096** | **0.000** |
+| closed | ACH, support-aware ranking (opt-in) | 0.401 [0.34-0.46] | 0.401 | – | 0.223 [0.21-0.24] | 0.240 | 0.004 |
+| open | ACH, support-aware ranking (opt-in) | 0.055 [0.03-0.08] | – | – | 0.303 [0.29-0.32] | 0.493 | 0.015 |
+| false_flag | ACH, support-aware ranking (opt-in) | 0.887 [0.85-0.92] | 0.131 | 0.015 | 0.170 [0.16-0.18] | 0.285 | **0.000** |
 
 ![Reliability diagram](docs/figures/attribution_reliability.png)
 
@@ -113,6 +121,12 @@ How to read this:
 - **ACH still rarely names the *true* group behind a false flag** (2%). It detects the deception but will not go further than the evidence supports. Recovering the true actor is a harder problem.
 - In the open world the baseline's Brier score looks good (0.077) only because it states low probabilities while always naming someone. Its correct-decline rate is 0%.
 - Cross-fitted histogram recalibration (2-fold split by group, in `results/attribution.json`) brings closed-world ACH to Brier 0.156, better than the recalibrated baseline's 0.180. ACH's grades separate right from wrong answers well, but their raw probability mapping is too optimistic. Recalibration also rescues the baseline's *probabilities* under false flags (Brier 0.100), but it cannot stop the baseline from naming the framed group.
+
+**Support-aware ranking (v1.0, opt-in).** Adding half of the non-spoofable support to Heuer's inconsistency score reduces the large-profile bias: closed-world top-1 rises from 0.299 to 0.401, and the true group behind a false flag is named 13% of the time instead of 2%. But the unknown hypothesis never receives support, so correct declines on untracked actors collapse from 46% to 5.5%. Declining is a safety property, so pure Heuer stays the default ([ADR 0007](docs/adr/0007-calibrated-grades-and-support-aware-ranking.md)).
+
+**Learned grade map (v1.0).** `GradeCalibrator` learns the probability for each ACH grade (Beta-smoothed, monotone), replacing fixed ICD-203 midpoints. Cross-fitted by group, ACH Brier improves in every setting (closed 0.238 to 0.156, open 0.248 to 0.245, false flag 0.199 to 0.177). The shipped map is `results/grade_calibration.json`: low 0.37, moderate 0.78, high 0.82. Use it with `occam attribute --calibration`.
+
+**Seed variance.** The false-flag setting frames a random group, so it was re-run with 5 framing seeds (7, 11, 13, 17, 19). ACH correct 0.718 ± 0.015, framed 0.008 ± 0.005; baseline correct 0.119 ± 0.008, framed 0.875 ± 0.008. Closed and open settings use every incident and have no random component.
 
 ### 2. TTP extraction on TRAM2
 151 real CTI reports, 19,178 sentences and 50 ATT&CK techniques. The protocol is 5-fold cross-validation grouped by document, with thresholds tuned on an inner 20% document split.
@@ -158,7 +172,7 @@ What this shows:
 ```bash
 git clone https://github.com/rakshit-737/occam && cd occam
 python -m pip install -e ".[dev,pdf,bench]"      # core alone: pip install -e .  (zero deps)
-python -m pytest -q                               # 60+ tests; real-data tests skip without data
+python -m pytest -q                               # 75+ tests; real-data tests skip without data
 python -m occam demo                              # synthetic scenarios, incl. Olympic-Destroyer-style false flag
 ```
 
@@ -189,6 +203,7 @@ python -m occam attribute report.txt --attack $D/enterprise-attack-19.2.json --c
 ```bash
 uvicorn occam.api:app --host 127.0.0.1 --port 8000     # or: docker compose up --build
 # http://127.0.0.1:8000/          analyst workbench: click a cell to cycle CC/C/N/I/II, see confidence update
+cd ui && npm ci && npm run dev    # React/Vite workbench (proxies to the API; static demo mode without it)
 # POST /extract  POST /ach  POST /stix  GET /taxii2/  GET /taxii2/api/collections/{id}/objects/
 ```
 
@@ -227,20 +242,21 @@ Details, pins and caveats are in [docs/data.md](docs/data.md). No dataset is com
 OCCAM claims no novelty for STIX, ATT&CK or IOC handling. Its contribution is the reasoning layer and a reproducible measurement of how that layer behaves under deception.
 
 ## Limitations
-- **Closed-world accuracy is modest.** Heuer-style least-inconsistency favours large ATT&CK profiles, and ACH names the right group less often than naive similarity when there is no deception.
+- **Closed-world accuracy is modest.** Heuer-style least-inconsistency favours large ATT&CK profiles, and ACH names the right group less often than naive similarity when there is no deception. The opt-in support-aware ranking narrows the gap (40% vs 53%) but gives up declining on untracked actors.
 - **The false-flag evaluation uses synthetic markers.** Planted markers are evidence rows, not real forged artefacts. The benchmark tests how the reasoning responds to deception, not how well it detects it in binaries.
 - **Incidents are reported slices of ATT&CK, not telemetry.** Real investigations are noisier; see the APTnotes section.
 - **APTnotes numbers are optimistic.** ATT&CK profiles are partly built from these same reports. Labels come from filenames, and the set covers only 54-57 reports.
-- **The keyword extractor has low recall**, and the classifier has moderate precision. Generic one-word technique names are left to the classifier.
-- **Stated probabilities** use fixed ICD-203 band midpoints. The recalibrated numbers show these could be learned from data.
-- **The API has no authentication.** It is for local lab use only, and docker-compose binds it to 127.0.0.1.
+- **The keyword extractor has low recall**, and the classifier has moderate precision and over-fires on long reports unless capped with `--top-k`.
+- **The API has no authentication.** It is for local lab use only, and docker-compose binds it to 127.0.0.1. The static web demo recomputes the ranking in the browser but not the confidence grade.
+
+**Not done, and why:** spaCy and LLM extractors (heavy dependencies, and they need a human-judged span-grounded evaluation set that is not reproducible in CI); a live Neo4j/OpenCTI deployment (OCCAM emits an idempotent Cypher script via `occam cluster --cypher`, not load-tested against a running server); a persistent TAXII collection (kept read-only and in-memory until authentication exists).
 
 ## Roadmap
-- Learn the confidence-to-probability map from the leave-one-report-out results, and ship it as a calibrated grader.
-- Add a support-aware tie-break (Bayesian ACH variant) to reduce large-profile bias, and compare it against pure Heuer.
-- Add spaCy entity and relation extraction, and an optional LLM extractor held to the span contract.
-- Replace the in-memory graph with a Neo4j/OpenCTI adapter.
-- Build a persistent TAXII collection and a React workbench.
+- Learn the support weight with an explicit abstention threshold, so the support-aware ranking can still decline.
+- spaCy entity and relation extraction and an optional LLM extractor, both held to the span contract.
+- A Neo4j/OpenCTI adapter tested against a container in CI.
+- An authenticated, persistent TAXII collection.
+
 
 ## Safety and ethics of attribution
 - **Decision support, not a verdict.** Attribution has diplomatic, legal and human consequences. Every output states that it needs human analytic review, and results about real ATT&CK groups are benchmark artefacts, not findings.

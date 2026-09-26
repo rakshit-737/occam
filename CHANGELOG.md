@@ -4,7 +4,20 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-09-26
+
+### Added
+- `occam.calibration.GradeCalibrator`: a learned, monotone grade-to-probability map (calibrated grader). `bench_attribution.py` fits it cross-fitted by group and ships `results/grade_calibration.json`; `occam attribute --calibration` applies it. Closed-world ACH Brier falls from 0.238 to 0.156.
+- Opt-in support-aware ACH ranking (`ACHEngine(ranking_rule="balanced")`), benchmarked against pure Heuer: closed-world top-1 rises from 0.299 to 0.401, but correct declines on untracked actors fall from 0.460 to 0.055, so Heuer stays the default (ADR 0007).
+- The false-flag benchmark now runs over 5 framing seeds and reports mean and standard deviation.
+- `TechniqueClassifier.hits(top_k=...)` caps classifier techniques per report; `bench_aptnotes.py --top-k` measures it.
+- `occam.neo4j.to_cypher` and `occam cluster --cypher FILE`: idempotent Neo4j Cypher export of the Diamond graph and campaigns.
+- React/Vite analyst workbench in `ui/` with a live-API mode and a static demo mode (browser-side ranking recomputation, tested against the Python engine).
+- MkDocs Material documentation site on GitHub Pages with the static workbench under `/demo/`.
+- Release workflow: on `v*` tags, pushes `ghcr.io/rakshit-737/occam` and creates a GitHub Release with the wheel and sdist. `.dockerignore`.
+
 ### Fixed
+- `occam.__version__` reported 0.1.0; it now matches the package version.
 - The clustering benchmarks are now deterministic. The dev/test split in `bench_clustering.py` iterated a set of string ids, so graph node order, and therefore the Louvain result, depended on `PYTHONHASHSEED`: test ARI varied between about 0.22 and 0.27 from run to run. `occam.graph` also sorts feature keys and runs Louvain on integer node labels. The README and results now report the deterministic run, where kNN-Louvain ARI is 0.249, and a regression test runs clustering under three hash seeds.
 
 ## [0.2.0] - 2026-09-26
