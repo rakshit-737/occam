@@ -15,8 +15,8 @@ Design rules (deliberately conservative):
 """
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass, field
-from typing import Iterable
 
 from .attack import AttackKB, load_bundled
 from .models import (
@@ -49,6 +49,14 @@ def build_hypotheses(actors: Iterable[ActorProfile], evidence: Iterable[Evidence
 
 
 def rate_actor(e: Evidence, a: ActorProfile, kb: AttackKB) -> Consistency:
+    """Rate one evidence item against one actor profile.
+
+    TTPs: common techniques are non-diagnostic (N); a match is C, or CC when
+    the technique is rare across ATT&CK groups; a technique only matched at
+    parent level (T1059.001 vs T1059.003) is N; absence from the profile is I.
+    Absence is only *weakly* inconsistent because public profiles are
+    incomplete - this is what keeps large-profile bias in check.
+    """
     if e.points_to:
         if a.id in e.points_to:
             return C.C if e.spoofable else C.CC
@@ -56,9 +64,16 @@ def rate_actor(e: Evidence, a: ActorProfile, kb: AttackKB) -> Consistency:
     if e.kind is EvidenceKind.TTP:
         if kb.is_common(e.value):
             return C.N
-        return C.C if e.value in a.techniques else C.I
+        techs = a.technique_set
+        if e.value in techs:
+            return C.CC if kb.is_rare(e.value) else C.C
+        if e.value.split(".")[0] in a.technique_parents:
+            return C.N
+        return C.I
     if e.kind is EvidenceKind.TOOL:
-        return C.CC if e.value in a.tools else C.I
+        if e.value in a.tool_set:
+            return C.C if kb.is_common(e.value) else C.CC
+        return C.N if kb.is_common(e.value) else C.I
     if e.kind is EvidenceKind.INFRASTRUCTURE:
         return C.CC if e.value in a.infrastructure else C.I
     if e.kind is EvidenceKind.VICTIMOLOGY:
@@ -98,6 +113,7 @@ class ACHEngine:
     question: str = "Who conducted the activity?"
     kb: AttackKB = field(default_factory=load_bundled)
     overrides: dict[tuple[str, str], Consistency] = field(default_factory=dict)
+    sensitivity: bool = True  # leave-one-out "what would change" pass (O(E^2 H))
 
     def __post_init__(self) -> None:
         ids = [e.id for e in self.evidence]
@@ -105,16 +121,22 @@ class ACHEngine:
             raise ValueError("duplicate evidence ids")
         self._actors = {a.id: a for a in self.actors}
         self.hypotheses = build_hypotheses(self.actors, self.evidence)
+        self._rows: dict[str, dict[str, Consistency]] = {}
 
     # -- matrix -------------------------------------------------------------
+    def _rule_row(self, e: Evidence) -> dict[str, Consistency]:
+        row = self._rows.get(e.id)
+        if row is None:
+            row = {h.id: rate(e, h, self._actors, self.kb) for h in self.hypotheses}
+            self._rows[e.id] = row
+        return row
+
     def matrix(self, evidence: list[Evidence] | None = None) -> dict[str, dict[str, Consistency]]:
         ev = self.evidence if evidence is None else evidence
         m: dict[str, dict[str, Consistency]] = {}
         for e in ev:
-            row = {}
-            for h in self.hypotheses:
-                row[h.id] = self.overrides.get((e.id, h.id)) or rate(e, h, self._actors, self.kb)
-            m[e.id] = row
+            base = self._rule_row(e)
+            m[e.id] = {h.id: self.overrides.get((e.id, h.id)) or base[h.id] for h in self.hypotheses}
         return m
 
     def override(self, evidence_id: str, hypothesis_id: str, rating: Consistency | str) -> None:
@@ -205,7 +227,7 @@ class ACHEngine:
             likelihood_phrase=_PHRASES[conf],
             rationale=rationale,
             false_flag_indicators=ff_ind,
-            what_would_change=self._sensitivity(top, second, m, weights),
+            what_would_change=self._sensitivity(top, second, m, weights) if self.sensitivity else [],
         )
 
     def _false_flag_indicators(self) -> list[str]:
