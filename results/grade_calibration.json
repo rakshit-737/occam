@@ -1,0 +1,24 @@
+{
+ "probs": {
+  "low": 0.3701754385964912,
+  "moderate": 0.7773279352226721,
+  "high": 0.8181818181818182
+ },
+ "counts": {
+  "low": [
+   210,
+   568
+  ],
+  "moderate": [
+   191,
+   245
+  ],
+  "high": [
+   8,
+   9
+  ]
+ },
+ "prior_strength": 2.0,
+ "prior_mean": 0.5,
+ "monotone": true
+}

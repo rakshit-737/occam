@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import json
 import random
+import statistics
 import sys
 import time
 from functools import partial
@@ -25,12 +26,14 @@ REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
 
 from occam.attribution import ACHAttributor, SimilarityAttributor  # noqa: E402
-from occam.evaluation import SETTINGS, crossfit_calibrate, evaluate, summarize  # noqa: E402
+from occam.calibration import GradeCalibrator  # noqa: E402
+from occam.evaluation import SETTINGS, crossfit_calibrate, crossfit_grade_calibrate, evaluate, summarize  # noqa: E402
 from occam.knowledge import AttackData  # noqa: E402
 from occam.metrics import reliability  # noqa: E402
 
 DATA = REPO.parent.parent / "datasets" / "occam"
-NAMES = {"similarity": "TTP-similarity baseline", "ach": "OCCAM ACH", "ach-top5": "OCCAM ACH, top-5 similarity shortlist"}
+NAMES = {"similarity": "TTP-similarity baseline", "ach": "OCCAM ACH", "ach-top5": "OCCAM ACH, top-5 similarity shortlist",
+         "ach-balanced": "OCCAM ACH, support-aware ranking"}
 
 
 def bootstrap_ci(values: list[float], n: int = 1000, seed: int = 0) -> tuple[float, float]:
@@ -49,6 +52,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--max-per-group", type=int, default=3)
     ap.add_argument("--markers", type=int, default=3)
     ap.add_argument("--seed", type=int, default=7)
+    ap.add_argument("--extra-seeds", default="11,13,17,19",
+                    help="further false-flag framing seeds for the seed-variance table ('' to skip)")
     ap.add_argument("--limit", type=int, default=None, help="subsample incidents (quick runs)")
     ap.add_argument("--out", type=Path, default=REPO / "results")
     ap.add_argument("--figures", type=Path, default=REPO / "docs" / "figures")
@@ -57,7 +62,8 @@ def main(argv: list[str] | None = None) -> int:
     t0 = time.time()
     data = AttackData.load(a.data / "enterprise-attack-19.2.json")
     print(json.dumps(data.summary()))
-    factories = {"similarity": SimilarityAttributor, "ach": ACHAttributor, "ach-top5": partial(ACHAttributor, shortlist=5)}
+    factories = {"similarity": SimilarityAttributor, "ach": ACHAttributor, "ach-top5": partial(ACHAttributor, shortlist=5),
+                 "ach-balanced": partial(ACHAttributor, ranking_rule="balanced")}
 
     def progress(i: int, n: int) -> None:
         if i % 25 == 0 or i == n:
@@ -71,7 +77,7 @@ def main(argv: list[str] | None = None) -> int:
         "n_incidents": len(res["ach"]["closed"]),
         "n_groups_with_incidents": len({o.incident.group for o in res["ach"]["closed"]}),
         "n_candidate_groups": len(data.actor_profiles()),
-        "raw": {}, "calibrated": {}, "ci95": {}, "reliability": {},
+        "raw": {}, "calibrated": {}, "grade_calibrated": {}, "ci95": {}, "reliability": {},
     }
     for m, per in res.items():
         out["raw"][m], out["calibrated"][m], out["ci95"][m], out["reliability"][m] = {}, {}, {}, {}
@@ -80,11 +86,21 @@ def main(argv: list[str] | None = None) -> int:
             out["raw"][m][s] = summarize(oc)
             cal = crossfit_calibrate(oc)
             out["calibrated"][m][s] = summarize(oc, cal)
+            if m != "similarity":
+                out["grade_calibrated"].setdefault(m, {})[s] = summarize(oc, crossfit_grade_calibrate(oc))
             out["ci95"][m][s] = {
                 "accuracy": bootstrap_ci([float(o.correct) for o in oc]),
                 "brier": bootstrap_ci([(o.attribution.probability - o.correct) ** 2 for o in oc]),
             }
             out["reliability"][m][s] = reliability([o.attribution.probability for o in oc], [o.correct for o in oc])
+    # the shipped calibrated grader: fitted on every setting of plain ACH
+    pooled = [o for s in SETTINGS for o in res["ach"][s]]
+    grader = GradeCalibrator().fit([o.attribution.confidence for o in pooled], [o.correct for o in pooled])
+    out["grade_calibrator"] = grader.to_dict()
+    a.out.mkdir(parents=True, exist_ok=True)
+    grader.save(a.out / "grade_calibration.json")
+    seeds = [a.seed] + [int(x) for x in a.extra_seeds.split(",") if x.strip()]
+    out["seed_variance"] = seed_variance(data, factories, a, seeds, res)
     out["runtime_s"] = round(time.time() - t0, 1)
     a.out.mkdir(parents=True, exist_ok=True)
     (a.out / "attribution.json").write_text(json.dumps(out, indent=1), encoding="utf-8")
@@ -93,6 +109,21 @@ def main(argv: list[str] | None = None) -> int:
     print(md)
     plot(res, a.figures)
     return 0
+
+
+def seed_variance(data, factories, a, seeds: list[int], first) -> dict:
+    """False-flag results across framing seeds (closed/open do not depend on the seed)."""
+    per: dict[str, dict[str, list[float]]] = {m: {"accuracy": [], "framed_rate": [], "brier": []} for m in factories}
+    for i, sd in enumerate(seeds):
+        res = first if i == 0 else evaluate(data, factories, settings=("false_flag",), min_items=a.min_items,
+                                            max_per_group=a.max_per_group, n_markers=a.markers, seed=sd, limit=a.limit)
+        for m in factories:
+            r = summarize(res[m]["false_flag"])
+            for k in per[m]:
+                per[m][k].append(r[k])
+        print(f"  seed {sd} done", flush=True)
+    return {"seeds": seeds, "false_flag": {m: {k: {"mean": statistics.fmean(v), "sd": statistics.pstdev(v), "values": v}
+                                               for k, v in d.items()} for m, d in per.items()}}
 
 
 def render(o: dict) -> str:
@@ -118,6 +149,22 @@ def render(o: dict) -> str:
           "false_flag = names the true group or concludes the framed group was framed. "
           "*Overconfident errors*: wrong with stated probability >= 0.8. "
           "*recal.*: histogram binning cross-fitted over a 2-fold group split."]
+    L += ["", "#### Learned grade -> probability map (calibrated grader)", "",
+          "Stated probability per ACH grade, learned (Beta-smoothed, monotone) instead of fixed ICD-203 midpoints. "
+          "Brier with the learned map is cross-fitted over a 2-fold group split.", "",
+          "| Setting | Method | Brier (ICD-203 midpoints) | Brier (learned grades) | ECE (learned grades) |", "|---|---|---|---|---|"]
+    for s in SETTINGS:
+        for m, per in o["grade_calibrated"].items():
+            L.append(f"| {s} | {NAMES[m]} | {o['raw'][m][s]['brier']:.3f} | {per[s]['brier']:.3f} | {per[s]['ece']:.3f} |")
+    g = o["grade_calibrator"]
+    L += ["", "Shipped map (fit on all settings of plain ACH, `results/grade_calibration.json`): "
+          + ", ".join(f"{k} = {g['probs'][k]:.3f} (n={g['counts'][k][1]})" for k in ("low", "moderate", "high"))]
+    sv = o["seed_variance"]
+    L += ["", f"#### False-flag setting across framing seeds {sv['seeds']}", "",
+          "| Method | Correct, mean ± sd | Names framed group, mean ± sd | Brier, mean ± sd |", "|---|---|---|---|"]
+    for m, d in sv["false_flag"].items():
+        L.append(f"| {NAMES[m]} | {d['accuracy']['mean']:.3f} ± {d['accuracy']['sd']:.3f} | "
+                 f"{d['framed_rate']['mean']:.3f} ± {d['framed_rate']['sd']:.3f} | {d['brier']['mean']:.3f} ± {d['brier']['sd']:.3f} |")
     return "\n".join(L) + "\n"
 
 
@@ -132,7 +179,7 @@ def plot(res, fig_dir: Path) -> None:
         return
     fig_dir.mkdir(parents=True, exist_ok=True)
     fig, axes = plt.subplots(1, 3, figsize=(12, 4), sharey=True)
-    colors = {"similarity": "#c2412d", "ach": "#2b59c3", "ach-top5": "#1f7a3a"}
+    colors = {"similarity": "#c2412d", "ach": "#2b59c3", "ach-top5": "#1f7a3a", "ach-balanced": "#8a4fbf"}
     for ax, s in zip(axes, SETTINGS):
         ax.plot([0, 1], [0, 1], ls="--", c="#999", lw=1)
         for m in res:
