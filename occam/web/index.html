@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OCCAM Workbench</title>
+<style>
+  :root { --bg:#f7f7f5; --fg:#1d1d1f; --muted:#6b6b70; --line:#d9d9dc; --card:#fff;
+          --cc:#1f7a3a; --c:#6fb07f; --n:#ececec; --i:#e9a23b; --ii:#c2412d; --accent:#2b59c3; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#16171a; --fg:#e8e8ea; --muted:#9a9aa2; --line:#33343a; --card:#1e1f23; --n:#2a2b30; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font:14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--fg); }
+  header { padding:14px 20px; border-bottom:1px solid var(--line); display:flex; gap:16px; align-items:baseline; flex-wrap:wrap; }
+  header h1 { font-size:18px; margin:0; }
+  header span { color:var(--muted); }
+  main { padding:16px 20px; display:grid; gap:16px; max-width:1300px; margin:0 auto; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:14px 16px; min-width:0; }
+  h2 { font-size:15px; margin:0 0 10px; }
+  select, button, textarea { font:inherit; color:inherit; background:var(--card); border:1px solid var(--line); border-radius:6px; padding:6px 10px; }
+  button { cursor:pointer; } button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  textarea { width:100%; min-height:120px; }
+  .scroll { overflow-x:auto; }
+  table { border-collapse:collapse; font-size:13px; }
+  th, td { border:1px solid var(--line); padding:4px 6px; text-align:center; white-space:nowrap; }
+  th.ev, td.ev { text-align:left; max-width:340px; overflow:hidden; text-overflow:ellipsis; }
+  td.cell { cursor:pointer; font-weight:600; min-width:44px; }
+  td.cell.over { outline:2px solid var(--accent); outline-offset:-2px; }
+  .CC { background:var(--cc); color:#fff; } .C { background:var(--c); color:#fff; } .N { background:var(--n); }
+  .I { background:var(--i); color:#fff; } .II { background:var(--ii); color:#fff; }
+  .verdict { font-size:16px; margin:6px 0; } .conf { font-weight:700; text-transform:uppercase; }
+  ul { margin:4px 0 8px 18px; padding:0; } .muted { color:var(--muted); }
+  .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:10px; }
+  code { font-size:12px; }
+</style>
+</head>
+<body>
+<header><h1>OCCAM analyst workbench</h1><span>Click any ACH cell to cycle its rating (CC, C, N, I, II). The assessment is recomputed on the server.</span></header>
+<main>
+  <section>
+    <h2>Analysis of Competing Hypotheses</h2>
+    <div class="row">
+      <label>Scenario <select id="scenario"></select></label>
+      <button id="reset">Reset overrides</button>
+      <button id="stix">Export STIX 2.1</button>
+      <span class="muted" id="status"></span>
+    </div>
+    <div id="verdict"></div>
+    <div class="scroll"><table id="matrix"></table></div>
+    <div id="notes"></div>
+  </section>
+  <section>
+    <h2>TTP extraction (span-anchored)</h2>
+    <textarea id="text" placeholder="Paste report prose..."></textarea>
+    <div class="row" style="margin-top:8px"><button class="primary" id="run">Extract</button></div>
+    <div class="scroll"><table id="hits"></table></div>
+  </section>
+</main>
+<script>
+const RATINGS = ["CC", "C", "N", "I", "II"];
+let overrides = {};   // "E1|H-X" -> rating
+let last = null;
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+async function post(path, body) {
+  const r = await fetch(path, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+  if (!r.ok) throw new Error((await r.json()).detail || r.statusText);
+  return r.json();
+}
+
+function body() {
+  return {scenario: $("scenario").value,
+          overrides: Object.entries(overrides).map(([k, rating]) => { const [evidence, hypothesis] = k.split("|"); return {evidence, hypothesis, rating}; })};
+}
+
+async function runAch() {
+  $("status").textContent = "computing...";
+  try { last = await post("/ach", body()); render(last); $("status").textContent = ""; }
+  catch (e) { $("status").textContent = "error: " + e.message; }
+}
+
+function list(title, items) {
+  return `<b>${title}</b><ul>${(items.length ? items : ["none"]).map((x) => `<li>${esc(x)}</li>`).join("")}</ul>`;
+}
+
+function render(a) {
+  const hyps = a.ranking;
+  $("verdict").innerHTML = `<p class="verdict">It is <b>${esc(a.likelihood_phrase)}</b> that: <b>${esc(a.leading_hypothesis)}</b>
+    &middot; confidence <span class="conf">${esc(a.confidence)}</span></p>`;
+  let h = `<tr><th class="ev">evidence</th><th>weight</th>${hyps.map((x) => `<th title="${esc(x.label)}">${esc(x.id)}</th>`).join("")}</tr>`;
+  for (const e of a.evidence) {
+    h += `<tr><td class="ev" title="${esc(e.description)}">${esc(e.id)}${e.spoofable ? "*" : ""} ${esc(e.description)} <span class="muted">(${esc(e.grade)})</span></td>
+      <td>${a.diagnostic_weights[e.id].toFixed(2)}</td>`;
+    for (const x of hyps) {
+      const r = a.matrix[e.id][x.id], key = `${e.id}|${x.id}`;
+      h += `<td class="cell ${r}${key in overrides ? " over" : ""}" data-k="${esc(key)}" data-r="${r}">${r}</td>`;
+    }
+    h += "</tr>";
+  }
+  h += `<tr><th class="ev">weighted inconsistency</th><td></td>${hyps.map((x) => `<th>${x.inconsistency.toFixed(2)}</th>`).join("")}</tr>`;
+  $("matrix").innerHTML = h;
+  $("notes").innerHTML = list("Rationale", a.rationale) + list("False-flag indicators considered", a.false_flag_indicators)
+    + list("What would change this conclusion", a.what_would_change)
+    + `<p class="muted">* spoofable evidence (down-weighted). Decision support only; attribution requires human review.</p>`;
+}
+
+$("matrix").addEventListener("click", (ev) => {
+  const td = ev.target.closest("td.cell");
+  if (!td) return;
+  overrides[td.dataset.k] = RATINGS[(RATINGS.indexOf(td.dataset.r) + 1) % RATINGS.length];
+  runAch();
+});
+$("scenario").addEventListener("change", () => { overrides = {}; runAch(); });
+$("reset").addEventListener("click", () => { overrides = {}; runAch(); });
+$("stix").addEventListener("click", async () => {
+  const b = await post("/stix", body());
+  const url = URL.createObjectURL(new Blob([JSON.stringify(b, null, 2)], {type: "application/json"}));
+  const a = document.createElement("a"); a.href = url; a.download = "occam-assessment.stix.json"; a.click(); URL.revokeObjectURL(url);
+});
+$("run").addEventListener("click", async () => {
+  const r = await post("/extract", {text: $("text").value, source_id: "workbench"});
+  const rows = [...r.extraction.techniques.map((t) => ["technique", t.technique_id + " " + t.name, t.span]),
+                ...r.extraction.tools.map((t) => ["software", t.technique_id + " " + t.name, t.span]),
+                ...r.extraction.indicators.map((i) => ["ioc:" + i.type, i.value, i.span])];
+  $("hits").innerHTML = `<tr><th>type</th><th class="ev">value</th><th class="ev">source span</th></tr>` +
+    rows.map(([k, v, s]) => `<tr><td>${esc(k)}</td><td class="ev">${esc(v)}</td><td class="ev"><code>@${s.start}-${s.end} ${esc(s.text)}</code></td></tr>`).join("");
+});
+
+(async () => {
+  const names = await (await fetch("/scenarios")).json();
+  $("scenario").innerHTML = names.map((n) => `<option>${esc(n)}</option>`).join("");
+  if (names.includes("false_flag_games")) $("scenario").value = "false_flag_games";
+  runAch();
+})();
+</script>
+</body>
+</html>
