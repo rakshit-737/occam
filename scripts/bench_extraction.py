@@ -95,6 +95,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--folds", type=int, default=5)
     ap.add_argument("--seed", type=int, default=13)
     ap.add_argument("--out", type=Path, default=REPO / "results")
+    ap.add_argument("--keyword-only", action="store_true", help="recompute only the keyword baseline row")
     a = ap.parse_args(argv)
 
     t0 = time.time()
@@ -116,6 +117,15 @@ def main(argv: list[str] | None = None) -> int:
     kw = keyword_predict(texts, kb, L)
     preds["keyword"] = kw
     print(f"keyword baseline done ({time.time() - t0:.0f}s)")
+    if a.keyword_only:  # refresh just the keyword row of an existing results file
+        prev = json.loads((a.out / "extraction.json").read_text(encoding="utf-8"))
+        dk, dg = doc_level(docs, gold)
+        _, dp = doc_level(docs, kw)
+        prev["results"]["keyword"] = {"sentence": prf(gold, kw), "document": prf(dg, dp)}
+        (a.out / "extraction.json").write_text(json.dumps(prev, indent=1), encoding="utf-8")
+        (a.out / "extraction.md").write_text(render(prev), encoding="utf-8")
+        print(render(prev))
+        return 0
 
     clf_a = TechniqueClassifier().fit(att_texts, att_labels, classes=L)
     print(f"clf-attack trained: {len(clf_a.classes)} classes ({time.time() - t0:.0f}s)")

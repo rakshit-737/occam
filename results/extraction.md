@@ -4,7 +4,7 @@ Protocol: 5-fold CV grouped by document, seed 13; thresholds tuned on inner 20% 
 
 | Method | Sent. P | Sent. R | Sent. micro-F1 | Sent. macro-F1 | Doc P | Doc R | Doc micro-F1 | Doc macro-F1 |
 |---|---|---|---|---|---|---|---|---|
-| Keyword baseline (ATT&CK technique names) | 0.404 | 0.081 | 0.136 | 0.142 | 0.680 | 0.282 | 0.399 | 0.368 |
+| Keyword baseline (ATT&CK technique names) | 0.395 | 0.071 | 0.121 | 0.134 | 0.686 | 0.270 | 0.387 | 0.355 |
 | TF-IDF+LR trained on ATT&CK procedures only | 0.376 | 0.387 | 0.381 | 0.353 | 0.552 | 0.703 | 0.618 | 0.579 |
 | TF-IDF+LR trained on ATT&CK + TRAM train folds | 0.471 | 0.518 | 0.493 | 0.446 | 0.647 | 0.787 | 0.710 | 0.663 |
 

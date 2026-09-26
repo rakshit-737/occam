@@ -27,17 +27,17 @@
  "results": {
   "keyword": {
    "sentence": {
-    "micro_precision": 0.40366088631984587,
-    "micro_recall": 0.08146995916780089,
-    "micro_f1": 0.13557676751334738,
-    "macro_f1": 0.14224322318653415,
+    "micro_precision": 0.3948220064724919,
+    "micro_recall": 0.07116468986972584,
+    "micro_f1": 0.12059308072487643,
+    "macro_f1": 0.134089377032688,
     "n_labels_in_gold": 50
    },
    "document": {
-    "micro_precision": 0.6802919708029197,
-    "micro_recall": 0.28191167574107684,
-    "micro_f1": 0.39863130881094955,
-    "macro_f1": 0.36758227216385303,
+    "micro_precision": 0.6861538461538461,
+    "micro_recall": 0.26981246218995764,
+    "micro_f1": 0.387320885801129,
+    "macro_f1": 0.35527457985616073,
     "n_labels_in_gold": 50
    }
   },
