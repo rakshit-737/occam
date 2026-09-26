@@ -48,6 +48,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--data", type=Path, default=DATA)
     ap.add_argument("--classifier", action="store_true", help="also use the TF-IDF technique classifier")
+    ap.add_argument("--model", type=Path, help="pre-trained model from `occam train-classifier` (implies --classifier)")
     ap.add_argument("--out", type=Path, default=REPO / "results")
     a = ap.parse_args(argv)
     t0 = time.time()
@@ -57,7 +58,11 @@ def main(argv: list[str] | None = None) -> int:
     profiles = data.actor_profiles()
     index = json.loads((a.data / "aptnotes" / "index.json").read_text(encoding="utf-8"))
     clf = None
-    if a.classifier:
+    if a.model:
+        from occam.classifier import TechniqueClassifier
+
+        clf = TechniqueClassifier.load(a.model)
+    elif a.classifier:
         from occam.classifier import TechniqueClassifier, training_corpus
 
         texts, labels = training_corpus(data)
