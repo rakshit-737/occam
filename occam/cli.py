@@ -47,10 +47,19 @@ def cmd_cluster(a) -> int:
     kb = load(a.kb)
     files = sorted(Path(a.dir).glob("*.txt"))
     results = [extract(f.read_text(encoding="utf-8"), f.name, kb) for f in files]
-    for c in cluster(results, a.threshold, kb):
+    clusters = cluster(results, a.threshold, kb)
+    for c in clusters:
         print(f"{c.id}: {', '.join(c.members)}")
         if c.shared_features:
             print(f"    shared: {', '.join(c.shared_features)}")
+    if getattr(a, "cypher", None):
+        from .neo4j import to_cypher
+
+        events = {r.source_id: {"capability": sorted(r.technique_ids() | {h.technique_id for h in r.tools}),
+                                "infrastructure": sorted({i.value.lower() for i in r.indicators})} for r in results}
+        camp = {m: c.id for c in clusters for m in c.members}
+        Path(a.cypher).write_text(to_cypher(events, camp), encoding="utf-8")
+        print(f"wrote Neo4j Cypher script -> {a.cypher}")
     return 0
 
 
@@ -189,6 +198,7 @@ def main(argv: list[str] | None = None) -> int:
     s = sub.add_parser("cluster", help="cluster *.txt reports in a directory into campaigns")
     s.add_argument("dir")
     s.add_argument("--threshold", type=float, default=0.3)
+    s.add_argument("--cypher", metavar="FILE", help="also write the Diamond graph + campaigns as a Neo4j Cypher script")
     s.set_defaults(func=cmd_cluster)
 
     s = sub.add_parser("ach", help="run ACH attribution on a scenario JSON")
