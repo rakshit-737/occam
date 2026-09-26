@@ -1,0 +1,36 @@
+# Changelog
+
+All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
+
+## [0.2.0] - 2026-09-26
+
+### Added
+- **Real data.** `scripts/download_data.py` fetches three datasets, pinned and checksummed:
+  - MITRE ATT&CK Enterprise 19.2 STIX;
+  - CTID TRAM2 annotated sentences;
+  - a filename-labelled APTnotes PDF subset (text-only parsing, bounded by a subprocess timeout).
+- `occam.knowledge.AttackData` is a full ATT&CK STIX loader covering techniques, groups, software, campaigns, `uses` and `attributed-to` relationships and procedure examples. It builds one actor profile per ATT&CK group and derives usage-based rarity and commonness.
+- `occam.classifier` is a sentence-level TF-IDF + logistic-regression technique classifier trained on ATT&CK procedures (and optionally TRAM2). It emits span-anchored hits.
+- `occam.attribution` provides a TTP-similarity baseline and an ACH attributor with an optional similarity shortlist.
+- `occam.evaluation` runs the leave-one-report-out attribution benchmark in closed-world, open-world and false-flag settings, with cross-fitted recalibration.
+- `occam.metrics` implements P/R/F1, Brier, ECE, reliability bins, purity, NMI and ARI using only the standard library.
+- `occam.graph` builds a Diamond-model graph and runs Louvain campaign clustering on a kNN-sparsified IDF-weighted Jaccard graph.
+- `occam.api` is a FastAPI service for extraction and for ACH with live cell overrides. It also offers STIX export, a read-only TAXII 2.1 collection and the analyst workbench UI (`occam/web`).
+- `occam.stix.validate` performs strict python-stix2 validation of exported bundles.
+- New CLI commands: `occam attribute`, `occam train-classifier`, and `--classifier` for `extract`.
+- Benchmarks: `scripts/bench_extraction.py`, `bench_attribution.py`, `bench_clustering.py` and `bench_aptnotes.py`. Their results are in `results/`, with a reliability figure in `docs/figures/`.
+- Dockerfile and docker-compose (loopback only), optional extras in `pyproject.toml`, ruff linting, a stdlib-only CI job, and tests that run only when the real datasets are present.
+- Docs: ADRs in `docs/adr/`, a dataset and licence notes page in `docs/data.md`, CONTRIBUTING and an MIT LICENSE.
+
+### Changed
+- ACH diagnosticity now uses real ATT&CK usage statistics:
+  - techniques used by ≥30% of groups are rated N (non-diagnostic);
+  - techniques used by ≤3 groups are rated CC when they match;
+  - a technique that matches only at the parent level is rated N.
+- The keyword extractor matches ATT&CK software names case-sensitively, and generic one-word technique names ("At", "Server", "Malware") are no longer used as keywords.
+- STIX export escapes pattern values correctly and stores the ACH note content as JSON.
+
+## [0.1.0] - 2026-09-26
+
+### Added
+- MVP: span-anchored keyword and regex extraction, union-find campaign clustering, a Heuer ACH engine with mandatory unknown and false-flag hypotheses and confidence caps, STIX 2.1 export, a CLI, and synthetic demo scenarios (clean attribution, Olympic-Destroyer-style false flag, thin evidence).
