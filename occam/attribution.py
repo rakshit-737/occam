@@ -99,10 +99,15 @@ class ACHAttributor:
 
     name = "OCCAM ACH (least-inconsistency + confidence caps)"
 
-    def __init__(self, profiles: list[ActorProfile], kb: AttackKB, shortlist: int | None = None):
+    def __init__(self, profiles: list[ActorProfile], kb: AttackKB, shortlist: int | None = None,
+                 ranking_rule: str = "heuer", grade_prob: dict[str, float] | None = None):
         self.profiles = profiles
         self.kb = kb
         self.shortlist = shortlist
+        self.ranking_rule = ranking_rule
+        #: grade -> stated probability; defaults to ICD-203 midpoints, or a learned
+        #: :class:`occam.calibration.GradeCalibrator` mapping
+        self.grade_prob = dict(grade_prob or GRADE_PROB)
         self._sim = SimilarityAttributor(profiles, kb) if shortlist else None
 
     def candidates(self, evidence: list[Evidence]) -> list[ActorProfile]:
@@ -117,12 +122,13 @@ class ACHAttributor:
         return [p for p in self.profiles if p.id in keep]
 
     def assess(self, evidence: list[Evidence]):
-        return ACHEngine(self.candidates(evidence), evidence, kb=self.kb, sensitivity=False).assess()
+        return ACHEngine(self.candidates(evidence), evidence, kb=self.kb, sensitivity=False,
+                         ranking_rule=self.ranking_rule).assess()
 
     def attribute(self, evidence: list[Evidence]) -> Attribution:
         a = self.assess(evidence)
         top = a.leading.hypothesis
         actors = [s.hypothesis.actor_id for s in a.ranking if s.hypothesis.kind == "actor"]
         return Attribution(top.actor_id if top.kind == "actor" else None, top.kind,
-                           GRADE_PROB[a.confidence], a.confidence, actors,
+                           self.grade_prob[a.confidence], a.confidence, actors,
                            flagged=top.actor_id if top.kind == "false_flag" else None)

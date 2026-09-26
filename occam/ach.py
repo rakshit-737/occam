@@ -114,11 +114,18 @@ class ACHEngine:
     kb: AttackKB = field(default_factory=load_bundled)
     overrides: dict[tuple[str, str], Consistency] = field(default_factory=dict)
     sensitivity: bool = True  # leave-one-out "what would change" pass (O(E^2 H))
+    #: "heuer" ranks by least weighted inconsistency only (default). "balanced" is a
+    #: support-aware variant: score = inconsistency + support_weight * support, which
+    #: lets consistent evidence count and so reduces the pull towards large profiles.
+    ranking_rule: str = "heuer"
+    support_weight: float = 0.5
 
     def __post_init__(self) -> None:
         ids = [e.id for e in self.evidence]
         if len(ids) != len(set(ids)):
             raise ValueError("duplicate evidence ids")
+        if self.ranking_rule not in ("heuer", "balanced"):
+            raise ValueError(f"unknown ranking_rule {self.ranking_rule!r}")
         self._actors = {a.id: a for a in self.actors}
         self.hypotheses = build_hypotheses(self.actors, self.evidence)
         self._rows: dict[str, dict[str, Consistency]] = {}
@@ -168,6 +175,9 @@ class ACHEngine:
                     sup += v * w
                     if by_id[eid].spoofable:
                         spoof_sup += v * w
+            if self.ranking_rule == "balanced":
+                # consistent evidence offsets inconsistency; spoofable support never helps rank
+                inc = inc + self.support_weight * (sup - spoof_sup)  # net score, may be > 0
             scores.append(HypothesisScore(h, inc, sup, (spoof_sup / sup) if sup else 0.0))
         # Least inconsistency first (Heuer). Ties go to the MORE CONSERVATIVE hypothesis
         # (unknown > false flag > named actor) before support, to resist overconfident naming.

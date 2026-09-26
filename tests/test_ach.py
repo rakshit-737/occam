@@ -103,3 +103,19 @@ def test_stix_export_carries_confidence():
 def test_assessment_json_serializable():
     eng, _ = run("false_flag_games")
     json.dumps(eng.assess().to_dict())
+
+
+def test_balanced_ranking_rule_is_selectable_and_validated():
+    import pytest
+
+    from occam.ach import ACHEngine
+    from occam.models import ActorProfile, Evidence, EvidenceKind
+
+    small = ActorProfile("A", "Small", ["T1001", "T1002"], [])
+    big = ActorProfile("B", "Big", [f"T1{i:03d}" for i in range(1, 60)], [])
+    ev = [Evidence(f"E{i}", "t", EvidenceKind.TTP, value=v) for i, v in enumerate(["T1001", "T1002"], 1)]
+    for rule in ("heuer", "balanced"):
+        a = ACHEngine([small, big], ev, ranking_rule=rule).assess()
+        assert a.ranking
+    with pytest.raises(ValueError):
+        ACHEngine([small], ev, ranking_rule="vibes")
