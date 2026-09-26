@@ -198,7 +198,7 @@ class AttackData:
         counts = self.group_usage_counts()
         n = len(self.groups) or 1
         techs = {
-            tid: Technique(tid, t.name, t.tactics[0] if t.tactics else "", [t.name.lower()],
+            tid: Technique(tid, t.name, t.tactics[0] if t.tactics else "", _technique_keywords(t.name),
                            counts.get(tid, 0) >= common_frac * n)
             for tid, t in self.techniques.items()
         }
@@ -230,6 +230,22 @@ _GENERIC_SOFTWARE = {
     "nbtstat", "netsh", "wevtutil", "msiexec", "rundll32", "attrib", "shell", "agent", "backdoor", "loader",
     "downloader", "dropper", "stealer", "wiper", "rat", "sys", "power", "lock", "cobalt", "empire",
 }
+
+
+#: One-word technique names that are ordinary words in report prose ("the
+#: *server*", "*malware*", "*at* the time"). As keywords they fire on almost
+#: every report, so they get none; the classifier can still predict them.
+_GENERIC_TECHNIQUE_NAMES = {
+    "add-ins", "at", "botnet", "cdns", "compression", "confluence", "credentials", "dll", "dns", "databases",
+    "domains", "exploits", "firmware", "hardware", "impersonation", "javascript", "lua", "malware", "proxy",
+    "python", "server", "serverless", "sharepoint", "software", "ssh", "tool", "trap", "vnc", "vulnerabilities",
+    "whois",
+}
+
+
+def _technique_keywords(name: str) -> list[str]:
+    n = name.lower()
+    return [] if n in _GENERIC_TECHNIQUE_NAMES else [n]
 
 
 def _software_keywords(s: EntityInfo) -> list[str]:
