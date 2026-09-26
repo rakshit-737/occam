@@ -29,6 +29,7 @@ import hashlib
 import json
 import os
 import re
+import subprocess
 import sys
 import time
 import urllib.parse
@@ -159,7 +160,7 @@ def _group_aliases(attack_path: Path) -> dict[str, str]:
     return out
 
 
-def fetch_aptnotes(out: Path, max_pdfs: int, max_mb: float, max_pages: int = 40) -> None:
+def fetch_aptnotes(out: Path, max_pdfs: int, max_mb: float, max_pages: int = 40, pdf_timeout: int = 60) -> None:
     attack = out / "enterprise-attack-19.2.json"
     if not attack.exists():
         raise SystemExit("fetch ATT&CK first (--only attack)")
@@ -180,9 +181,10 @@ def fetch_aptnotes(out: Path, max_pdfs: int, max_mb: float, max_pages: int = 40)
     txt_dir.mkdir(parents=True, exist_ok=True)
     index = []
     try:
-        from pypdf import PdfReader  # optional dependency
+        import pypdf  # noqa: F401  (optional dependency)
+        have_pypdf = True
     except ImportError:
-        PdfReader = None  # type: ignore[assignment]
+        have_pypdf = False
         print("  pypdf not installed: PDFs will be fetched but not converted to text")
     for t, gid in labelled:
         name = re.sub(r"[^A-Za-z0-9._-]+", "_", t["path"])
@@ -195,21 +197,38 @@ def fetch_aptnotes(out: Path, max_pdfs: int, max_mb: float, max_pages: int = 40)
                 continue
             dest.write_bytes(data)
         txt = txt_dir / (dest.stem + ".txt")
-        if PdfReader and not txt.exists():
+        if have_pypdf and not txt.exists():
+            # pypdf can spin for minutes on pathological PDFs, so each conversion
+            # runs in a child process with a hard timeout.
             try:
-                reader = PdfReader(str(dest))
-                pages = list(reader.pages)[:max_pages]  # bounded: some report PDFs are huge / image-heavy
-                txt.write_text("\n".join((p.extract_text() or "") for p in pages), encoding="utf-8")
-            except Exception as exc:  # noqa: BLE001 - malformed PDFs are common
-                print(f"  text extraction failed for {name}: {exc}")
+                subprocess.run([sys.executable, __file__, "--pdf2txt", str(dest), str(txt), str(max_pages)],
+                               check=True, timeout=pdf_timeout, capture_output=True)
+            except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as exc:
+                print(f"  SKIP {name}: text extraction failed ({type(exc).__name__})", flush=True)
+                txt.unlink(missing_ok=True)
                 continue
+        if not txt.exists():
+            continue
         index.append({"file": dest.name, "text": txt.name, "path": t["path"], "git_sha1": t["sha"], "group": gid})
         print(f"  {gid:<6} {t['path']}", flush=True)
     (out / "aptnotes" / "index.json").write_text(json.dumps(index, indent=1), encoding="utf-8")
     print(f"  {len(index)} labelled APTnotes reports -> {out / 'aptnotes'}")
 
 
+def pdf_to_text(pdf: Path, txt: Path, max_pages: int) -> None:
+    """Text-only PDF parsing (never rendered or opened in a viewer)."""
+    from pypdf import PdfReader
+
+    reader = PdfReader(str(pdf))
+    pages = list(reader.pages)[:max_pages]  # bounded: some report PDFs are huge / image-heavy
+    txt.write_text("\n".join((p.extract_text() or "") for p in pages), encoding="utf-8")
+
+
 def main(argv: list[str] | None = None) -> int:
+    argv = sys.argv[1:] if argv is None else argv
+    if argv[:1] == ["--pdf2txt"]:  # internal: child process used by fetch_aptnotes
+        pdf_to_text(Path(argv[1]), Path(argv[2]), int(argv[3]))
+        return 0
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--out", type=Path, default=DEFAULT_DATA)
     p.add_argument("--only", nargs="+", choices=["attack", "tram", "aptnotes"], default=["attack", "tram", "aptnotes"])
