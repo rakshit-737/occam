@@ -15,15 +15,15 @@
  "min_events": 4,
  "results": {
   "Louvain, IDF-weighted Jaccard kNN graph (k=10, res=5.0; dev-tuned)": {
-   "purity": 0.5222222222222223,
-   "nmi": 0.657151630465766,
-   "ari": 0.24242417680223224,
-   "clusters": 38
+   "purity": 0.5111111111111111,
+   "nmi": 0.6420272284769856,
+   "ari": 0.24866274557444784,
+   "clusters": 37
   },
   "Louvain, dense graph (no kNN, res=1.0)": {
-   "purity": 0.16666666666666666,
-   "nmi": 0.24523108204865007,
-   "ari": 0.047204132859064975,
+   "purity": 0.17777777777777778,
+   "nmi": 0.25508243806821335,
+   "ari": 0.047161909830036625,
    "clusters": 4
   },
   "Single-linkage Jaccard (t=0.3; dev-tuned)": {
@@ -45,5 +45,5 @@
    "clusters": 270
   }
  },
- "runtime_s": 67.3
+ "runtime_s": 41.9
 }

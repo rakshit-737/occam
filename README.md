@@ -21,7 +21,7 @@ MISP stores indicators. ATT&CK Navigator paints heatmaps. Neither one *reasons*.
 | When the true group is untracked, how often is the answer correctly "unknown"? | same, true group removed | **46%** (64% with shortlist) | 0% (baseline always names someone) |
 | Closed-world top-1 attribution accuracy | same | 30% | **53%** |
 | TTP extraction, document micro-F1 | TRAM2, 151 reports, 5-fold CV | **0.710** (TF-IDF+LR) | 0.387 (keyword) |
-| Campaign clustering ARI (held-out groups) | 509 ATT&CK activity slices | **0.242** (kNN-Louvain) | 0.107 (single linkage) |
+| Campaign clustering ARI (held-out groups) | 509 ATT&CK activity slices | **0.249** (kNN-Louvain) | 0.107 (single linkage) |
 
 This is the trade-off the project set out to measure. **Mandatory disconfirming-evidence weighting makes attribution much harder to steer with false flags, and far less overconfident. The price is naming the right group less often when nobody is lying.** Full tables, confidence intervals and caveats follow below.
 
@@ -130,12 +130,12 @@ The events are 509 real per-report slices of ATT&CK group activity plus attribut
 
 | Method | Purity | NMI | ARI | #clusters |
 |---|---|---|---|---|
-| **Louvain, IDF-weighted Jaccard kNN graph** (k=10, res=5.0, dev-tuned) | 0.522 | 0.657 | **0.242** | 38 |
-| Louvain, dense graph (no kNN) | 0.167 | 0.245 | 0.047 | 4 |
+| **Louvain, IDF-weighted Jaccard kNN graph** (k=10, res=5.0, dev-tuned) | 0.511 | 0.642 | **0.249** | 37 |
+| Louvain, dense graph (no kNN) | 0.178 | 0.255 | 0.047 | 4 |
 | Single-linkage Jaccard (t=0.3, dev-tuned = default) | 0.800 | 0.694 | 0.107 | 181 |
 | Trivial: one cluster per event | 1.000 | 0.753 | 0.000 | 270 |
 
-ARI is the headline metric, because purity and NMI reward over-splitting.
+ARI is the headline metric, because purity and NMI reward over-splitting. In earlier runs the test-split event order followed `PYTHONHASHSEED`, and kNN-Louvain ARI moved between about 0.22 and 0.27 from run to run. Runs are now deterministic, and that spread is a fair indication of the method's sensitivity to input order.
 
 ### 4. End-to-end on real APT reports (APTnotes)
 This is the only test on raw prose. The pipeline runs over the text of public APT report PDFs whose filename names an ATT&CK group, and attributes against the full ATT&CK profile set. `bench_aptnotes.py` produces the tables ([keyword](results/aptnotes.md), [keyword + classifier](results/aptnotes_clf.md)).

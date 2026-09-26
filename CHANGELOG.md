@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+- The clustering benchmarks are now deterministic. The dev/test split in `bench_clustering.py` iterated a set of string ids, so graph node order, and therefore the Louvain result, depended on `PYTHONHASHSEED`: test ARI varied between about 0.22 and 0.27 from run to run. `occam.graph` also sorts feature keys and runs Louvain on integer node labels. The README and results now report the deterministic run, where kNN-Louvain ARI is 0.249, and a regression test runs clustering under three hash seeds.
+
 ## [0.2.0] - 2026-09-26
 
 ### Added
