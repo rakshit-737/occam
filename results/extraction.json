@@ -1,0 +1,330 @@
+{
+ "dataset": {
+  "name": "TRAM2 multi_label.json",
+  "sentences": 19178,
+  "documents": 151,
+  "techniques": 50,
+  "labelled_sentences": 4070
+ },
+ "protocol": "5-fold CV grouped by document, seed 13; thresholds tuned on inner 20% doc split",
+ "attack_version": "19.2",
+ "thresholds": {
+  "clf-attack": [
+   0.4,
+   0.4,
+   0.4,
+   0.5,
+   0.6
+  ],
+  "clf-attack+tram": [
+   0.5,
+   0.6,
+   0.5,
+   0.6,
+   0.5
+  ]
+ },
+ "results": {
+  "keyword": {
+   "sentence": {
+    "micro_precision": 0.40366088631984587,
+    "micro_recall": 0.08146995916780089,
+    "micro_f1": 0.13557676751334738,
+    "macro_f1": 0.14224322318653415,
+    "n_labels_in_gold": 50
+   },
+   "document": {
+    "micro_precision": 0.6802919708029197,
+    "micro_recall": 0.28191167574107684,
+    "micro_f1": 0.39863130881094955,
+    "macro_f1": 0.36758227216385303,
+    "n_labels_in_gold": 50
+   }
+  },
+  "clf-attack": {
+   "sentence": {
+    "micro_precision": 0.37594553706505296,
+    "micro_recall": 0.38654481819949443,
+    "micro_f1": 0.3811715080049851,
+    "macro_f1": 0.35308069861056923,
+    "n_labels_in_gold": 50
+   },
+   "document": {
+    "micro_precision": 0.5520190023752969,
+    "micro_recall": 0.7029643073200242,
+    "micro_f1": 0.6184140500266099,
+    "macro_f1": 0.5790653307949362,
+    "n_labels_in_gold": 50
+   }
+  },
+  "clf-attack+tram": {
+   "sentence": {
+    "micro_precision": 0.47108753315649865,
+    "micro_recall": 0.5179856115107914,
+    "micro_f1": 0.49342470827931095,
+    "macro_f1": 0.44597202479238907,
+    "n_labels_in_gold": 50
+   },
+   "document": {
+    "micro_precision": 0.6472636815920398,
+    "micro_recall": 0.7870538415003024,
+    "micro_f1": 0.7103467103467103,
+    "macro_f1": 0.6634017331292108,
+    "n_labels_in_gold": 50
+   }
+  }
+ },
+ "per_technique": {
+  "T1003.001": {
+   "name": "LSASS Memory",
+   "support": 112,
+   "f1": 0.6615384615384615
+  },
+  "T1005": {
+   "name": "Data from Local System",
+   "support": 61,
+   "f1": 0.19642857142857142
+  },
+  "T1012": {
+   "name": "Query Registry",
+   "support": 24,
+   "f1": 0.28571428571428575
+  },
+  "T1016": {
+   "name": "System Network Configuration Discovery",
+   "support": 52,
+   "f1": 0.30769230769230765
+  },
+  "T1021.001": {
+   "name": "Remote Desktop Protocol",
+   "support": 99,
+   "f1": 0.6877828054298644
+  },
+  "T1027": {
+   "name": "Obfuscated Files or Information",
+   "support": 678,
+   "f1": 0.4070390206579954
+  },
+  "T1033": {
+   "name": "System Owner/User Discovery",
+   "support": 47,
+   "f1": 0.368
+  },
+  "T1036.005": {
+   "name": "Match Legitimate Resource Name or Location",
+   "support": 71,
+   "f1": 0.29347826086956524
+  },
+  "T1041": {
+   "name": "Exfiltration Over C2 Channel",
+   "support": 80,
+   "f1": 0.31521739130434784
+  },
+  "T1047": {
+   "name": "Windows Management Instrumentation",
+   "support": 77,
+   "f1": 0.6322580645161291
+  },
+  "T1053.005": {
+   "name": "Scheduled Task",
+   "support": 118,
+   "f1": 0.6639676113360323
+  },
+  "T1055": {
+   "name": "Process Injection",
+   "support": 278,
+   "f1": 0.593128390596745
+  },
+  "T1056.001": {
+   "name": "Keylogging",
+   "support": 62,
+   "f1": 0.672566371681416
+  },
+  "T1057": {
+   "name": "Process Discovery",
+   "support": 77,
+   "f1": 0.4195121951219512
+  },
+  "T1059.003": {
+   "name": "Windows Command Shell",
+   "support": 358,
+   "f1": 0.6582984658298465
+  },
+  "T1068": {
+   "name": "Exploitation for Privilege Escalation",
+   "support": 10,
+   "f1": 0.3333333333333333
+  },
+  "T1070.004": {
+   "name": "File Deletion",
+   "support": 90,
+   "f1": 0.4512820512820513
+  },
+  "T1071.001": {
+   "name": "Web Protocols",
+   "support": 148,
+   "f1": 0.4676923076923077
+  },
+  "T1072": {
+   "name": "Software Deployment Tools",
+   "support": 10,
+   "f1": 0.23529411764705882
+  },
+  "T1074.001": {
+   "name": "Local Data Staging",
+   "support": 26,
+   "f1": 0.2105263157894737
+  },
+  "T1078": {
+   "name": "Valid Accounts",
+   "support": 161,
+   "f1": 0.33948339483394835
+  },
+  "T1082": {
+   "name": "System Information Discovery",
+   "support": 123,
+   "f1": 0.43579766536964987
+  },
+  "T1083": {
+   "name": "File and Directory Discovery",
+   "support": 93,
+   "f1": 0.40329218106995884
+  },
+  "T1090": {
+   "name": "Proxy",
+   "support": 149,
+   "f1": 0.5206611570247933
+  },
+  "T1095": {
+   "name": "Non-Application Layer Protocol",
+   "support": 57,
+   "f1": 0.425531914893617
+  },
+  "T1105": {
+   "name": "Ingress Tool Transfer",
+   "support": 261,
+   "f1": 0.4239130434782609
+  },
+  "T1106": {
+   "name": "Native API",
+   "support": 207,
+   "f1": 0.4362745098039216
+  },
+  "T1110": {
+   "name": "Brute Force",
+   "support": 52,
+   "f1": 0.5393258426966292
+  },
+  "T1112": {
+   "name": "Modify Registry",
+   "support": 107,
+   "f1": 0.5
+  },
+  "T1113": {
+   "name": "Screen Capture",
+   "support": 49,
+   "f1": 0.5504587155963303
+  },
+  "T1140": {
+   "name": "Deobfuscate/Decode Files or Information",
+   "support": 466,
+   "f1": 0.7115188583078491
+  },
+  "T1190": {
+   "name": "Exploit Public-Facing Application",
+   "support": 61,
+   "f1": 0.42666666666666664
+  },
+  "T1204.002": {
+   "name": "Malicious File",
+   "support": 96,
+   "f1": 0.3743842364532019
+  },
+  "T1210": {
+   "name": "Exploitation of Remote Services",
+   "support": 17,
+   "f1": 0.27027027027027023
+  },
+  "T1218.011": {
+   "name": "Rundll32",
+   "support": 60,
+   "f1": 0.5797101449275363
+  },
+  "T1219": {
+   "name": "Remote Access Tools",
+   "support": 56,
+   "f1": 0.4247787610619469
+  },
+  "T1484.001": {
+   "name": "Group Policy Modification",
+   "support": 24,
+   "f1": 0.576923076923077
+  },
+  "T1518.001": {
+   "name": "Security Software Discovery",
+   "support": 37,
+   "f1": 0.37623762376237624
+  },
+  "T1543.003": {
+   "name": "Windows Service",
+   "support": 53,
+   "f1": 0.48387096774193544
+  },
+  "T1547.001": {
+   "name": "Registry Run Keys / Startup Folder",
+   "support": 65,
+   "f1": 0.6382978723404255
+  },
+  "T1548.002": {
+   "name": "Bypass User Account Control",
+   "support": 26,
+   "f1": 0.6461538461538461
+  },
+  "T1552.001": {
+   "name": "Credentials In Files",
+   "support": 22,
+   "f1": 0.18181818181818182
+  },
+  "T1557.001": {
+   "name": "Name Resolution Poisoning and SMB Relay",
+   "support": 7,
+   "f1": 0.22222222222222224
+  },
+  "T1562.001": {
+   "name": "T1562.001",
+   "support": 93,
+   "f1": 0.5064935064935064
+  },
+  "T1564.001": {
+   "name": "Hidden Files and Directories",
+   "support": 16,
+   "f1": 0.48979591836734687
+  },
+  "T1566.001": {
+   "name": "Spearphishing Attachment",
+   "support": 90,
+   "f1": 0.4371584699453551
+  },
+  "T1569.002": {
+   "name": "Service Execution",
+   "support": 22,
+   "f1": 0.1764705882352941
+  },
+  "T1570": {
+   "name": "Lateral Tool Transfer",
+   "support": 59,
+   "f1": 0.3966942148760331
+  },
+  "T1573.001": {
+   "name": "Symmetric Cryptography",
+   "support": 60,
+   "f1": 0.3676470588235294
+  },
+  "T1574.002": {
+   "name": "T1574.002",
+   "support": 76,
+   "f1": 0.576
+  }
+ },
+ "runtime_s": 735.3
+}
