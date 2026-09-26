@@ -1,0 +1,20 @@
+{
+  "_note": "ENTIRELY FICTIONAL actor profiles for testing. They do not describe, and must not be used to attribute activity to, any real group or state.",
+  "actors": [
+    {"id": "EMBER", "name": "ACTOR-EMBER", "description": "Fictional financially-motivated intrusion set.",
+     "techniques": ["T1566.001", "T1053.005", "T1003.001", "T1041", "T1486"],
+     "tools": ["tool:emberload", "tool:mimikatz", "tool:tidecrypt"],
+     "infrastructure": ["infra:bulletproof-hosting-a", "infra:ember-dga"],
+     "sectors": ["finance", "retail"]},
+    {"id": "TIDE", "name": "ACTOR-TIDE", "description": "Fictional disruption-focused intrusion set.",
+     "techniques": ["T1190", "T1078", "T1021.002", "T1070.001", "T1485", "T1490", "T1489", "T1090.003"],
+     "tools": ["tool:glasswipe", "tool:psexec"],
+     "infrastructure": ["infra:compromised-router-relay", "infra:tide-vps-cluster"],
+     "sectors": ["energy", "major-events", "government"]},
+    {"id": "QUILL", "name": "ACTOR-QUILL", "description": "Fictional espionage-focused intrusion set.",
+     "techniques": ["T1566.002", "T1047", "T1547.001", "T1071.004", "T1567.002", "T1195.002"],
+     "tools": ["tool:quillrat", "tool:cobaltstrike"],
+     "infrastructure": ["infra:quill-dns-c2", "infra:cloud-storage-drops"],
+     "sectors": ["government", "defense", "research"]}
+  ]
+}
