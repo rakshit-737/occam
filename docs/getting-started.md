@@ -43,7 +43,7 @@ uvicorn occam.api:app --host 127.0.0.1 --port 8000
 cd ui && npm ci && npm run dev         # proxies /ach, /scenarios, /stix, /extract to the API
 ```
 
-Without an API, as in this site's [demo](demo/index.html), the workbench loads snapshots of the bundled scenarios (`python scripts/export_demo.py`) and recomputes the ranking in the browser when you edit a cell.
+Without an API, as in this site's [demo](https://rakshit-737.github.io/occam/demo/), the workbench loads snapshots of the bundled scenarios (`python scripts/export_demo.py`) and recomputes the ranking in the browser when you edit a cell.
 
 ## Reproduce the benchmarks
 

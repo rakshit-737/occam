@@ -4,7 +4,7 @@
 
 > The rules and models propose; the ACH matrix and the analyst decide.
 
-[Try the static workbench demo](demo/index.html){ .md-button .md-button--primary } [Getting started](getting-started.md){ .md-button }
+[Try the static workbench demo](https://rakshit-737.github.io/occam/demo/){ .md-button .md-button--primary } [Getting started](getting-started.md){ .md-button }
 
 ## Headline results (real data)
 
