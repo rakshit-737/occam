@@ -1,0 +1,9 @@
+{
+  "question": "Who is behind the single phishing email (synthetic)?",
+  "actors": "../actors.json",
+  "expected": {"confidence": "low"},
+  "evidence": [
+    {"id": "E1", "description": "Weaponized document attachment", "kind": "ttp", "value": "T1566.001", "reliability": "C", "credibility": 3},
+    {"id": "E2", "description": "Lure text in EMBER's usual locale", "kind": "language_artifact", "points_to": ["EMBER"], "reliability": "D", "credibility": 4}
+  ]
+}
