@@ -161,10 +161,12 @@ This is the only test on raw prose. The pipeline runs over the text of public AP
 | keyword | 54 / 29 | 3.7 | OCCAM ACH, top-5 shortlist | 0.352 | 0.574 | 0.667 | 0.222 | **0.000** |
 | keyword + classifier | 57 / 30 | 44.0 | TTP-similarity baseline | 0.123 | 0.281 | 1.000 | 0.066 | 0.000 |
 | keyword + classifier | 57 / 30 | 44.0 | OCCAM ACH | 0.053 | 0.228 | 0.228 | 0.280 | 0.000 |
+| keyword + classifier, top-10 per report | 57 / 30 | 12.3 | TTP-similarity baseline | 0.333 | 0.544 | 1.000 | 0.208 | 0.000 |
+| keyword + classifier, top-10 per report | 57 / 30 | 12.3 | OCCAM ACH | 0.193 | 0.368 | 0.579 | 0.255 | 0.000 |
 
 What this shows:
 - **On real prose, ACH matches the baseline on top-1 (0.37) and removes its overconfident errors** (11% of answers wrong at p≥0.8 vs 0%). Most of the signal comes from software names such as PlugX or Mimikatz, not from techniques.
-- **The sentence classifier hurts end-to-end attribution.** On long vendor reports it fires on about 44 techniques per report, and most of them are generic. That drowns out the diagnostic rows for both attributors. It helps on TRAM2 but should be used with a much higher threshold, or with per-report top-k, when feeding ACH. The row is reported rather than hidden.
+- **The sentence classifier hurts end-to-end attribution.** On long vendor reports it fires on about 44 techniques per report, and most of them are generic. That drowns out the diagnostic rows for both attributors. It helps on TRAM2 but should be used with a much higher threshold, or with per-report top-k, when feeding ACH. The row is reported rather than hidden. Capping the classifier at its 10 most confident techniques per report (`--top-k 10`, v1.0) recovers much of the loss (ACH top-1 0.053 to 0.193, baseline 0.123 to 0.333) but is still worse than keyword-only extraction, so keyword-only stays the recommended input for ACH.
 - Clustering the keyword-extracted reports gives ARI 0.258 with kNN-Louvain vs 0.081 with single linkage (purity 1.0 for both, 48 vs 52 clusters).
 
 ## Quickstart
