@@ -1,8 +1,8 @@
 import json
 
-from conftest import FIX
-
 from occam.knowledge import AttackData, clean_text
+
+from conftest import FIX
 
 BUNDLE = json.loads((FIX / "mini_attack.json").read_text(encoding="utf-8"))
 

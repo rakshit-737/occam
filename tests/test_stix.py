@@ -1,10 +1,11 @@
 import pytest
-from conftest import FIX
 
 from occam.ach import ACHEngine
 from occam.extract import extract
 from occam.scenario import load_scenario
 from occam.stix import export, validate
+
+from conftest import FIX
 
 stix2 = pytest.importorskip("stix2")
 

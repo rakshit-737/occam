@@ -1,10 +1,10 @@
 import json
 
-from conftest import FIX
-
 from occam.attribution import ACHAttributor, SimilarityAttributor, evidence_from_items, planted_markers
 from occam.evaluation import crossfit_calibrate, evaluate, incidents, summarize
 from occam.knowledge import AttackData
+
+from conftest import FIX
 
 DATA = AttackData.from_bundle(json.loads((FIX / "mini_attack.json").read_text(encoding="utf-8")))
 

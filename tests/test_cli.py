@@ -1,8 +1,8 @@
 import json
 
-from conftest import FIX
-
 from occam.cli import main
+
+from conftest import FIX
 
 
 def test_demo_runs(capsys):

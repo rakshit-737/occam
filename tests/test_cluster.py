@@ -1,7 +1,7 @@
-from conftest import FIX
-
 from occam.cluster import cluster, similarity
 from occam.extract import extract
+
+from conftest import FIX
 
 
 def test_reports_cluster_into_campaigns():

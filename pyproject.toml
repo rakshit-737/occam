@@ -56,3 +56,4 @@ ignore = ["E741", "B905"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["occam"]
+known-local-folder = ["conftest"]

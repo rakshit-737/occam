@@ -1,12 +1,13 @@
 import json
 
 import pytest
-from conftest import FIX
 
 from occam.ach import ACHEngine
 from occam.models import Consistency, Evidence, EvidenceKind
 from occam.scenario import load_scenario
 from occam.stix import export
+
+from conftest import FIX
 
 RANK = {"low": 0, "moderate": 1, "high": 2}
 

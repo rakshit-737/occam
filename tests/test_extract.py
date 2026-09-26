@@ -1,7 +1,7 @@
-from conftest import FIX
-
 from occam.attack import convert_stix_bundle, load_bundled
 from occam.extract import extract, navigator_layer
+
+from conftest import FIX
 
 
 def test_bundled_kb_loads():
