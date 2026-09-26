@@ -50,4 +50,6 @@ def test_convert_stix_bundle():
     ]}
     out = convert_stix_bundle(bundle)
     assert [t["id"] for t in out["techniques"]] == ["T1485"]
-    assert out["tools"][0]["keywords"] == ["fakemal"]
+    assert out["tools"][0]["id"] == "S9999"
+    assert out["tools"][0]["keywords"] == ["FakeMal"]
+    assert out["techniques"][0]["tactic"] == "impact"

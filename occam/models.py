@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 from enum import Enum
+from functools import cached_property
 from typing import Any
 
 
@@ -20,7 +21,7 @@ class Consistency(int, Enum):
     II = -2  # very inconsistent
 
     @classmethod
-    def parse(cls, s: str) -> "Consistency":
+    def parse(cls, s: str) -> Consistency:
         try:
             return cls[s.strip().upper()]
         except KeyError as exc:
@@ -99,7 +100,11 @@ class ExtractionResult:
 
 @dataclass
 class ActorProfile:
-    """Synthetic actor profile (the fixtures never describe real groups)."""
+    """Actor profile: synthetic (fixtures) or built from an ATT&CK group.
+
+    The ``*_set`` views are cached; treat a profile as immutable once it has
+    been handed to an engine.
+    """
 
     id: str
     name: str
@@ -110,8 +115,20 @@ class ActorProfile:
     description: str = ""
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "ActorProfile":
+    def from_dict(cls, d: dict[str, Any]) -> ActorProfile:
         return cls(**{k: d[k] for k in cls.__dataclass_fields__ if k in d})
+
+    @cached_property
+    def technique_set(self) -> frozenset[str]:
+        return frozenset(self.techniques)
+
+    @cached_property
+    def technique_parents(self) -> frozenset[str]:
+        return frozenset(t.split(".")[0] for t in self.techniques)
+
+    @cached_property
+    def tool_set(self) -> frozenset[str]:
+        return frozenset(self.tools)
 
 
 @dataclass
@@ -134,7 +151,7 @@ class Evidence:
         return RELIABILITY[self.reliability] * CREDIBILITY[self.credibility] * self.relevance
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "Evidence":
+    def from_dict(cls, d: dict[str, Any]) -> Evidence:
         d = dict(d)
         d["kind"] = EvidenceKind(d["kind"])
         if d.get("reliability", "B") not in RELIABILITY:

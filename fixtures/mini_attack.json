@@ -1,0 +1,681 @@
+{
+ "type": "bundle",
+ "id": "bundle--f5feb2ea-050e-5cf1-8be4-2ea1f1d2b16a",
+ "objects": [
+  {
+   "type": "x-mitre-collection",
+   "id": "x-mitre-collection--d638267e-4c0c-5265-aafb-27e3b1242e1e",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "name": "Mini ATT&CK",
+   "x_mitre_version": "0.1"
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--ce25d876-042a-5d48-a49d-d143c26d4fab",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "name": "Spearphishing Attachment",
+   "description": "Adversaries may use spearphishing attachment. (Citation: Example)",
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "initial-access"
+    }
+   ],
+   "x_mitre_is_subtechnique": true,
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1566.001",
+     "url": "https://attack.mitre.org/T1566.001"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--31278bf8-344e-5bd9-b919-13c31a52ab06",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "name": "PowerShell",
+   "description": "Adversaries may use powershell. (Citation: Example)",
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "execution"
+    }
+   ],
+   "x_mitre_is_subtechnique": true,
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1059.001",
+     "url": "https://attack.mitre.org/T1059.001"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--8ca52f7f-062e-5abf-9dd7-6ec0d2b673b2",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "name": "Data Encrypted for Impact",
+   "description": "Adversaries may use data encrypted for impact. (Citation: Example)",
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "impact"
+    }
+   ],
+   "x_mitre_is_subtechnique": false,
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1486",
+     "url": "https://attack.mitre.org/T1486"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--a4aafbe4-f40e-5394-a3ee-799a11cd09c0",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "name": "Data Destruction",
+   "description": "Adversaries may use data destruction. (Citation: Example)",
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "impact"
+    }
+   ],
+   "x_mitre_is_subtechnique": false,
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1485",
+     "url": "https://attack.mitre.org/T1485"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--1fd7660b-37bd-5663-9caa-b803084a66e2",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "name": "Web Protocols",
+   "description": "Adversaries may use web protocols. (Citation: Example)",
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "command-and-control"
+    }
+   ],
+   "x_mitre_is_subtechnique": true,
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1071.001",
+     "url": "https://attack.mitre.org/T1071.001"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--77eea84d-626c-5579-870e-abf6708397b9",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "name": "LSASS Memory",
+   "description": "Adversaries may use lsass memory. (Citation: Example)",
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "credential-access"
+    }
+   ],
+   "x_mitre_is_subtechnique": true,
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1003.001",
+     "url": "https://attack.mitre.org/T1003.001"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--ae242c83-3daa-59f7-bb3f-026248aa2d4b",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "name": "SMB/Windows Admin Shares",
+   "description": "Adversaries may use smb/windows admin shares. (Citation: Example)",
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "lateral-movement"
+    }
+   ],
+   "x_mitre_is_subtechnique": true,
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1021.002",
+     "url": "https://attack.mitre.org/T1021.002"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--b2161577-7d6f-5da7-b1cc-1b6f501006db",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "name": "Inhibit System Recovery",
+   "description": "Adversaries may use inhibit system recovery. (Citation: Example)",
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "impact"
+    }
+   ],
+   "x_mitre_is_subtechnique": false,
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1490",
+     "url": "https://attack.mitre.org/T1490"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--bfe7f751-ec1e-542f-a756-4d31b859d54b",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "name": "Revoked",
+   "revoked": true,
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T9999",
+     "url": "https://attack.mitre.org/T9999"
+    }
+   ]
+  },
+  {
+   "type": "intrusion-set",
+   "id": "intrusion-set--27e1a107-04dd-5ecd-b2e2-06b6cbb85984",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "name": "Ember Spider",
+   "aliases": [
+    "Ember Spider",
+    "EMBER"
+   ],
+   "description": "Ember Spider is a synthetic test group. (Citation: Example)",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "G0001",
+     "url": "https://attack.mitre.org/G0001"
+    }
+   ]
+  },
+  {
+   "type": "intrusion-set",
+   "id": "intrusion-set--cf857a55-e80f-56e6-9e4f-d947dc123bd2",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "name": "Tide Bear",
+   "aliases": [
+    "Tide Bear",
+    "TIDE"
+   ],
+   "description": "Tide Bear is a synthetic test group. (Citation: Example)",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "G0002",
+     "url": "https://attack.mitre.org/G0002"
+    }
+   ]
+  },
+  {
+   "type": "intrusion-set",
+   "id": "intrusion-set--c4d09f69-86a5-5b34-9cc7-db20f82d8274",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "name": "Quill Panda",
+   "aliases": [
+    "Quill Panda",
+    "QUILL"
+   ],
+   "description": "Quill Panda is a synthetic test group. (Citation: Example)",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "G0003",
+     "url": "https://attack.mitre.org/G0003"
+    }
+   ]
+  },
+  {
+   "type": "malware",
+   "id": "malware--b25f5e5d-83dc-542e-863e-a09602c1416e",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "name": "EmberLock",
+   "x_mitre_aliases": [
+    "EmberLock"
+   ],
+   "is_family": true,
+   "description": "EmberLock test software.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "S0001",
+     "url": "https://attack.mitre.org/S0001"
+    }
+   ]
+  },
+  {
+   "type": "tool",
+   "id": "tool--c2756193-1d8b-5ed9-bc9d-7f4100960d0b",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "name": "Mimikatz",
+   "x_mitre_aliases": [
+    "Mimikatz"
+   ],
+   "is_family": true,
+   "description": "Mimikatz test software.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "S0002",
+     "url": "https://attack.mitre.org/S0002"
+    }
+   ]
+  },
+  {
+   "type": "malware",
+   "id": "malware--93b7f0b2-2f80-504d-b545-0bf0874b05a2",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "name": "TideWiper",
+   "x_mitre_aliases": [
+    "TideWiper"
+   ],
+   "is_family": true,
+   "description": "TideWiper test software.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "S0003",
+     "url": "https://attack.mitre.org/S0003"
+    }
+   ]
+  },
+  {
+   "type": "campaign",
+   "id": "campaign--740f4633-b26e-5e31-ba45-82b9d0e55b0e",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "name": "Operation Test",
+   "first_seen": "2023-01-01T00:00:00.000Z",
+   "last_seen": "2023-06-01T00:00:00.000Z",
+   "description": "Test campaign.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "C0001",
+     "url": "https://attack.mitre.org/C0001"
+    }
+   ]
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--552c797c-e2d4-5610-9632-839a0c710f50",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--27e1a107-04dd-5ecd-b2e2-06b6cbb85984",
+   "target_ref": "attack-pattern--ce25d876-042a-5d48-a49d-d143c26d4fab",
+   "external_references": [
+    {
+     "source_name": "R1",
+     "description": "test"
+    }
+   ],
+   "description": "Ember Spider sent [malicious attachments](https://x) by email. (Citation: R1)"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--e7d048bc-573b-59b6-b8e2-d9af2b08d941",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--27e1a107-04dd-5ecd-b2e2-06b6cbb85984",
+   "target_ref": "attack-pattern--8ca52f7f-062e-5abf-9dd7-6ec0d2b673b2",
+   "external_references": [
+    {
+     "source_name": "R1",
+     "description": "test"
+    }
+   ],
+   "description": "Ember Spider encrypted victim files with <code>EmberLock</code>."
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--30cd0b25-b2b3-5c91-8359-d4f1196dd5da",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--27e1a107-04dd-5ecd-b2e2-06b6cbb85984",
+   "target_ref": "malware--b25f5e5d-83dc-542e-863e-a09602c1416e",
+   "external_references": [
+    {
+     "source_name": "R1",
+     "description": "test"
+    }
+   ]
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--21643434-ef3f-5f73-aea5-ddfe8f81721d",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--27e1a107-04dd-5ecd-b2e2-06b6cbb85984",
+   "target_ref": "tool--c2756193-1d8b-5ed9-bc9d-7f4100960d0b",
+   "external_references": [
+    {
+     "source_name": "R2",
+     "description": "test"
+    }
+   ]
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--7f67b95d-a810-509c-9f91-643cb3116766",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--27e1a107-04dd-5ecd-b2e2-06b6cbb85984",
+   "target_ref": "attack-pattern--31278bf8-344e-5bd9-b919-13c31a52ab06",
+   "external_references": [
+    {
+     "source_name": "R2",
+     "description": "test"
+    }
+   ],
+   "description": "Ember Spider ran PowerShell scripts."
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--1a457ca6-4673-5562-90e4-003b0deb559c",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--cf857a55-e80f-56e6-9e4f-d947dc123bd2",
+   "target_ref": "attack-pattern--a4aafbe4-f40e-5394-a3ee-799a11cd09c0",
+   "external_references": [
+    {
+     "source_name": "R3",
+     "description": "test"
+    }
+   ],
+   "description": "Tide Bear wiped disks on energy targets."
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--33c43971-fde3-5c69-b6c8-fe49f8bce8bb",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--cf857a55-e80f-56e6-9e4f-d947dc123bd2",
+   "target_ref": "attack-pattern--b2161577-7d6f-5da7-b1cc-1b6f501006db",
+   "external_references": [
+    {
+     "source_name": "R3",
+     "description": "test"
+    }
+   ],
+   "description": "Tide Bear deleted shadow copies."
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--cd36008e-1942-57bb-8be1-11e7fc00c6be",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--cf857a55-e80f-56e6-9e4f-d947dc123bd2",
+   "target_ref": "attack-pattern--ae242c83-3daa-59f7-bb3f-026248aa2d4b",
+   "external_references": [
+    {
+     "source_name": "R4",
+     "description": "test"
+    }
+   ],
+   "description": "Tide Bear moved laterally over admin shares."
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--236d1b5d-6dd3-5fa6-b38f-dc4fb771f6bf",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--cf857a55-e80f-56e6-9e4f-d947dc123bd2",
+   "target_ref": "malware--93b7f0b2-2f80-504d-b545-0bf0874b05a2",
+   "external_references": [
+    {
+     "source_name": "R3",
+     "description": "test"
+    }
+   ]
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--34da28a8-3eb6-5820-a153-546917d059a4",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--cf857a55-e80f-56e6-9e4f-d947dc123bd2",
+   "target_ref": "attack-pattern--31278bf8-344e-5bd9-b919-13c31a52ab06",
+   "external_references": [
+    {
+     "source_name": "R4",
+     "description": "test"
+    }
+   ],
+   "description": "Tide Bear used PowerShell."
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--1133f6a6-32f1-5d4e-bc25-97829276ab10",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--c4d09f69-86a5-5b34-9cc7-db20f82d8274",
+   "target_ref": "attack-pattern--1fd7660b-37bd-5663-9caa-b803084a66e2",
+   "external_references": [
+    {
+     "source_name": "R5",
+     "description": "test"
+    }
+   ],
+   "description": "Quill Panda beaconed over HTTPS."
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--c2596bae-3349-5f79-b8fd-01fa9a26ae54",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--c4d09f69-86a5-5b34-9cc7-db20f82d8274",
+   "target_ref": "attack-pattern--77eea84d-626c-5579-870e-abf6708397b9",
+   "external_references": [
+    {
+     "source_name": "R5",
+     "description": "test"
+    }
+   ],
+   "description": "Quill Panda dumped LSASS memory."
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--5c389180-ddb9-5885-98ef-4df72c8403d9",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--c4d09f69-86a5-5b34-9cc7-db20f82d8274",
+   "target_ref": "tool--c2756193-1d8b-5ed9-bc9d-7f4100960d0b",
+   "external_references": [
+    {
+     "source_name": "R5",
+     "description": "test"
+    }
+   ]
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--e035e1bc-55d2-5fa3-b9ba-86c7403d7e8b",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--c4d09f69-86a5-5b34-9cc7-db20f82d8274",
+   "target_ref": "attack-pattern--31278bf8-344e-5bd9-b919-13c31a52ab06",
+   "external_references": [
+    {
+     "source_name": "R5",
+     "description": "test"
+    }
+   ],
+   "description": "Quill Panda used PowerShell."
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--b2344a7a-1f7c-5748-b8a4-8addfafef63a",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "relationship_type": "uses",
+   "source_ref": "malware--b25f5e5d-83dc-542e-863e-a09602c1416e",
+   "target_ref": "attack-pattern--8ca52f7f-062e-5abf-9dd7-6ec0d2b673b2",
+   "external_references": [
+    {
+     "source_name": "R1",
+     "description": "test"
+    }
+   ],
+   "description": "EmberLock encrypts files."
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--a342b093-f5d1-52a1-9028-fdd50b840c7f",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "relationship_type": "uses",
+   "source_ref": "malware--93b7f0b2-2f80-504d-b545-0bf0874b05a2",
+   "target_ref": "attack-pattern--a4aafbe4-f40e-5394-a3ee-799a11cd09c0",
+   "external_references": [
+    {
+     "source_name": "R3",
+     "description": "test"
+    }
+   ],
+   "description": "TideWiper overwrites the MBR."
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--75ac4d14-9b52-5bbd-98f6-8206daf0b42c",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "relationship_type": "uses",
+   "source_ref": "tool--c2756193-1d8b-5ed9-bc9d-7f4100960d0b",
+   "target_ref": "attack-pattern--77eea84d-626c-5579-870e-abf6708397b9",
+   "external_references": [
+    {
+     "source_name": "R6",
+     "description": "test"
+    }
+   ],
+   "description": "Mimikatz reads LSASS."
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--fc500831-fd61-5863-bd45-1334fe223022",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "relationship_type": "uses",
+   "source_ref": "campaign--740f4633-b26e-5e31-ba45-82b9d0e55b0e",
+   "target_ref": "attack-pattern--a4aafbe4-f40e-5394-a3ee-799a11cd09c0",
+   "external_references": [
+    {
+     "source_name": "R7",
+     "description": "test"
+    }
+   ],
+   "description": "During Operation Test the actor wiped hosts."
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--efc132ea-3bab-5990-8323-aa68068cc754",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "relationship_type": "uses",
+   "source_ref": "campaign--740f4633-b26e-5e31-ba45-82b9d0e55b0e",
+   "target_ref": "malware--93b7f0b2-2f80-504d-b545-0bf0874b05a2",
+   "external_references": [
+    {
+     "source_name": "R7",
+     "description": "test"
+    }
+   ]
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--b5dfa199-c90e-59a5-b937-6daac94bb7bf",
+   "spec_version": "2.1",
+   "created": "2024-01-01T00:00:00.000Z",
+   "modified": "2024-01-01T00:00:00.000Z",
+   "relationship_type": "attributed-to",
+   "source_ref": "campaign--740f4633-b26e-5e31-ba45-82b9d0e55b0e",
+   "target_ref": "intrusion-set--cf857a55-e80f-56e6-9e4f-d947dc123bd2"
+  }
+ ]
+}
