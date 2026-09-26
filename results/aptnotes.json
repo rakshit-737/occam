@@ -1,22 +1,33 @@
 {
- "reports": 57,
+ "reports": 54,
  "skipped": [
+  [
+   "2014/CrowdStrike_Flying_Kitten.pdf",
+   "no techniques or software extracted"
+  ],
+  [
+   "2014/OperationCleaver_The_Notepad_Files.pdf",
+   "no techniques or software extracted"
+  ],
   [
    "2014/h12756-wp-shell-crew.pdf",
    "unreadable: Invalid argument"
+  ],
+  [
+   "2015/PawnStorm_iOS.pdf",
+   "no techniques or software extracted"
   ]
  ],
- "groups": 30,
+ "groups": 29,
  "classifier": false,
- "mean_techniques": 15.368421052631579,
- "mean_software": 2.4035087719298245,
- "mean_indicators": 113.21052631578948,
+ "mean_techniques": 3.685185185185185,
+ "mean_software": 2.537037037037037,
+ "mean_indicators": 119.33333333333333,
  "reports_per_group": {
   "G0010": 7,
   "G0009": 4,
-  "G0130": 4,
   "G0100": 3,
-  "G0007": 3,
+  "G0130": 3,
   "G0019": 3,
   "G0004": 2,
   "G0081": 2,
@@ -25,6 +36,7 @@
   "G0035": 2,
   "G0001": 2,
   "G0012": 2,
+  "G0007": 2,
   "G0016": 2,
   "G0020": 2,
   "G0024": 1,
@@ -34,7 +46,6 @@
   "G0021": 1,
   "G0006": 1,
   "G0095": 1,
-  "G0003": 1,
   "G0011": 1,
   "G0121": 1,
   "G0052": 1,
@@ -45,177 +56,177 @@
  },
  "attribution": {
   "similarity": {
-   "top1": 0.19298245614035087,
-   "top5": 0.42105263157894735,
+   "top1": 0.37037037037037035,
+   "top5": 0.5740740740740741,
    "named_rate": 1.0,
-   "brier": 0.1393790270423395,
-   "high_conf_wrong": 0.0
+   "brier": 0.37050505837655906,
+   "high_conf_wrong": 0.1111111111111111
   },
   "ach": {
-   "top1": 0.14035087719298245,
-   "top5": 0.24561403508771928,
-   "named_rate": 0.9298245614035088,
-   "brier": 0.2557565789473684,
+   "top1": 0.37037037037037035,
+   "top5": 0.48148148148148145,
+   "named_rate": 0.8518518518518519,
+   "brier": 0.2135185185185185,
    "high_conf_wrong": 0.0
   },
   "ach-top5": {
-   "top1": 0.15789473684210525,
-   "top5": 0.42105263157894735,
-   "named_rate": 0.49122807017543857,
-   "brier": 0.3077083333333333,
-   "high_conf_wrong": 0.017543859649122806
+   "top1": 0.35185185185185186,
+   "top5": 0.5740740740740741,
+   "named_rate": 0.6666666666666666,
+   "brier": 0.22167824074074075,
+   "high_conf_wrong": 0.0
   }
  },
  "clustering": {
   "louvain (k=10, res=5.0)": {
-   "purity": 0.9649122807017544,
-   "nmi": 0.9011527029630438,
-   "ari": 0.25448430493273544,
+   "purity": 1.0,
+   "nmi": 0.9101021363527213,
+   "ari": 0.2578491735262437,
    "clusters": 48
   },
   "single-linkage (t=0.3)": {
-   "purity": 0.9122807017543859,
-   "nmi": 0.8684867895547792,
-   "ari": 0.09865005192107995,
-   "clusters": 48
+   "purity": 1.0,
+   "nmi": 0.8957614704302558,
+   "ari": 0.08087119000350344,
+   "clusters": 52
   }
  },
  "per_report": [
   {
    "report": "2010/MSUpdaterTrojanWhitepaper.pdf",
    "group": "G0024",
-   "techniques": 13,
+   "techniques": 1,
    "software": 0,
    "indicators": 116,
    "similarity": {
     "leading": "G1049",
     "kind": "actor",
-    "p": 0.11465655180277633,
+    "p": 0.999755352814308,
     "top5": false
    },
    "ach": {
-    "leading": "G0034",
-    "kind": "actor",
+    "leading": null,
+    "kind": "unknown",
     "p": 0.5,
     "top5": false
    },
    "ach-top5": {
-    "leading": "G0034",
-    "kind": "actor",
-    "p": 0.675,
+    "leading": null,
+    "kind": "unknown",
+    "p": 0.5,
     "top5": false
    }
   },
   {
    "report": "2012/The_Mirage_Campaign.pdf",
    "group": "G0004",
-   "techniques": 15,
+   "techniques": 1,
    "software": 1,
    "indicators": 100,
    "similarity": {
     "leading": "G0138",
     "kind": "actor",
-    "p": 0.3361561509268738,
-    "top5": false
+    "p": 0.421164733235652,
+    "top5": true
    },
    "ach": {
-    "leading": "G0034",
+    "leading": "G0004",
     "kind": "actor",
     "p": 0.5,
-    "top5": false
+    "top5": true
    },
    "ach-top5": {
-    "leading": "G0059",
+    "leading": "G0004",
     "kind": "actor",
-    "p": 0.675,
-    "top5": false
+    "p": 0.5,
+    "top5": true
    }
   },
   {
    "report": "2012/the-elderwood-project.pdf",
    "group": "G0066",
-   "techniques": 14,
+   "techniques": 1,
    "software": 13,
    "indicators": 54,
    "similarity": {
     "leading": "G0066",
     "kind": "actor",
-    "p": 0.9971320564504346,
+    "p": 0.9998435530932878,
     "top5": true
    },
    "ach": {
-    "leading": "G0034",
+    "leading": "G0066",
     "kind": "actor",
-    "p": 0.5,
+    "p": 0.875,
     "top5": true
    },
    "ach-top5": {
     "leading": "G0066",
     "kind": "actor",
-    "p": 0.675,
+    "p": 0.875,
     "top5": true
    }
   },
   {
    "report": "2012/wp_ixeshe.pdf",
    "group": "G0005",
-   "techniques": 21,
+   "techniques": 4,
    "software": 1,
    "indicators": 151,
    "similarity": {
-    "leading": "G0138",
+    "leading": "G1049",
     "kind": "actor",
-    "p": 0.18684446147669595,
+    "p": 0.621843107164492,
     "top5": false
    },
    "ach": {
-    "leading": "G0034",
+    "leading": "G0069",
     "kind": "actor",
-    "p": 0.5,
+    "p": 0.675,
     "top5": false
    },
    "ach-top5": {
-    "leading": null,
-    "kind": "unknown",
-    "p": 0.5,
+    "leading": "G0138",
+    "kind": "actor",
+    "p": 0.675,
     "top5": false
    }
   },
   {
    "report": "2013/KeyBoy_Vietnam_India.pdf",
    "group": "G0081",
-   "techniques": 20,
+   "techniques": 2,
    "software": 2,
    "indicators": 24,
    "similarity": {
-    "leading": "G0026",
+    "leading": "G0081",
     "kind": "actor",
-    "p": 0.11443219737467092,
+    "p": 0.22324019555068492,
     "top5": true
    },
    "ach": {
-    "leading": "G0032",
+    "leading": "G0081",
     "kind": "actor",
-    "p": 0.5,
-    "top5": false
+    "p": 0.675,
+    "top5": true
    },
    "ach-top5": {
-    "leading": null,
-    "kind": "unknown",
-    "p": 0.5,
+    "leading": "G0081",
+    "kind": "actor",
+    "p": 0.675,
     "top5": true
    }
   },
   {
    "report": "2013/Kimsuky.pdf",
    "group": "G0094",
-   "techniques": 13,
+   "techniques": 5,
    "software": 0,
    "indicators": 45,
    "similarity": {
     "leading": "G1049",
     "kind": "actor",
-    "p": 0.137153426833797,
+    "p": 0.6830236183453959,
     "top5": false
    },
    "ach": {
@@ -225,33 +236,33 @@
     "top5": true
    },
    "ach-top5": {
-    "leading": null,
-    "kind": "unknown",
-    "p": 0.675,
+    "leading": "G1052",
+    "kind": "actor",
+    "p": 0.5,
     "top5": false
    }
   },
   {
    "report": "2013/Operation_DeputyDog.pdf",
    "group": "G0025",
-   "techniques": 14,
+   "techniques": 3,
    "software": 0,
    "indicators": 40,
    "similarity": {
     "leading": "G0138",
     "kind": "actor",
-    "p": 0.46650215925827265,
+    "p": 0.3098412903443542,
     "top5": false
    },
    "ach": {
-    "leading": "G0034",
+    "leading": "G0059",
     "kind": "actor",
     "p": 0.5,
     "top5": false
    },
    "ach-top5": {
-    "leading": null,
-    "kind": "unknown",
+    "leading": "G0059",
+    "kind": "actor",
     "p": 0.5,
     "top5": false
    }
@@ -259,18 +270,18 @@
   {
    "report": "2013/Operation_Molerats.pdf",
    "group": "G0021",
-   "techniques": 12,
+   "techniques": 1,
    "software": 0,
    "indicators": 60,
    "similarity": {
     "leading": "G1049",
     "kind": "actor",
-    "p": 0.14525621152026388,
+    "p": 0.999755352814308,
     "top5": false
    },
    "ach": {
-    "leading": "G0034",
-    "kind": "actor",
+    "leading": null,
+    "kind": "unknown",
     "p": 0.5,
     "top5": false
    },
@@ -284,13 +295,38 @@
   {
    "report": "2013/comment_crew_indicators_of_compromise.pdf",
    "group": "G0006",
-   "techniques": 5,
+   "techniques": 0,
    "software": 2,
    "indicators": 491,
    "similarity": {
     "leading": "G1050",
     "kind": "actor",
-    "p": 0.3335290579551166,
+    "p": 0.9173841531915022,
+    "top5": false
+   },
+   "ach": {
+    "leading": "G0030",
+    "kind": "actor",
+    "p": 0.5,
+    "top5": false
+   },
+   "ach-top5": {
+    "leading": "G0030",
+    "kind": "actor",
+    "p": 0.5,
+    "top5": false
+   }
+  },
+  {
+   "report": "2013/fireeye-operation-ke3chang.pdf",
+   "group": "G0004",
+   "techniques": 6,
+   "software": 3,
+   "indicators": 76,
+   "similarity": {
+    "leading": "G1049",
+    "kind": "actor",
+    "p": 0.16425813073918916,
     "top5": false
    },
    "ach": {
@@ -300,56 +336,6 @@
     "top5": false
    },
    "ach-top5": {
-    "leading": "G1036",
-    "kind": "actor",
-    "p": 0.5,
-    "top5": false
-   }
-  },
-  {
-   "report": "2013/fireeye-operation-ke3chang.pdf",
-   "group": "G0004",
-   "techniques": 24,
-   "software": 3,
-   "indicators": 76,
-   "similarity": {
-    "leading": "G0138",
-    "kind": "actor",
-    "p": 0.09610119350612516,
-    "top5": false
-   },
-   "ach": {
-    "leading": "G0034",
-    "kind": "actor",
-    "p": 0.5,
-    "top5": false
-   },
-   "ach-top5": {
-    "leading": "G0034",
-    "kind": "actor",
-    "p": 0.5,
-    "top5": false
-   }
-  },
-  {
-   "report": "2014/AdversaryIntelligenceReport_DeepPanda_0 (1).pdf",
-   "group": "G0009",
-   "techniques": 23,
-   "software": 4,
-   "indicators": 66,
-   "similarity": {
-    "leading": "G0108",
-    "kind": "actor",
-    "p": 0.10575708160362807,
-    "top5": false
-   },
-   "ach": {
-    "leading": null,
-    "kind": "unknown",
-    "p": 0.5,
-    "top5": false
-   },
-   "ach-top5": {
     "leading": null,
     "kind": "unknown",
     "p": 0.675,
@@ -357,90 +343,15 @@
    }
   },
   {
-   "report": "2014/Anunak_APT_against_financial_institutions.pdf",
-   "group": "G0008",
-   "techniques": 26,
-   "software": 4,
-   "indicators": 40,
-   "similarity": {
-    "leading": "G0036",
-    "kind": "actor",
-    "p": 0.17382776710690162,
-    "top5": false
-   },
-   "ach": {
-    "leading": "G0034",
-    "kind": "actor",
-    "p": 0.5,
-    "top5": false
-   },
-   "ach-top5": {
-    "leading": null,
-    "kind": "unknown",
-    "p": 0.5,
-    "top5": false
-   }
-  },
-  {
-   "report": "2014/CloudAtlas_RedOctober_APT.pdf",
-   "group": "G0100",
-   "techniques": 12,
-   "software": 0,
-   "indicators": 14,
-   "similarity": {
-    "leading": "G1049",
-    "kind": "actor",
-    "p": 0.14916616165237073,
-    "top5": false
-   },
-   "ach": {
-    "leading": "G0034",
-    "kind": "actor",
-    "p": 0.5,
-    "top5": false
-   },
-   "ach-top5": {
-    "leading": null,
-    "kind": "unknown",
-    "p": 0.5,
-    "top5": false
-   }
-  },
-  {
-   "report": "2014/CrowdStrike_Flying_Kitten.pdf",
-   "group": "G0130",
-   "techniques": 10,
-   "software": 0,
-   "indicators": 5,
-   "similarity": {
-    "leading": "G1020",
-    "kind": "actor",
-    "p": 0.09573311469576815,
-    "top5": false
-   },
-   "ach": {
-    "leading": "G0094",
-    "kind": "actor",
-    "p": 0.5,
-    "top5": false
-   },
-   "ach-top5": {
-    "leading": null,
-    "kind": "unknown",
-    "p": 0.5,
-    "top5": false
-   }
-  },
-  {
-   "report": "2014/DEEP_PANDA_Sakula.pdf",
+   "report": "2014/AdversaryIntelligenceReport_DeepPanda_0 (1).pdf",
    "group": "G0009",
    "techniques": 7,
    "software": 4,
-   "indicators": 14,
+   "indicators": 66,
    "similarity": {
-    "leading": "G0009",
+    "leading": "G0108",
     "kind": "actor",
-    "p": 0.20701742227629238,
+    "p": 0.32089867047309795,
     "top5": true
    },
    "ach": {
@@ -450,7 +361,82 @@
     "top5": false
    },
    "ach-top5": {
-    "leading": "G1014",
+    "leading": null,
+    "kind": "unknown",
+    "p": 0.5,
+    "top5": true
+   }
+  },
+  {
+   "report": "2014/Anunak_APT_against_financial_institutions.pdf",
+   "group": "G0008",
+   "techniques": 7,
+   "software": 4,
+   "indicators": 40,
+   "similarity": {
+    "leading": "G1049",
+    "kind": "actor",
+    "p": 0.14278760231701812,
+    "top5": true
+   },
+   "ach": {
+    "leading": "G0046",
+    "kind": "actor",
+    "p": 0.5,
+    "top5": false
+   },
+   "ach-top5": {
+    "leading": null,
+    "kind": "unknown",
+    "p": 0.5,
+    "top5": true
+   }
+  },
+  {
+   "report": "2014/CloudAtlas_RedOctober_APT.pdf",
+   "group": "G0100",
+   "techniques": 4,
+   "software": 0,
+   "indicators": 14,
+   "similarity": {
+    "leading": "G1049",
+    "kind": "actor",
+    "p": 0.8838160559170782,
+    "top5": true
+   },
+   "ach": {
+    "leading": "G0016",
+    "kind": "actor",
+    "p": 0.5,
+    "top5": false
+   },
+   "ach-top5": {
+    "leading": "G1053",
+    "kind": "actor",
+    "p": 0.5,
+    "top5": true
+   }
+  },
+  {
+   "report": "2014/DEEP_PANDA_Sakula.pdf",
+   "group": "G0009",
+   "techniques": 2,
+   "software": 4,
+   "indicators": 14,
+   "similarity": {
+    "leading": "G0009",
+    "kind": "actor",
+    "p": 0.5745111852311052,
+    "top5": true
+   },
+   "ach": {
+    "leading": "G0096",
+    "kind": "actor",
+    "p": 0.5,
+    "top5": true
+   },
+   "ach-top5": {
+    "leading": "G0001",
     "kind": "actor",
     "p": 0.5,
     "top5": true
@@ -459,119 +445,119 @@
   {
    "report": "2014/Dragonfly_Threat_Against_Western_Energy_Suppliers.pdf",
    "group": "G0035",
-   "techniques": 13,
+   "techniques": 1,
    "software": 3,
    "indicators": 64,
    "similarity": {
     "leading": "G1049",
     "kind": "actor",
-    "p": 0.0769821122983669,
+    "p": 0.5725422687814807,
     "top5": true
    },
    "ach": {
-    "leading": "G0034",
+    "leading": "G0035",
     "kind": "actor",
-    "p": 0.5,
+    "p": 0.675,
     "top5": true
    },
    "ach-top5": {
-    "leading": null,
-    "kind": "unknown",
-    "p": 0.5,
-    "top5": true
-   }
-  },
-  {
-   "report": "2014/El_Machete.pdf",
-   "group": "G0095",
-   "techniques": 14,
-   "software": 2,
-   "indicators": 10,
-   "similarity": {
-    "leading": "G0095",
-    "kind": "actor",
-    "p": 0.19122654276514758,
-    "top5": true
-   },
-   "ach": {
-    "leading": "G0094",
-    "kind": "actor",
-    "p": 0.5,
-    "top5": false
-   },
-   "ach-top5": {
-    "leading": null,
-    "kind": "unknown",
-    "p": 0.5,
-    "top5": true
-   }
-  },
-  {
-   "report": "2014/Group72_Opening_ZxShell.pdf",
-   "group": "G0001",
-   "techniques": 24,
-   "software": 1,
-   "indicators": 18,
-   "similarity": {
-    "leading": "G0138",
-    "kind": "actor",
-    "p": 0.12382670853834382,
-    "top5": false
-   },
-   "ach": {
-    "leading": "G0034",
-    "kind": "actor",
-    "p": 0.5,
-    "top5": false
-   },
-   "ach-top5": {
-    "leading": "G0034",
-    "kind": "actor",
-    "p": 0.5,
-    "top5": false
-   }
-  },
-  {
-   "report": "2014/Group_72.pdf",
-   "group": "G0001",
-   "techniques": 12,
-   "software": 7,
-   "indicators": 6,
-   "similarity": {
-    "leading": "G0001",
-    "kind": "actor",
-    "p": 0.5753982208974616,
-    "top5": true
-   },
-   "ach": {
-    "leading": "G0094",
-    "kind": "actor",
-    "p": 0.5,
-    "top5": true
-   },
-   "ach-top5": {
-    "leading": "G0001",
+    "leading": "G0035",
     "kind": "actor",
     "p": 0.675,
     "top5": true
    }
   },
   {
+   "report": "2014/El_Machete.pdf",
+   "group": "G0095",
+   "techniques": 2,
+   "software": 2,
+   "indicators": 10,
+   "similarity": {
+    "leading": "G1049",
+    "kind": "actor",
+    "p": 0.3907572162626157,
+    "top5": true
+   },
+   "ach": {
+    "leading": "G0095",
+    "kind": "actor",
+    "p": 0.5,
+    "top5": true
+   },
+   "ach-top5": {
+    "leading": "G0095",
+    "kind": "actor",
+    "p": 0.675,
+    "top5": true
+   }
+  },
+  {
+   "report": "2014/Group72_Opening_ZxShell.pdf",
+   "group": "G0001",
+   "techniques": 6,
+   "software": 1,
+   "indicators": 18,
+   "similarity": {
+    "leading": "G1049",
+    "kind": "actor",
+    "p": 0.4607605645032837,
+    "top5": true
+   },
+   "ach": {
+    "leading": "G0096",
+    "kind": "actor",
+    "p": 0.5,
+    "top5": false
+   },
+   "ach-top5": {
+    "leading": "G0096",
+    "kind": "actor",
+    "p": 0.5,
+    "top5": true
+   }
+  },
+  {
+   "report": "2014/Group_72.pdf",
+   "group": "G0001",
+   "techniques": 2,
+   "software": 7,
+   "indicators": 6,
+   "similarity": {
+    "leading": "G0001",
+    "kind": "actor",
+    "p": 0.8784984840806517,
+    "top5": true
+   },
+   "ach": {
+    "leading": "G0001",
+    "kind": "actor",
+    "p": 0.875,
+    "top5": true
+   },
+   "ach-top5": {
+    "leading": "G0001",
+    "kind": "actor",
+    "p": 0.875,
+    "top5": true
+   }
+  },
+  {
    "report": "2014/KL_Epic_Turla_Technical_Appendix_20140806.pdf",
    "group": "G0010",
-   "techniques": 9,
+   "techniques": 1,
    "software": 3,
    "indicators": 131,
    "similarity": {
     "leading": "G0010",
     "kind": "actor",
-    "p": 0.14086406743604027,
+    "p": 0.2736854447483096,
     "top5": true
    },
    "ach": {
     "leading": "G0010",
     "kind": "actor",
-    "p": 0.5,
+    "p": 0.675,
     "top5": true
    },
    "ach-top5": {
@@ -584,39 +570,64 @@
   {
    "report": "2014/Kaspersky_Lab_crouching_yeti_appendixes_eng_final.pdf",
    "group": "G0035",
-   "techniques": 14,
+   "techniques": 2,
    "software": 2,
    "indicators": 324,
    "similarity": {
     "leading": "G0035",
     "kind": "actor",
-    "p": 0.06942713012029202,
+    "p": 0.2508464711974263,
     "top5": true
    },
    "ach": {
-    "leading": "G0034",
+    "leading": "G0035",
     "kind": "actor",
-    "p": 0.5,
+    "p": 0.675,
     "top5": true
    },
    "ach-top5": {
-    "leading": "G0034",
+    "leading": "G0035",
     "kind": "actor",
-    "p": 0.5,
+    "p": 0.675,
     "top5": true
    }
   },
   {
    "report": "2014/Op_SnowMan_DeputyDog.pdf",
    "group": "G0025",
-   "techniques": 14,
+   "techniques": 1,
    "software": 1,
    "indicators": 35,
    "similarity": {
-    "leading": "G1006",
+    "leading": "G0138",
     "kind": "actor",
-    "p": 0.06363633399401165,
+    "p": 0.494806308843826,
     "top5": false
+   },
+   "ach": {
+    "leading": "G0001",
+    "kind": "actor",
+    "p": 0.5,
+    "top5": false
+   },
+   "ach-top5": {
+    "leading": "G0001",
+    "kind": "actor",
+    "p": 0.5,
+    "top5": false
+   }
+  },
+  {
+   "report": "2014/Pitty_Tiger_Final_Report.pdf",
+   "group": "G0011",
+   "techniques": 8,
+   "software": 3,
+   "indicators": 305,
+   "similarity": {
+    "leading": "G0011",
+    "kind": "actor",
+    "p": 0.13668724113404498,
+    "top5": true
    },
    "ach": {
     "leading": "G0034",
@@ -627,80 +638,30 @@
    "ach-top5": {
     "leading": null,
     "kind": "unknown",
-    "p": 0.675,
-    "top5": false
-   }
-  },
-  {
-   "report": "2014/OperationCleaver_The_Notepad_Files.pdf",
-   "group": "G0003",
-   "techniques": 8,
-   "software": 0,
-   "indicators": 3,
-   "similarity": {
-    "leading": "G0138",
-    "kind": "actor",
-    "p": 0.1975815106264262,
-    "top5": false
-   },
-   "ach": {
-    "leading": "G0034",
-    "kind": "actor",
     "p": 0.5,
-    "top5": false
-   },
-   "ach-top5": {
-    "leading": "G0034",
-    "kind": "actor",
-    "p": 0.875,
-    "top5": false
-   }
-  },
-  {
-   "report": "2014/Pitty_Tiger_Final_Report.pdf",
-   "group": "G0011",
-   "techniques": 26,
-   "software": 3,
-   "indicators": 305,
-   "similarity": {
-    "leading": "G0138",
-    "kind": "actor",
-    "p": 0.08265082819699067,
-    "top5": true
-   },
-   "ach": {
-    "leading": "G0034",
-    "kind": "actor",
-    "p": 0.5,
-    "top5": false
-   },
-   "ach-top5": {
-    "leading": "G0059",
-    "kind": "actor",
-    "p": 0.675,
     "top5": true
    }
   },
   {
    "report": "2014/Reuters_Turla.pdf",
    "group": "G0010",
-   "techniques": 9,
+   "techniques": 0,
    "software": 1,
    "indicators": 2,
    "similarity": {
-    "leading": "G0138",
+    "leading": "G0010",
     "kind": "actor",
-    "p": 0.13183217275376277,
+    "p": 0.0874017893045151,
     "top5": true
    },
    "ach": {
-    "leading": "G0034",
+    "leading": "G0010",
     "kind": "actor",
     "p": 0.5,
     "top5": true
    },
    "ach-top5": {
-    "leading": "G0034",
+    "leading": "G0010",
     "kind": "actor",
     "p": 0.5,
     "top5": true
@@ -709,18 +670,18 @@
   {
    "report": "2014/Sayad_Flying_Kitten_analysis.pdf",
    "group": "G0130",
-   "techniques": 14,
+   "techniques": 4,
    "software": 0,
    "indicators": 95,
    "similarity": {
     "leading": "G1049",
     "kind": "actor",
-    "p": 0.10099728966180765,
+    "p": 0.9433690187591882,
     "top5": false
    },
    "ach": {
-    "leading": "G0034",
-    "kind": "actor",
+    "leading": null,
+    "kind": "unknown",
     "p": 0.5,
     "top5": false
    },
@@ -734,74 +695,74 @@
   {
    "report": "2014/The_Epic_Turla_Operation.pdf",
    "group": "G0010",
-   "techniques": 17,
+   "techniques": 4,
    "software": 4,
    "indicators": 61,
    "similarity": {
-    "leading": "G1057",
+    "leading": "G0010",
     "kind": "actor",
-    "p": 0.07950163913299414,
+    "p": 0.09638769580369197,
     "top5": true
    },
    "ach": {
     "leading": "G0010",
     "kind": "actor",
-    "p": 0.5,
+    "p": 0.675,
     "top5": true
    },
    "ach-top5": {
     "leading": "G0010",
     "kind": "actor",
-    "p": 0.5,
+    "p": 0.675,
     "top5": true
    }
   },
   {
    "report": "2014/Turla_2_Penquin.pdf",
    "group": "G0010",
-   "techniques": 7,
+   "techniques": 1,
    "software": 5,
    "indicators": 6,
    "similarity": {
     "leading": "G0010",
     "kind": "actor",
-    "p": 0.15879603361191946,
+    "p": 0.1361741244343766,
     "top5": true
    },
    "ach": {
     "leading": "G0010",
     "kind": "actor",
-    "p": 0.675,
+    "p": 0.875,
     "top5": true
    },
    "ach-top5": {
     "leading": "G0010",
     "kind": "actor",
-    "p": 0.675,
+    "p": 0.875,
     "top5": true
    }
   },
   {
    "report": "2014/bcs_wp_InceptionReport_EN_v12914.pdf",
    "group": "G0100",
-   "techniques": 27,
+   "techniques": 8,
    "software": 0,
    "indicators": 27,
    "similarity": {
-    "leading": "G0138",
+    "leading": "G1049",
     "kind": "actor",
-    "p": 0.10071960639750321,
+    "p": 0.3105605965898948,
     "top5": false
    },
    "ach": {
-    "leading": "G0034",
+    "leading": "G0059",
     "kind": "actor",
     "p": 0.5,
     "top5": false
    },
    "ach-top5": {
-    "leading": "G0059",
-    "kind": "actor",
+    "leading": null,
+    "kind": "unknown",
     "p": 0.5,
     "top5": false
    }
@@ -809,38 +770,88 @@
   {
    "report": "2014/circl-tr25-analysis-turla-pfinet-snake-uroburos.pdf",
    "group": "G0010",
-   "techniques": 9,
+   "techniques": 1,
    "software": 5,
    "indicators": 121,
    "similarity": {
-    "leading": "G0026",
+    "leading": "G0044",
     "kind": "actor",
-    "p": 0.07581100185175176,
+    "p": 0.05865007750831596,
     "top5": true
    },
    "ach": {
     "leading": "G0010",
     "kind": "actor",
-    "p": 0.5,
+    "p": 0.675,
     "top5": true
    },
    "ach-top5": {
     "leading": "G0010",
     "kind": "actor",
-    "p": 0.5,
+    "p": 0.675,
     "top5": true
    }
   },
   {
    "report": "2014/darkhotel_kl_07.11.pdf",
    "group": "G0012",
-   "techniques": 22,
+   "techniques": 6,
    "software": 0,
    "indicators": 89,
    "similarity": {
+    "leading": "G1049",
+    "kind": "actor",
+    "p": 0.40153360633022317,
+    "top5": false
+   },
+   "ach": {
+    "leading": null,
+    "kind": "unknown",
+    "p": 0.5,
+    "top5": false
+   },
+   "ach-top5": {
+    "leading": null,
+    "kind": "unknown",
+    "p": 0.675,
+    "top5": false
+   }
+  },
+  {
+   "report": "2014/darkhotelappendixindicators_kl.pdf",
+   "group": "G0012",
+   "techniques": 1,
+   "software": 0,
+   "indicators": 648,
+   "similarity": {
+    "leading": "G0039",
+    "kind": "actor",
+    "p": 0.5171600424328741,
+    "top5": false
+   },
+   "ach": {
+    "leading": null,
+    "kind": "unknown",
+    "p": 0.5,
+    "top5": true
+   },
+   "ach-top5": {
+    "leading": null,
+    "kind": "unknown",
+    "p": 0.5,
+    "top5": false
+   }
+  },
+  {
+   "report": "2014/deep-panda-webshells.pdf",
+   "group": "G0009",
+   "techniques": 5,
+   "software": 1,
+   "indicators": 3,
+   "similarity": {
     "leading": "G0138",
     "kind": "actor",
-    "p": 0.15961200801703496,
+    "p": 0.09574255916952709,
     "top5": false
    },
    "ach": {
@@ -852,70 +863,20 @@
    "ach-top5": {
     "leading": "G0059",
     "kind": "actor",
-    "p": 0.675,
-    "top5": false
-   }
-  },
-  {
-   "report": "2014/darkhotelappendixindicators_kl.pdf",
-   "group": "G0012",
-   "techniques": 3,
-   "software": 0,
-   "indicators": 648,
-   "similarity": {
-    "leading": "G0023",
-    "kind": "actor",
-    "p": 0.6673247120976381,
-    "top5": false
-   },
-   "ach": {
-    "leading": null,
-    "kind": "unknown",
     "p": 0.5,
-    "top5": false
-   },
-   "ach-top5": {
-    "leading": null,
-    "kind": "unknown",
-    "p": 0.675,
-    "top5": false
-   }
-  },
-  {
-   "report": "2014/deep-panda-webshells.pdf",
-   "group": "G0009",
-   "techniques": 10,
-   "software": 1,
-   "indicators": 3,
-   "similarity": {
-    "leading": "G0138",
-    "kind": "actor",
-    "p": 0.1091421893377171,
-    "top5": false
-   },
-   "ach": {
-    "leading": "G0034",
-    "kind": "actor",
-    "p": 0.675,
-    "top5": false
-   },
-   "ach-top5": {
-    "leading": null,
-    "kind": "unknown",
-    "p": 0.675,
     "top5": false
    }
   },
   {
    "report": "2014/fireeye-operation-saffron-rose.pdf",
    "group": "G0130",
-   "techniques": 24,
+   "techniques": 9,
    "software": 5,
    "indicators": 85,
    "similarity": {
-    "leading": "G0138",
+    "leading": "G0130",
     "kind": "actor",
-    "p": 0.07955600566350128,
+    "p": 0.08297254555325895,
     "top5": true
    },
    "ach": {
@@ -934,45 +895,70 @@
   {
    "report": "2014/fireeye-sidewinder-targeted-attack.pdf",
    "group": "G0121",
-   "techniques": 18,
+   "techniques": 4,
    "software": 1,
    "indicators": 41,
    "similarity": {
     "leading": "G1049",
     "kind": "actor",
-    "p": 0.05654971891327912,
+    "p": 0.46530432197395827,
     "top5": false
    },
    "ach": {
-    "leading": "G0034",
+    "leading": "G0007",
     "kind": "actor",
     "p": 0.5,
     "top5": false
    },
    "ach-top5": {
-    "leading": null,
-    "kind": "unknown",
-    "p": 0.675,
+    "leading": "G0138",
+    "kind": "actor",
+    "p": 0.5,
     "top5": false
    }
   },
   {
    "report": "2014/snake_whitepaper.pdf",
    "group": "G0010",
-   "techniques": 23,
+   "techniques": 6,
    "software": 1,
    "indicators": 209,
    "similarity": {
     "leading": "G1049",
     "kind": "actor",
-    "p": 0.037478974337752144,
+    "p": 0.3185168165593044,
     "top5": false
    },
    "ach": {
-    "leading": "G0034",
+    "leading": "G0007",
+    "kind": "actor",
+    "p": 0.5,
+    "top5": true
+   },
+   "ach-top5": {
+    "leading": "G0007",
     "kind": "actor",
     "p": 0.5,
     "top5": false
+   }
+  },
+  {
+   "report": "2014/tactical-intelligence-bulletin---sofacy-phishing-.pdf",
+   "group": "G0007",
+   "techniques": 3,
+   "software": 1,
+   "indicators": 191,
+   "similarity": {
+    "leading": "G1049",
+    "kind": "actor",
+    "p": 0.7749182640058149,
+    "top5": false
+   },
+   "ach": {
+    "leading": "G0007",
+    "kind": "actor",
+    "p": 0.675,
+    "top5": true
    },
    "ach-top5": {
     "leading": null,
@@ -982,51 +968,26 @@
    }
   },
   {
-   "report": "2014/tactical-intelligence-bulletin---sofacy-phishing-.pdf",
+   "report": "2014/wp-operation-pawn-storm.pdf",
    "group": "G0007",
-   "techniques": 12,
+   "techniques": 3,
    "software": 1,
-   "indicators": 191,
+   "indicators": 44,
    "similarity": {
     "leading": "G1049",
     "kind": "actor",
-    "p": 0.12055782594863677,
+    "p": 0.6432379364639477,
     "top5": false
    },
    "ach": {
-    "leading": "G0032",
+    "leading": "G0007",
     "kind": "actor",
     "p": 0.5,
     "top5": true
    },
    "ach-top5": {
-    "leading": null,
-    "kind": "unknown",
-    "p": 0.5,
-    "top5": false
-   }
-  },
-  {
-   "report": "2014/wp-operation-pawn-storm.pdf",
-   "group": "G0007",
-   "techniques": 15,
-   "software": 1,
-   "indicators": 44,
-   "similarity": {
     "leading": "G0138",
     "kind": "actor",
-    "p": 0.2980862937510911,
-    "top5": false
-   },
-   "ach": {
-    "leading": "G0034",
-    "kind": "actor",
-    "p": 0.5,
-    "top5": false
-   },
-   "ach-top5": {
-    "leading": null,
-    "kind": "unknown",
     "p": 0.675,
     "top5": false
    }
@@ -1034,23 +995,23 @@
   {
    "report": "2015/Carbanak_APT_eng.pdf",
    "group": "G0008",
-   "techniques": 23,
+   "techniques": 4,
    "software": 4,
    "indicators": 322,
    "similarity": {
-    "leading": "G0036",
+    "leading": "G0088",
     "kind": "actor",
-    "p": 0.20763329900941258,
+    "p": 0.24112465870421745,
     "top5": true
    },
    "ach": {
-    "leading": "G0034",
+    "leading": "G0059",
     "kind": "actor",
     "p": 0.5,
-    "top5": false
+    "top5": true
    },
    "ach-top5": {
-    "leading": "G0034",
+    "leading": "G0008",
     "kind": "actor",
     "p": 0.675,
     "top5": true
@@ -1059,124 +1020,124 @@
   {
    "report": "2015/CozyDuke.pdf",
    "group": "G0016",
-   "techniques": 12,
+   "techniques": 4,
    "software": 5,
    "indicators": 16,
    "similarity": {
-    "leading": "G1006",
+    "leading": "G0016",
     "kind": "actor",
-    "p": 0.06685038693657558,
+    "p": 0.09450325638407087,
     "top5": true
    },
    "ach": {
     "leading": "G0016",
     "kind": "actor",
-    "p": 0.5,
+    "p": 0.675,
     "top5": true
    },
    "ach-top5": {
     "leading": "G0016",
     "kind": "actor",
-    "p": 0.5,
+    "p": 0.875,
     "top5": true
    }
   },
   {
    "report": "2015/Equation_group_questions_and_answers.pdf",
    "group": "G0020",
-   "techniques": 16,
+   "techniques": 2,
    "software": 3,
    "indicators": 217,
    "similarity": {
-    "leading": "G1006",
+    "leading": "G0044",
     "kind": "actor",
-    "p": 0.04034193328666612,
+    "p": 0.07440751040812417,
     "top5": false
    },
    "ach": {
-    "leading": "G0032",
+    "leading": "G0007",
     "kind": "actor",
     "p": 0.5,
     "top5": false
    },
    "ach-top5": {
-    "leading": null,
-    "kind": "unknown",
-    "p": 0.675,
+    "leading": "G0007",
+    "kind": "actor",
+    "p": 0.5,
     "top5": false
    }
   },
   {
    "report": "2015/Inception_APT_Analysis_Bluecoat.pdf",
    "group": "G0100",
-   "techniques": 6,
+   "techniques": 1,
    "software": 0,
    "indicators": 4,
    "similarity": {
-    "leading": "G0026",
+    "leading": "G0073",
     "kind": "actor",
-    "p": 0.07333531978825664,
-    "top5": false
+    "p": 0.3099928975807501,
+    "top5": true
    },
    "ach": {
-    "leading": "G0032",
-    "kind": "actor",
-    "p": 0.675,
+    "leading": null,
+    "kind": "unknown",
+    "p": 0.5,
     "top5": false
    },
    "ach-top5": {
     "leading": null,
     "kind": "unknown",
     "p": 0.5,
-    "top5": false
+    "top5": true
    }
   },
   {
    "report": "2015/Inside_EquationDrug_Espionage_Platform.pdf",
    "group": "G0020",
-   "techniques": 15,
+   "techniques": 3,
    "software": 2,
    "indicators": 81,
    "similarity": {
-    "leading": "G0138",
+    "leading": "G0044",
     "kind": "actor",
-    "p": 0.04838610917423694,
+    "p": 0.09549814592807614,
     "top5": false
    },
    "ach": {
-    "leading": "G0034",
-    "kind": "actor",
-    "p": 0.5,
+    "leading": null,
+    "kind": "unknown",
+    "p": 0.675,
     "top5": false
    },
    "ach-top5": {
-    "leading": "G0034",
-    "kind": "actor",
-    "p": 0.5,
+    "leading": null,
+    "kind": "unknown",
+    "p": 0.675,
     "top5": false
    }
   },
   {
    "report": "2015/Minerva_Clearsky_CopyKittens(11-23-15).pdf",
    "group": "G0052",
-   "techniques": 20,
+   "techniques": 6,
    "software": 1,
    "indicators": 67,
    "similarity": {
-    "leading": "G0138",
+    "leading": "G0052",
     "kind": "actor",
-    "p": 0.167022543187066,
+    "p": 0.29334336986887327,
     "top5": true
    },
    "ach": {
-    "leading": "G0034",
+    "leading": "G0059",
     "kind": "actor",
     "p": 0.5,
     "top5": false
    },
    "ach-top5": {
-    "leading": "G0059",
-    "kind": "actor",
+    "leading": null,
+    "kind": "unknown",
     "p": 0.5,
     "top5": true
    }
@@ -1184,98 +1145,73 @@
   {
    "report": "2015/OceanLotusReport.pdf",
    "group": "G0050",
-   "techniques": 7,
+   "techniques": 2,
    "software": 0,
    "indicators": 53,
    "similarity": {
     "leading": "G1049",
     "kind": "actor",
-    "p": 0.3151175378313262,
-    "top5": false
-   },
-   "ach": {
-    "leading": null,
-    "kind": "unknown",
-    "p": 0.675,
-    "top5": false
-   },
-   "ach-top5": {
-    "leading": null,
-    "kind": "unknown",
-    "p": 0.675,
-    "top5": false
-   }
-  },
-  {
-   "report": "2015/PawnStorm_iOS.pdf",
-   "group": "G0007",
-   "techniques": 4,
-   "software": 0,
-   "indicators": 1,
-   "similarity": {
-    "leading": "G0023",
-    "kind": "actor",
-    "p": 0.4420725416073332,
+    "p": 0.9456016933919146,
     "top5": false
    },
    "ach": {
     "leading": null,
     "kind": "unknown",
     "p": 0.5,
-    "top5": false
+    "top5": true
    },
    "ach-top5": {
     "leading": null,
     "kind": "unknown",
-    "p": 0.675,
+    "p": 0.5,
     "top5": false
    }
   },
   {
    "report": "2015/The CozyDuke APT - Securelist.pdf",
    "group": "G0016",
-   "techniques": 12,
+   "techniques": 4,
    "software": 4,
    "indicators": 59,
    "similarity": {
     "leading": "G0016",
     "kind": "actor",
-    "p": 0.0941033913958119,
+    "p": 0.2310306669655831,
     "top5": true
    },
    "ach": {
     "leading": "G0016",
     "kind": "actor",
-    "p": 0.675,
+    "p": 0.875,
     "top5": true
    },
    "ach-top5": {
     "leading": "G0016",
     "kind": "actor",
-    "p": 0.675,
+    "p": 0.875,
     "top5": true
    }
   },
   {
    "report": "2015/The Naikon APT - Securelist.pdf",
    "group": "G0019",
-   "techniques": 15,
+   "techniques": 2,
    "software": 0,
    "indicators": 26,
    "similarity": {
     "leading": "G1057",
     "kind": "actor",
-    "p": 0.1204559064624736,
+    "p": 0.12063269982839735,
     "top5": false
    },
    "ach": {
-    "leading": "G0034",
+    "leading": "G1057",
     "kind": "actor",
     "p": 0.5,
     "top5": false
    },
    "ach-top5": {
-    "leading": "G0034",
+    "leading": "G1057",
     "kind": "actor",
     "p": 0.5,
     "top5": false
@@ -1284,17 +1220,17 @@
   {
    "report": "2015/The-Desert-Falcons-targeted-attacks.pdf",
    "group": "G1028",
-   "techniques": 17,
+   "techniques": 4,
    "software": 5,
    "indicators": 217,
    "similarity": {
-    "leading": "G1057",
+    "leading": "G1049",
     "kind": "actor",
-    "p": 0.06263597671591946,
+    "p": 0.1629364041913856,
     "top5": false
    },
    "ach": {
-    "leading": "G0094",
+    "leading": "G0069",
     "kind": "actor",
     "p": 0.5,
     "top5": false
@@ -1309,74 +1245,74 @@
   {
    "report": "2015/TheNaikonAPT-MsnMM1.pdf",
    "group": "G0019",
-   "techniques": 21,
+   "techniques": 5,
    "software": 7,
    "indicators": 96,
    "similarity": {
     "leading": "G0019",
     "kind": "actor",
-    "p": 0.4978274026365888,
+    "p": 0.9161111592580419,
     "top5": true
    },
    "ach": {
-    "leading": "G0034",
+    "leading": "G0019",
     "kind": "actor",
-    "p": 0.5,
-    "top5": false
+    "p": 0.675,
+    "top5": true
    },
    "ach-top5": {
-    "leading": null,
-    "kind": "unknown",
-    "p": 0.5,
+    "leading": "G0019",
+    "kind": "actor",
+    "p": 0.875,
     "top5": true
    }
   },
   {
    "report": "2015/TheNaikonAPT-MsnMM2.pdf",
    "group": "G0019",
-   "techniques": 22,
+   "techniques": 6,
    "software": 7,
    "indicators": 135,
    "similarity": {
     "leading": "G0019",
     "kind": "actor",
-    "p": 0.4681189276670386,
+    "p": 0.8911772816818749,
     "top5": true
    },
    "ach": {
-    "leading": "G0034",
+    "leading": "G0019",
     "kind": "actor",
     "p": 0.5,
-    "top5": false
+    "top5": true
    },
    "ach-top5": {
-    "leading": null,
-    "kind": "unknown",
-    "p": 0.5,
+    "leading": "G0019",
+    "kind": "actor",
+    "p": 0.875,
     "top5": true
    }
   },
   {
    "report": "2015/the-black-vine-cyberespionage-group.pdf",
    "group": "G0009",
-   "techniques": 21,
+   "techniques": 6,
    "software": 4,
    "indicators": 428,
    "similarity": {
-    "leading": "G0138",
+    "leading": "G0009",
     "kind": "actor",
-    "p": 0.2280893891339265,
+    "p": 0.28982185303711866,
     "top5": true
    },
    "ach": {
-    "leading": "G0034",
+    "leading": "G0094",
     "kind": "actor",
     "p": 0.5,
     "top5": false
    },
    "ach-top5": {
-    "leading": null,
-    "kind": "unknown",
+    "leading": "G0138",
+    "kind": "actor",
     "p": 0.5,
     "top5": true
    }
@@ -1384,38 +1320,13 @@
   {
    "report": "2015/unit42-operation-lotus-blossom.pdf",
    "group": "G0030",
-   "techniques": 18,
+   "techniques": 5,
    "software": 1,
    "indicators": 377,
    "similarity": {
-    "leading": "G0138",
+    "leading": "G1049",
     "kind": "actor",
-    "p": 0.23082577514255506,
-    "top5": false
-   },
-   "ach": {
-    "leading": "G0034",
-    "kind": "actor",
-    "p": 0.5,
-    "top5": false
-   },
-   "ach-top5": {
-    "leading": "G0059",
-    "kind": "actor",
-    "p": 0.5,
-    "top5": false
-   }
-  },
-  {
-   "report": "2015/volatile-cedar-technical-report.pdf",
-   "group": "G0123",
-   "techniques": 22,
-   "software": 1,
-   "indicators": 67,
-   "similarity": {
-    "leading": "G0138",
-    "kind": "actor",
-    "p": 0.14143321249258997,
+    "p": 0.43818231111418116,
     "top5": true
    },
    "ach": {
@@ -1425,7 +1336,32 @@
     "top5": false
    },
    "ach-top5": {
+    "leading": "G0125",
+    "kind": "actor",
+    "p": 0.675,
+    "top5": true
+   }
+  },
+  {
+   "report": "2015/volatile-cedar-technical-report.pdf",
+   "group": "G0123",
+   "techniques": 8,
+   "software": 1,
+   "indicators": 67,
+   "similarity": {
+    "leading": "G0123",
+    "kind": "actor",
+    "p": 0.40593201576285265,
+    "top5": true
+   },
+   "ach": {
     "leading": "G0034",
+    "kind": "actor",
+    "p": 0.5,
+    "top5": false
+   },
+   "ach-top5": {
+    "leading": "G0094",
     "kind": "actor",
     "p": 0.5,
     "top5": true
@@ -1434,42 +1370,67 @@
   {
    "report": "2015/waterbug-attack-group.pdf",
    "group": "G0010",
-   "techniques": 22,
+   "techniques": 3,
    "software": 6,
    "indicators": 394,
    "similarity": {
     "leading": "G0010",
     "kind": "actor",
-    "p": 0.09192508754632821,
+    "p": 0.17717415544794607,
     "top5": true
    },
    "ach": {
     "leading": "G0010",
     "kind": "actor",
-    "p": 0.5,
+    "p": 0.675,
     "top5": true
    },
    "ach-top5": {
     "leading": "G0010",
     "kind": "actor",
-    "p": 0.5,
+    "p": 0.875,
     "top5": true
    }
   },
   {
    "report": "2015/wp-operation-tropic-trooper.pdf",
    "group": "G0081",
-   "techniques": 14,
+   "techniques": 6,
    "software": 4,
    "indicators": 38,
    "similarity": {
-    "leading": "G0138",
+    "leading": "G0081",
     "kind": "actor",
-    "p": 0.12037226374104168,
+    "p": 0.16471580381761675,
     "top5": true
    },
    "ach": {
-    "leading": "G0032",
+    "leading": "G0007",
+    "kind": "actor",
+    "p": 0.5,
+    "top5": true
+   },
+   "ach-top5": {
+    "leading": "G0081",
+    "kind": "actor",
+    "p": 0.675,
+    "top5": true
+   }
+  },
+  {
+   "report": "2015/wp-operation-woolen-goldfish.pdf",
+   "group": "G0130",
+   "techniques": 6,
+   "software": 2,
+   "indicators": 41,
+   "similarity": {
+    "leading": "G1049",
+    "kind": "actor",
+    "p": 0.28929784764343836,
+    "top5": false
+   },
+   "ach": {
+    "leading": "G0069",
     "kind": "actor",
     "p": 0.5,
     "top5": false
@@ -1478,34 +1439,9 @@
     "leading": null,
     "kind": "unknown",
     "p": 0.5,
-    "top5": true
-   }
-  },
-  {
-   "report": "2015/wp-operation-woolen-goldfish.pdf",
-   "group": "G0130",
-   "techniques": 16,
-   "software": 2,
-   "indicators": 41,
-   "similarity": {
-    "leading": "G0138",
-    "kind": "actor",
-    "p": 0.32951580594709023,
-    "top5": false
-   },
-   "ach": {
-    "leading": "G0034",
-    "kind": "actor",
-    "p": 0.5,
-    "top5": false
-   },
-   "ach-top5": {
-    "leading": "G0059",
-    "kind": "actor",
-    "p": 0.5,
     "top5": false
    }
   }
  ],
- "runtime_s": 658.1
+ "runtime_s": 675.0
 }
