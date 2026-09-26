@@ -6,3 +6,10 @@ build/
 dist/
 attack_kb.json
 enterprise-attack.json
+
+# local benchmark logs / trained models
+*.log
+*.err
+*.pkl
+models/
+.ruff_cache/
