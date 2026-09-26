@@ -1,9 +1,9 @@
 """Prose -> IOCs + ATT&CK techniques, every hit carrying a source span.
 
-Baseline is deterministic keyword/regex matching (Grade A). A trained
-text->technique classifier and LLM extraction are TODO (Grade B/C); any such
-extractor must emit the same span-anchored ``TechniqueHit`` objects so that
-hallucinated facts (no span) can be rejected.
+Baseline is deterministic keyword/regex matching. A trained sentence-level
+text->technique classifier (:mod:`occam.classifier`) can be layered on top;
+like any future (e.g. LLM) extractor it must emit span-anchored
+``TechniqueHit`` objects so that hallucinated facts (no span) can be rejected.
 """
 from __future__ import annotations
 
@@ -34,7 +34,12 @@ def _clean_value(v: str) -> str:
     return v.replace("\x00", "").rstrip(".,);]")
 
 
-def extract(text: str, source_id: str = "doc", kb: AttackKB | None = None) -> ExtractionResult:
+def extract(text: str, source_id: str = "doc", kb: AttackKB | None = None, classifier=None) -> ExtractionResult:
+    """Extract IOCs, techniques and software from prose.
+
+    ``classifier`` (optional, see :mod:`occam.classifier`) adds sentence-level
+    technique predictions; each still carries the sentence span it came from.
+    """
     kb = kb or load_bundled()
     norm = _normalize(text)
     # For IOC matching, treat NULs as removable: build a condensed view with an offset map.
@@ -65,20 +70,45 @@ def extract(text: str, source_id: str = "doc", kb: AttackKB | None = None) -> Ex
     def _match(entries) -> list[TechniqueHit]:
         hits: list[TechniqueHit] = []
         for t in entries:
-            for kw in t.keywords:
-                pat = re.compile(r"(?<![a-z0-9])" + re.escape(kw.lower()) + r"(?![a-z0-9])")
-                m = pat.search(lower)
+            for kw, pat, case in _patterns(t):
+                m = pat.search(text if case else lower)
                 if m:
                     hits.append(TechniqueHit(t.id, t.name, kw, SourceSpan(source_id, m.start(), m.end(), text[m.start():m.end()])))
                     break
         return hits
 
+    techniques = _match(kb.techniques.values())
+    if classifier is not None:
+        seen = {h.technique_id for h in techniques}
+        for h in classifier.hits(text, source_id):
+            if h.technique_id not in seen and h.technique_id in kb.techniques:
+                seen.add(h.technique_id)
+                techniques.append(h)
+
     return ExtractionResult(
         source_id=source_id,
-        techniques=_match(kb.techniques.values()),
+        techniques=techniques,
         indicators=indicators,
         tools=_match(kb.tools.values()),
     )
+
+
+_PAT_CACHE: dict[tuple[str, tuple[str, ...]], list[tuple[str, re.Pattern[str], bool]]] = {}
+
+
+def _patterns(t) -> list[tuple[str, re.Pattern[str], bool]]:
+    """Compiled keyword patterns. Keywords containing capitals (software proper
+    names from ATT&CK) match case-sensitively; lower-case keywords do not."""
+    key = (t.id, tuple(t.keywords))
+    pats = _PAT_CACHE.get(key)
+    if pats is None:
+        pats = []
+        for kw in t.keywords:
+            case = kw != kw.lower()
+            body = re.escape(kw if case else kw.lower())
+            pats.append((kw, re.compile(r"(?<![A-Za-z0-9])" + body + r"(?![A-Za-z0-9])"), case))
+        _PAT_CACHE[key] = pats
+    return pats
 
 
 def navigator_layer(result: ExtractionResult, name: str = "OCCAM extraction") -> dict:
