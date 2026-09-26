@@ -1,0 +1,569 @@
+{
+ "spoofable_discount": 0.5,
+ "scenarios": {
+  "clean_attribution": {
+   "question": "Who conducted the 2026 research-institute intrusion (synthetic)?",
+   "leading_hypothesis": "ACTOR-QUILL conducted the activity",
+   "confidence": "high",
+   "likelihood_phrase": "highly likely",
+   "ranking": [
+    {
+     "id": "H-QUILL",
+     "label": "ACTOR-QUILL conducted the activity",
+     "kind": "actor",
+     "inconsistency": 0.0,
+     "support": 4.359,
+     "spoofable_support_ratio": 0.0
+    },
+    {
+     "id": "H-UNKNOWN",
+     "label": "An unknown / untracked actor",
+     "kind": "unknown",
+     "inconsistency": -1.387,
+     "support": 0.0,
+     "spoofable_support_ratio": 0.0
+    },
+    {
+     "id": "H-EMBER",
+     "label": "ACTOR-EMBER conducted the activity",
+     "kind": "actor",
+     "inconsistency": -2.61,
+     "support": 0.0,
+     "spoofable_support_ratio": 0.0
+    },
+    {
+     "id": "H-TIDE",
+     "label": "ACTOR-TIDE conducted the activity",
+     "kind": "actor",
+     "inconsistency": -2.971,
+     "support": 0.0,
+     "spoofable_support_ratio": 0.0
+    }
+   ],
+   "matrix": {
+    "E1": {
+     "H-EMBER": "I",
+     "H-TIDE": "I",
+     "H-QUILL": "CC",
+     "H-UNKNOWN": "I"
+    },
+    "E2": {
+     "H-EMBER": "I",
+     "H-TIDE": "I",
+     "H-QUILL": "CC",
+     "H-UNKNOWN": "I"
+    },
+    "E3": {
+     "H-EMBER": "N",
+     "H-TIDE": "I",
+     "H-QUILL": "C",
+     "H-UNKNOWN": "N"
+    },
+    "E4": {
+     "H-EMBER": "I",
+     "H-TIDE": "I",
+     "H-QUILL": "C",
+     "H-UNKNOWN": "N"
+    },
+    "E5": {
+     "H-EMBER": "I",
+     "H-TIDE": "I",
+     "H-QUILL": "C",
+     "H-UNKNOWN": "N"
+    },
+    "E6": {
+     "H-EMBER": "I",
+     "H-TIDE": "I",
+     "H-QUILL": "C",
+     "H-UNKNOWN": "N"
+    },
+    "E7": {
+     "H-EMBER": "N",
+     "H-TIDE": "N",
+     "H-QUILL": "N",
+     "H-UNKNOWN": "N"
+    }
+   },
+   "diagnostic_weights": {
+    "E1": 0.75,
+    "E2": 0.637,
+    "E3": 0.361,
+    "E4": 0.361,
+    "E5": 0.361,
+    "E6": 0.5,
+    "E7": 0.0
+   },
+   "rationale": [
+    "Leading hypothesis 'ACTOR-QUILL conducted the activity' has weighted inconsistency 0.00 vs -1.39 for runner-up 'An unknown / untracked actor' (relative gap 0.47).",
+    "6 of 7 evidence items are diagnostic."
+   ],
+   "false_flag_indicators": [],
+   "what_would_change": [
+    "E1 is a key reason 'An unknown / untracked actor' is rejected; re-verify its source (A1).",
+    "E2 is a key reason 'An unknown / untracked actor' is rejected; re-verify its source (A2)."
+   ],
+   "hypotheses": [
+    {
+     "id": "H-EMBER",
+     "label": "ACTOR-EMBER conducted the activity",
+     "kind": "actor"
+    },
+    {
+     "id": "H-TIDE",
+     "label": "ACTOR-TIDE conducted the activity",
+     "kind": "actor"
+    },
+    {
+     "id": "H-QUILL",
+     "label": "ACTOR-QUILL conducted the activity",
+     "kind": "actor"
+    },
+    {
+     "id": "H-UNKNOWN",
+     "label": "An unknown / untracked actor",
+     "kind": "unknown"
+    }
+   ],
+   "evidence": [
+    {
+     "id": "E1",
+     "description": "QUILLRAT implant recovered from two hosts",
+     "kind": "tool",
+     "spoofable": false,
+     "grade": "A1",
+     "base_weight": 1.0
+    },
+    {
+     "id": "E2",
+     "description": "C2 over DNS to known QUILL resolver infrastructure",
+     "kind": "infrastructure",
+     "spoofable": false,
+     "grade": "A2",
+     "base_weight": 0.85
+    },
+    {
+     "id": "E3",
+     "description": "Initial access via spearphishing link",
+     "kind": "ttp",
+     "spoofable": false,
+     "grade": "B2",
+     "base_weight": 0.7225
+    },
+    {
+     "id": "E4",
+     "description": "WMI used for remote execution",
+     "kind": "ttp",
+     "spoofable": false,
+     "grade": "B2",
+     "base_weight": 0.7225
+    },
+    {
+     "id": "E5",
+     "description": "Staged data uploaded to cloud storage",
+     "kind": "ttp",
+     "spoofable": false,
+     "grade": "B2",
+     "base_weight": 0.7225
+    },
+    {
+     "id": "E6",
+     "description": "Victim is a defense research institute",
+     "kind": "victimology",
+     "spoofable": false,
+     "grade": "A1",
+     "base_weight": 1.0
+    },
+    {
+     "id": "E7",
+     "description": "PowerShell used throughout (common)",
+     "kind": "ttp",
+     "spoofable": false,
+     "grade": "A1",
+     "base_weight": 1.0
+    }
+   ]
+  },
+  "false_flag_games": {
+   "question": "Who deployed the wiper against the (synthetic) international games network?",
+   "leading_hypothesis": "False flag: another actor framed ACTOR-EMBER",
+   "confidence": "low",
+   "likelihood_phrase": "roughly even chance / cannot be determined",
+   "ranking": [
+    {
+     "id": "H-FF-EMBER",
+     "label": "False flag: another actor framed ACTOR-EMBER",
+     "kind": "false_flag",
+     "inconsistency": 0.0,
+     "support": 3.899,
+     "spoofable_support_ratio": 0.359
+    },
+    {
+     "id": "H-FF-QUILL",
+     "label": "False flag: another actor framed ACTOR-QUILL",
+     "kind": "false_flag",
+     "inconsistency": 0.0,
+     "support": 2.816,
+     "spoofable_support_ratio": 0.113
+    },
+    {
+     "id": "H-UNKNOWN",
+     "label": "An unknown / untracked actor",
+     "kind": "unknown",
+     "inconsistency": -0.637,
+     "support": 0.0,
+     "spoofable_support_ratio": 0.0
+    },
+    {
+     "id": "H-TIDE",
+     "label": "ACTOR-TIDE conducted the activity",
+     "kind": "actor",
+     "inconsistency": -0.859,
+     "support": 3.136,
+     "spoofable_support_ratio": 0.0
+    },
+    {
+     "id": "H-EMBER",
+     "label": "ACTOR-EMBER conducted the activity",
+     "kind": "actor",
+     "inconsistency": -2.657,
+     "support": 0.7,
+     "spoofable_support_ratio": 1.0
+    },
+    {
+     "id": "H-QUILL",
+     "label": "ACTOR-QUILL conducted the activity",
+     "kind": "actor",
+     "inconsistency": -3.199,
+     "support": 0.158,
+     "spoofable_support_ratio": 1.0
+    }
+   ],
+   "matrix": {
+    "E1": {
+     "H-EMBER": "C",
+     "H-TIDE": "I",
+     "H-QUILL": "I",
+     "H-FF-EMBER": "CC",
+     "H-FF-QUILL": "N",
+     "H-UNKNOWN": "N"
+    },
+    "E2": {
+     "H-EMBER": "C",
+     "H-TIDE": "I",
+     "H-QUILL": "I",
+     "H-FF-EMBER": "CC",
+     "H-FF-QUILL": "N",
+     "H-UNKNOWN": "N"
+    },
+    "E3": {
+     "H-EMBER": "C",
+     "H-TIDE": "I",
+     "H-QUILL": "I",
+     "H-FF-EMBER": "CC",
+     "H-FF-QUILL": "N",
+     "H-UNKNOWN": "N"
+    },
+    "E4": {
+     "H-EMBER": "I",
+     "H-TIDE": "I",
+     "H-QUILL": "C",
+     "H-FF-EMBER": "N",
+     "H-FF-QUILL": "CC",
+     "H-UNKNOWN": "N"
+    },
+    "E5": {
+     "H-EMBER": "I",
+     "H-TIDE": "CC",
+     "H-QUILL": "I",
+     "H-FF-EMBER": "C",
+     "H-FF-QUILL": "C",
+     "H-UNKNOWN": "I"
+    },
+    "E6": {
+     "H-EMBER": "I",
+     "H-TIDE": "C",
+     "H-QUILL": "I",
+     "H-FF-EMBER": "C",
+     "H-FF-QUILL": "C",
+     "H-UNKNOWN": "N"
+    },
+    "E7": {
+     "H-EMBER": "I",
+     "H-TIDE": "C",
+     "H-QUILL": "I",
+     "H-FF-EMBER": "C",
+     "H-FF-QUILL": "C",
+     "H-UNKNOWN": "N"
+    },
+    "E8": {
+     "H-EMBER": "I",
+     "H-TIDE": "C",
+     "H-QUILL": "I",
+     "H-FF-EMBER": "C",
+     "H-FF-QUILL": "C",
+     "H-UNKNOWN": "N"
+    },
+    "E9": {
+     "H-EMBER": "I",
+     "H-TIDE": "C",
+     "H-QUILL": "I",
+     "H-FF-EMBER": "C",
+     "H-FF-QUILL": "C",
+     "H-UNKNOWN": "N"
+    }
+   },
+   "diagnostic_weights": {
+    "E1": 0.271,
+    "E2": 0.271,
+    "E3": 0.158,
+    "E4": 0.158,
+    "E5": 0.637,
+    "E6": 0.5,
+    "E7": 0.5,
+    "E8": 0.361,
+    "E9": 0.5
+   },
+   "rationale": [
+    "Leading hypothesis 'False flag: another actor framed ACTOR-EMBER' has weighted inconsistency 0.00 vs 0.00 for runner-up 'False flag: another actor framed ACTOR-QUILL' (relative gap 0.00).",
+    "9 of 9 evidence items are diagnostic.",
+    "Margin between top hypotheses is small or evidence is thin -> LOW."
+   ],
+   "false_flag_indicators": [
+    "Spoofable markers point at multiple actors (EMBER, QUILL) - planted-marker pattern.",
+    "Markers implicate ACTOR-EMBER, but hard evidence ['E5', 'E6', 'E7', 'E8', 'E9'] contradicts that actor.",
+    "Markers implicate ACTOR-QUILL, but hard evidence ['E5', 'E6', 'E7', 'E8', 'E9'] contradicts that actor."
+   ],
+   "what_would_change": [
+    "Discrediting E5 (GLASSWIPE wiper deployed) would make 'An unknown / untracked actor' lead."
+   ],
+   "hypotheses": [
+    {
+     "id": "H-EMBER",
+     "label": "ACTOR-EMBER conducted the activity",
+     "kind": "actor"
+    },
+    {
+     "id": "H-TIDE",
+     "label": "ACTOR-TIDE conducted the activity",
+     "kind": "actor"
+    },
+    {
+     "id": "H-QUILL",
+     "label": "ACTOR-QUILL conducted the activity",
+     "kind": "actor"
+    },
+    {
+     "id": "H-FF-EMBER",
+     "label": "False flag: another actor framed ACTOR-EMBER",
+     "kind": "false_flag"
+    },
+    {
+     "id": "H-FF-QUILL",
+     "label": "False flag: another actor framed ACTOR-QUILL",
+     "kind": "false_flag"
+    },
+    {
+     "id": "H-UNKNOWN",
+     "label": "An unknown / untracked actor",
+     "kind": "unknown"
+    }
+   ],
+   "evidence": [
+    {
+     "id": "E1",
+     "description": "PE rich-header metadata byte-identical to an EMBER sample",
+     "kind": "metadata",
+     "spoofable": true,
+     "grade": "B2",
+     "base_weight": 0.7225
+    },
+    {
+     "id": "E2",
+     "description": "Code-overlap: wiper shares a routine with EMBER's TIDECRYPT",
+     "kind": "code_overlap",
+     "spoofable": true,
+     "grade": "B2",
+     "base_weight": 0.7225
+    },
+    {
+     "id": "E3",
+     "description": "Language artifacts / comments in EMBER's usual locale",
+     "kind": "language_artifact",
+     "spoofable": true,
+     "grade": "C3",
+     "base_weight": 0.4225
+    },
+    {
+     "id": "E4",
+     "description": "Code-overlap string also found in a QUILL sample",
+     "kind": "code_overlap",
+     "spoofable": true,
+     "grade": "C3",
+     "base_weight": 0.4225
+    },
+    {
+     "id": "E5",
+     "description": "GLASSWIPE wiper deployed",
+     "kind": "tool",
+     "spoofable": false,
+     "grade": "A2",
+     "base_weight": 0.85
+    },
+    {
+     "id": "E6",
+     "description": "Data destroyed, shadow copies deleted",
+     "kind": "ttp",
+     "spoofable": false,
+     "grade": "A1",
+     "base_weight": 1.0
+    },
+    {
+     "id": "E7",
+     "description": "Recovery inhibited via vssadmin",
+     "kind": "ttp",
+     "spoofable": false,
+     "grade": "A1",
+     "base_weight": 1.0
+    },
+    {
+     "id": "E8",
+     "description": "Lateral movement via admin shares with harvested creds",
+     "kind": "ttp",
+     "spoofable": false,
+     "grade": "B2",
+     "base_weight": 0.7225
+    },
+    {
+     "id": "E9",
+     "description": "Victim is a major international sporting event",
+     "kind": "victimology",
+     "spoofable": false,
+     "grade": "A1",
+     "base_weight": 1.0
+    }
+   ]
+  },
+  "thin_evidence": {
+   "question": "Who is behind the single phishing email (synthetic)?",
+   "leading_hypothesis": "An unknown / untracked actor",
+   "confidence": "low",
+   "likelihood_phrase": "roughly even chance / cannot be determined",
+   "ranking": [
+    {
+     "id": "H-UNKNOWN",
+     "label": "An unknown / untracked actor",
+     "kind": "unknown",
+     "inconsistency": 0.0,
+     "support": 0.0,
+     "spoofable_support_ratio": 0.0
+    },
+    {
+     "id": "H-EMBER",
+     "label": "ACTOR-EMBER conducted the activity",
+     "kind": "actor",
+     "inconsistency": 0.0,
+     "support": 0.287,
+     "spoofable_support_ratio": 0.264
+    },
+    {
+     "id": "H-QUILL",
+     "label": "ACTOR-QUILL conducted the activity",
+     "kind": "actor",
+     "inconsistency": -0.076,
+     "support": 0.0,
+     "spoofable_support_ratio": 0.0
+    },
+    {
+     "id": "H-FF-EMBER",
+     "label": "False flag: another actor framed ACTOR-EMBER",
+     "kind": "false_flag",
+     "inconsistency": -0.211,
+     "support": 0.152,
+     "spoofable_support_ratio": 1.0
+    },
+    {
+     "id": "H-TIDE",
+     "label": "ACTOR-TIDE conducted the activity",
+     "kind": "actor",
+     "inconsistency": -0.287,
+     "support": 0.0,
+     "spoofable_support_ratio": 0.0
+    }
+   ],
+   "matrix": {
+    "E1": {
+     "H-EMBER": "C",
+     "H-TIDE": "I",
+     "H-QUILL": "N",
+     "H-FF-EMBER": "I",
+     "H-UNKNOWN": "N"
+    },
+    "E2": {
+     "H-EMBER": "C",
+     "H-TIDE": "I",
+     "H-QUILL": "I",
+     "H-FF-EMBER": "CC",
+     "H-UNKNOWN": "N"
+    }
+   },
+   "diagnostic_weights": {
+    "E1": 0.211,
+    "E2": 0.076
+   },
+   "rationale": [
+    "Leading hypothesis 'An unknown / untracked actor' has weighted inconsistency 0.00 vs 0.00 for runner-up 'ACTOR-EMBER conducted the activity' (relative gap 0.00).",
+    "2 of 2 evidence items are diagnostic.",
+    "Margin between top hypotheses is small or evidence is thin -> LOW."
+   ],
+   "false_flag_indicators": [],
+   "what_would_change": [
+    "No single evidence item flips the conclusion; new independent evidence would be required."
+   ],
+   "hypotheses": [
+    {
+     "id": "H-EMBER",
+     "label": "ACTOR-EMBER conducted the activity",
+     "kind": "actor"
+    },
+    {
+     "id": "H-TIDE",
+     "label": "ACTOR-TIDE conducted the activity",
+     "kind": "actor"
+    },
+    {
+     "id": "H-QUILL",
+     "label": "ACTOR-QUILL conducted the activity",
+     "kind": "actor"
+    },
+    {
+     "id": "H-FF-EMBER",
+     "label": "False flag: another actor framed ACTOR-EMBER",
+     "kind": "false_flag"
+    },
+    {
+     "id": "H-UNKNOWN",
+     "label": "An unknown / untracked actor",
+     "kind": "unknown"
+    }
+   ],
+   "evidence": [
+    {
+     "id": "E1",
+     "description": "Weaponized document attachment",
+     "kind": "ttp",
+     "spoofable": false,
+     "grade": "C3",
+     "base_weight": 0.4225
+    },
+    {
+     "id": "E2",
+     "description": "Lure text in EMBER's usual locale",
+     "kind": "language_artifact",
+     "spoofable": true,
+     "grade": "D4",
+     "base_weight": 0.2025
+    }
+   ]
+  }
+ }
+}
