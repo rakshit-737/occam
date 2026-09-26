@@ -45,14 +45,22 @@ class TechniqueClassifier:
     threshold: float = 0.35
     parent_level: bool = False
     C: float = 8.0
+    max_features: int = 60_000
+    char_ngrams: bool = False  # adds char 3-5 grams: ~+0.01 F1 for ~5x training time
+    n_jobs: int = 1  # >1 forks workers that each copy the feature matrix
     names: dict[str, str] = field(default_factory=dict)
     _vec: object = None
     _clf: object = None
     _mlb: object = None
 
     # -- training -------------------------------------------------------------
-    def fit(self, texts: Sequence[str], labels: Sequence[Iterable[str]], min_examples: int = 2) -> TechniqueClassifier:
-        from scipy.sparse import hstack  # noqa: F401  (ensures scipy present)
+    def fit(self, texts: Sequence[str], labels: Sequence[Iterable[str]], min_examples: int = 2,
+            classes: Iterable[str] | None = None) -> TechniqueClassifier:
+        """Fit one binary model per technique.
+
+        ``classes`` restricts the label space (e.g. to the 50 TRAM techniques);
+        examples of other techniques then act as negatives / background.
+        """
         from sklearn.feature_extraction.text import TfidfVectorizer
         from sklearn.linear_model import LogisticRegression
         from sklearn.multiclass import OneVsRestClassifier
@@ -65,17 +73,20 @@ class TechniqueClassifier:
             for x in ls:
                 counts[x] = counts.get(x, 0) + 1
         keep = {k for k, v in counts.items() if v >= min_examples}
+        if classes is not None:
+            keep &= set(classes)
         labs = [ls & keep for ls in labs]
         self._mlb = MultiLabelBinarizer(classes=sorted(keep))
         y = self._mlb.fit_transform(labs)
-        self._vec = FeatureUnion([
-            ("w", TfidfVectorizer(ngram_range=(1, 2), min_df=2, max_features=150_000, sublinear_tf=True,
-                                  stop_words="english", token_pattern=r"(?u)\b[\w.\-]{2,}\b")),
-            ("c", TfidfVectorizer(analyzer="char_wb", ngram_range=(3, 5), min_df=3, max_features=150_000, sublinear_tf=True)),
-        ])
+        parts = [("w", TfidfVectorizer(ngram_range=(1, 2), min_df=2, max_features=self.max_features, sublinear_tf=True,
+                                       stop_words="english", token_pattern=r"(?u)\b[\w.\-]{2,}\b"))]
+        if self.char_ngrams:
+            parts.append(("c", TfidfVectorizer(analyzer="char_wb", ngram_range=(3, 5), min_df=3,
+                                               max_features=self.max_features, sublinear_tf=True)))
+        self._vec = FeatureUnion(parts)
         X = self._vec.fit_transform(list(texts))
         self._clf = OneVsRestClassifier(
-            LogisticRegression(C=self.C, solver="liblinear", class_weight="balanced", max_iter=200), n_jobs=-1
+            LogisticRegression(C=self.C, solver="liblinear", class_weight="balanced", max_iter=200), n_jobs=self.n_jobs
         )
         self._clf.fit(X, y)
         return self
