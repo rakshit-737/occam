@@ -48,3 +48,12 @@ def test_incidents_and_evaluation_protocol():
     assert 0 <= s["brier"] <= 1 and s["n"] == len(res["sim"]["closed"])
     cal = crossfit_calibrate(res["ach"]["closed"])
     assert len(cal) == len(res["ach"]["closed"]) and all(0 < p < 1 for p in cal)
+
+
+def test_ach_shortlist_keeps_framed_actor():
+    profiles, kb = world()
+    ev = evidence_from_items(["T1486", "T1566.001", "S0001"], kb) + planted_markers("G0003", 2)
+    att = ACHAttributor(profiles, kb, shortlist=1)
+    ids = {p.id for p in att.candidates(ev)}
+    assert ids == {"G0001", "G0003"}  # top-1 by similarity + the actor the markers frame
+    assert att.attribute(ev).leading != "G0003"

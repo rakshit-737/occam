@@ -99,12 +99,25 @@ class ACHAttributor:
 
     name = "OCCAM ACH (least-inconsistency + confidence caps)"
 
-    def __init__(self, profiles: list[ActorProfile], kb: AttackKB):
+    def __init__(self, profiles: list[ActorProfile], kb: AttackKB, shortlist: int | None = None):
         self.profiles = profiles
         self.kb = kb
+        self.shortlist = shortlist
+        self._sim = SimilarityAttributor(profiles, kb) if shortlist else None
+
+    def candidates(self, evidence: list[Evidence]) -> list[ActorProfile]:
+        """All profiles, or -- with ``shortlist`` -- the top-k by TTP similarity
+        plus every actor that a spoofable marker points at (so the matching
+        false-flag hypothesis is always on the table)."""
+        if not self._sim:
+            return self.profiles
+        s = self._sim.scores([e for e in evidence if not e.spoofable])
+        order = sorted(range(len(s)), key=lambda i: -s[i])[: self.shortlist]
+        keep = {self.profiles[i].id for i in order} | {p for e in evidence if e.spoofable for p in e.points_to}
+        return [p for p in self.profiles if p.id in keep]
 
     def assess(self, evidence: list[Evidence]):
-        return ACHEngine(self.profiles, evidence, kb=self.kb, sensitivity=False).assess()
+        return ACHEngine(self.candidates(evidence), evidence, kb=self.kb, sensitivity=False).assess()
 
     def attribute(self, evidence: list[Evidence]) -> Attribution:
         a = self.assess(evidence)
