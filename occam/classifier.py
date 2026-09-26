@@ -105,8 +105,15 @@ class TechniqueClassifier:
         cls = self.classes
         return [{cls[j] for j in (row >= th).nonzero()[0]} for row in P]
 
-    def hits(self, text: str, source_id: str = "doc", threshold: float | None = None) -> list[TechniqueHit]:
-        """Span-anchored hits: one per (technique, best sentence)."""
+    def hits(self, text: str, source_id: str = "doc", threshold: float | None = None,
+             top_k: int | None = None) -> list[TechniqueHit]:
+        """Span-anchored hits: one per (technique, best sentence).
+
+        ``top_k`` (default: the ``top_k`` attribute, if set) keeps only the k
+        most confident techniques per document, so a long report cannot flood
+        ACH with dozens of generic, low-diagnosticity rows.
+        """
+        top_k = getattr(self, "top_k", None) if top_k is None else top_k
         sents = split_sentences(text)
         if not sents:
             return []
@@ -122,7 +129,7 @@ class TechniqueClassifier:
         for tid, (p, i) in sorted(best.items(), key=lambda kv: -kv[1][0]):
             s, e, sent = sents[i]
             out.append(TechniqueHit(tid, self.names.get(tid, tid), f"classifier p={p:.2f}", SourceSpan(source_id, s, e, text[s:e])))
-        return out
+        return out[:top_k] if top_k else out
 
     # -- persistence (only load files you produced yourself: pickle) ----------
     def save(self, path: str | Path) -> None:

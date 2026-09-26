@@ -48,7 +48,9 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--data", type=Path, default=DATA)
     ap.add_argument("--classifier", action="store_true", help="also use the TF-IDF technique classifier")
+    ap.add_argument("--save-model", type=Path, help="save the trained classifier for reuse with --model")
     ap.add_argument("--model", type=Path, help="pre-trained model from `occam train-classifier` (implies --classifier)")
+    ap.add_argument("--top-k", type=int, default=None, help="keep only the k most confident classifier techniques per report")
     ap.add_argument("--out", type=Path, default=REPO / "results")
     a = ap.parse_args(argv)
     t0 = time.time()
@@ -70,8 +72,12 @@ def main(argv: list[str] | None = None) -> int:
         texts += [r["sentence"] for r in tram]
         labels += [set(r["labels"]) for r in tram]
         clf = TechniqueClassifier(threshold=0.8, names={t: v.name for t, v in data.techniques.items()}).fit(texts, labels)
+        if a.save_model:
+            clf.save(a.save_model)
         print(f"classifier trained on {len(texts)} sentences ({time.time() - t0:.0f}s)")
 
+    if clf is not None and a.top_k:
+        clf.top_k = a.top_k
     attributors = {"similarity": SimilarityAttributor(profiles, kb), "ach": ACHAttributor(profiles, kb),
                    "ach-top5": ACHAttributor(profiles, kb, shortlist=5)}
     rows, events, truth, skipped = [], {}, {}, []
@@ -121,17 +127,17 @@ def main(argv: list[str] | None = None) -> int:
         clus[label] = {"purity": purity(t, p), "nmi": nmi(t, p), "ari": ari(t, p), "clusters": len(set(p))}
 
     out = {
-        "reports": n, "skipped": skipped, "groups": len(set(truth.values())), "classifier": bool(clf),
+        "reports": n, "skipped": skipped, "groups": len(set(truth.values())), "classifier": bool(clf), "top_k": a.top_k if clf else None,
         "mean_techniques": sum(r["techniques"] for r in rows) / n, "mean_software": sum(r["software"] for r in rows) / n,
         "mean_indicators": sum(r["indicators"] for r in rows) / n,
         "reports_per_group": dict(Counter(truth.values()).most_common()),
         "attribution": summary, "clustering": clus, "per_report": rows, "runtime_s": round(time.time() - t0, 1),
     }
     a.out.mkdir(parents=True, exist_ok=True)
-    suffix = "_clf" if clf else ""
+    suffix = ("_clf" + (f"_top{a.top_k}" if a.top_k else "")) if clf else ""
     (a.out / f"aptnotes{suffix}.json").write_text(json.dumps(out, indent=1), encoding="utf-8")
     md = [f"### End-to-end on APTnotes ({n} real reports, {out['groups']} groups; extractor: keyword"
-          f"{' + classifier' if clf else ''})", "",
+          f"{' + classifier' if clf else ''}{f', top-{a.top_k} per report' if clf and a.top_k else ''})", "",
           f"Mean per report: {out['mean_techniques']:.1f} techniques, {out['mean_software']:.1f} software, "
           f"{out['mean_indicators']:.1f} IOCs (all span-anchored).", "",
           "| Attributor | Top-1 | Top-5 | Names someone | Brier | Wrong at p>=0.8 |", "|---|---|---|---|---|---|"]

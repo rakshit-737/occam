@@ -43,3 +43,18 @@ def test_save_load_roundtrip(clf, tmp_path):
     clf.save(p)
     again = TechniqueClassifier.load(p)
     assert again.predict(["files were encrypted by ransomware"]) == clf.predict(["files were encrypted by ransomware"])
+
+
+def test_hits_top_k_limits_techniques():
+    pytest.importorskip("sklearn")
+    from occam.classifier import TechniqueClassifier
+
+    texts = ["the actor used powershell scripts to run commands"] * 4 + ["keylogger captured keystrokes from users"] * 4 \
+        + ["remote desktop protocol was used to move laterally"] * 4
+    labels = [{"T1059.001"}] * 4 + [{"T1056.001"}] * 4 + [{"T1021.001"}] * 4
+    clf = TechniqueClassifier(threshold=0.0).fit(texts, labels)
+    doc = "The actor used powershell scripts. A keylogger captured keystrokes. Remote desktop protocol moved laterally."
+    assert len(clf.hits(doc)) == 3
+    assert len(clf.hits(doc, top_k=1)) == 1
+    clf.top_k = 2
+    assert len(clf.hits(doc)) == 2
