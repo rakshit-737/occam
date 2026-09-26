@@ -16,7 +16,7 @@ report. PDFs are parsed as text only (pypdf) and never opened in a viewer.
 
 Usage::
 
-    python scripts/download_data.py                      # everything (~120 MB)
+    python scripts/download_data.py                      # everything (~180 MB)
     python scripts/download_data.py --only attack tram   # skip APTnotes PDFs
     python scripts/download_data.py --aptnotes-max 60
     OCCAM_DATA=D:/data/occam python scripts/download_data.py
@@ -67,10 +67,10 @@ FILES = {
 
 #: sha256 of the pinned files (filled from the first verified download).
 CHECKSUMS = {
-    "SHA256_ATTACK": "",
-    "SHA256_TRAM_MULTI": "",
-    "SHA256_TRAM_SINGLE": "",
-    "SHA256_APTNOTES_CSV": "",
+    "SHA256_ATTACK": "dc1639caa5501d720e280cf1cbd8fbe009884a0c9b3e6e9ed9d0c25166c3d8f4",
+    "SHA256_TRAM_MULTI": "8a0c6644e4477eab28c92efd3bd7004b9563cb120ae1681d7d0a05dc170cd91b",
+    "SHA256_TRAM_SINGLE": "7f9966dd8647e777e28e02aa08d7a38499f4b6ba5682a2366508a7b63b82cc0f",
+    "SHA256_APTNOTES_CSV": "dac4579a78ad0ad644d6f57670f31ac54f0424b3ab2619c8119d8f65e48adf0b",
 }
 
 UA = {"User-Agent": "occam-data-fetch/0.2 (+https://github.com/rakshit-737/occam)", "Accept-Encoding": "gzip"}
