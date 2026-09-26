@@ -1,0 +1,3 @@
+SYNTHETIC REPORT R3. The actor exploited the VPN appliance (CVE-2099-0001), used legitimate credentials, moved via admin
+shares using PsExec, cleared event logs with wevtutil and deployed the GLASSWIPE wiper. Shadow copies were deleted with
+vssadmin. C2 traffic came through a relay network of compromised routers including 203.0.113.77.
