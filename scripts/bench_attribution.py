@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import random
 import statistics
 import sys
@@ -31,17 +32,30 @@ from occam.evaluation import SETTINGS, crossfit_calibrate, crossfit_grade_calibr
 from occam.knowledge import AttackData  # noqa: E402
 from occam.metrics import reliability  # noqa: E402
 
-DATA = REPO.parent.parent / "datasets" / "occam"
+DATA = Path(os.environ.get("OCCAM_DATA", REPO.parent.parent / "datasets" / "occam"))
 NAMES = {"similarity": "TTP-similarity baseline", "ach": "OCCAM ACH", "ach-top5": "OCCAM ACH, top-5 similarity shortlist",
          "ach-balanced": "OCCAM ACH, support-aware ranking"}
 
 
-def bootstrap_ci(values: list[float], n: int = 1000, seed: int = 0) -> tuple[float, float]:
+def bootstrap_ci(values: list[float], n: int = 1000, seed: int = 0, groups: list[str] | None = None) -> tuple[float, float]:
+    """95% percentile bootstrap of the mean; with ``groups``, a cluster bootstrap
+    (all incidents of a resampled group enter together)."""
     rng = random.Random(seed)
     k = len(values)
     if not k:
         return (0.0, 0.0)
-    means = sorted(sum(values[rng.randrange(k)] for _ in range(k)) / k for _ in range(n))
+    if groups is None:
+        means = sorted(sum(values[rng.randrange(k)] for _ in range(k)) / k for _ in range(n))
+    else:
+        by: dict[str, list[float]] = {}
+        for g, v in zip(groups, values):
+            by.setdefault(g, []).append(v)
+        keys = sorted(by)
+        means = []
+        for _ in range(n):
+            xs = [v for g in (keys[rng.randrange(len(keys))] for _ in keys) for v in by[g]]
+            means.append(sum(xs) / len(xs))
+        means.sort()
     return means[int(0.025 * n)], means[int(0.975 * n) - 1]
 
 
@@ -88,11 +102,30 @@ def main(argv: list[str] | None = None) -> int:
             out["calibrated"][m][s] = summarize(oc, cal)
             if m != "similarity":
                 out["grade_calibrated"].setdefault(m, {})[s] = summarize(oc, crossfit_grade_calibrate(oc))
+            grp = [o.incident.group for o in oc]
             out["ci95"][m][s] = {
-                "accuracy": bootstrap_ci([float(o.correct) for o in oc]),
-                "brier": bootstrap_ci([(o.attribution.probability - o.correct) ** 2 for o in oc]),
+                "accuracy": bootstrap_ci([float(o.correct) for o in oc], groups=grp),
+                "brier": bootstrap_ci([(o.attribution.probability - o.correct) ** 2 for o in oc], groups=grp),
             }
             out["reliability"][m][s] = reliability([o.attribution.probability for o in oc], [o.correct for o in oc])
+    # setting-agnostic (pooled) calibration, cross-fitted by group: what a deployed
+    # map can actually do, since it cannot know which setting an incident is in
+    out["pooled_calibrated"] = {}
+    for m, per in res.items():
+        pool = [o for s in SETTINGS for o in per[s]]
+        if m == "similarity":
+            p_all = crossfit_calibrate(pool)
+        else:
+            from occam.evaluation import _fold
+            cals = {}
+            for f in (0, 1):
+                tr = [o for o in pool if _fold(o.incident.group) != f]
+                cals[f] = GradeCalibrator().fit([o.attribution.confidence for o in tr], [o.correct for o in tr])
+            p_all = [cals[_fold(o.incident.group)][o.attribution.confidence] for o in pool]
+        out["pooled_calibrated"][m] = {}
+        for s in SETTINGS:
+            idx = [i for i, o in enumerate(pool) if o.setting == s]
+            out["pooled_calibrated"][m][s] = summarize([pool[i] for i in idx], [p_all[i] for i in idx])
     # the shipped calibrated grader: fitted on every setting of plain ACH
     pooled = [o for s in SETTINGS for o in res["ach"][s]]
     grader = GradeCalibrator().fit([o.attribution.confidence for o in pooled], [o.correct for o in pooled])
@@ -122,7 +155,7 @@ def seed_variance(data, factories, a, seeds: list[int], first) -> dict:
             for k in per[m]:
                 per[m][k].append(r[k])
         print(f"  seed {sd} done", flush=True)
-    return {"seeds": seeds, "false_flag": {m: {k: {"mean": statistics.fmean(v), "sd": statistics.pstdev(v), "values": v}
+    return {"seeds": seeds, "false_flag": {m: {k: {"mean": statistics.fmean(v), "sd": statistics.stdev(v), "values": v}
                                                for k, v in d.items()} for m, d in per.items()}}
 
 
@@ -131,7 +164,8 @@ def render(o: dict) -> str:
         f"### Attribution on held-out ATT&CK group usage (ATT&CK v{o['attack_version']})",
         "",
         f"{o['n_incidents']} leave-one-report-out incidents from {o['n_groups_with_incidents']} groups; "
-        f"{o['n_candidate_groups']} candidate group profiles; {o['protocol']['markers']} planted markers in the false-flag setting.",
+        f"{o['n_candidate_groups']} candidate group profiles; {o['protocol']['markers']} planted markers in the false-flag setting. "
+        "95% CIs: group-cluster bootstrap.",
         "",
         "| Setting | Method | Correct [95% CI] | Names true group | Framed | Brier [95% CI] | ECE "
         "| Overconfident errors | Brier (recal.) | ECE (recal.) |",
@@ -149,7 +183,15 @@ def render(o: dict) -> str:
           "false_flag = names the true group or concludes the framed group was framed. "
           "*Overconfident errors*: wrong with stated probability >= 0.8. "
           "*recal.*: histogram binning cross-fitted over a 2-fold group split."]
-    L += ["", "#### Learned grade -> probability map (calibrated grader)", "",
+    L += ["", "#### Setting-agnostic calibration (the realistic number)", "",
+          "One map fitted on closed + open + false_flag together, cross-fitted by group. The per-setting maps further below "
+          "know which setting an incident comes from and are an oracle upper bound.", "",
+          "| Setting | Method | Brier (pooled map) | ECE (pooled map) |", "|---|---|---|---|"]
+    for s in SETTINGS:
+        for m in o["pooled_calibrated"]:
+            r = o["pooled_calibrated"][m][s]
+            L.append(f"| {s} | {NAMES[m]} | {r['brier']:.3f} | {r['ece']:.3f} |")
+    L += ["", "#### Learned grade -> probability map, fitted per setting (oracle upper bound)", "",
           "Stated probability per ACH grade, learned (Beta-smoothed, monotone) instead of fixed ICD-203 midpoints. "
           "Brier with the learned map is cross-fitted over a 2-fold group split.", "",
           "| Setting | Method | Brier (ICD-203 midpoints) | Brier (learned grades) | ECE (learned grades) |", "|---|---|---|---|---|"]
@@ -161,7 +203,7 @@ def render(o: dict) -> str:
           + ", ".join(f"{k} = {g['probs'][k]:.3f} (n={g['counts'][k][1]})" for k in ("low", "moderate", "high"))]
     sv = o["seed_variance"]
     L += ["", f"#### False-flag setting across framing seeds {sv['seeds']}", "",
-          "| Method | Correct, mean ± sd | Names framed group, mean ± sd | Brier, mean ± sd |", "|---|---|---|---|"]
+          "| Method | Correct, mean ± sample SD | Names framed group, mean ± sample SD | Brier, mean ± sample SD |", "|---|---|---|---|"]
     for m, d in sv["false_flag"].items():
         L.append(f"| {NAMES[m]} | {d['accuracy']['mean']:.3f} ± {d['accuracy']['sd']:.3f} | "
                  f"{d['framed_rate']['mean']:.3f} ± {d['framed_rate']['sd']:.3f} | {d['brier']['mean']:.3f} ± {d['brier']['sd']:.3f} |")
@@ -195,9 +237,10 @@ def plot(res, fig_dir: Path) -> None:
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 1)
     axes[0].set_ylabel("observed accuracy")
-    axes[0].legend(loc="upper left", fontsize=8)
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="lower center", ncol=4, fontsize=8, frameon=False)
     fig.suptitle("Reliability of stated attribution confidence (held-out ATT&CK incidents)")
-    fig.tight_layout()
+    fig.tight_layout(rect=(0, 0.08, 1, 1))
     fig.savefig(fig_dir / "attribution_reliability.png", dpi=110)
     print(f"wrote {fig_dir / 'attribution_reliability.png'}")
 
