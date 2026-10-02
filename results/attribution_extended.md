@@ -95,4 +95,4 @@ False-flag setting over framing seeds (mean ± sample SD):
 | temporal-15.1 | OCCAM ACH, top-5 similarity shortlist | 0.617 ± 0.022 | 0.000 ± 0.000 | 0.003 ± 0.006 |
 | temporal-15.1 | OCCAM ACH, support-aware ranking | 0.933 ± 0.039 | 0.012 ± 0.016 | 0.014 ± 0.010 |
 
-*Correct*: closed = names the true group; open = declines to name; false_flag = names the true group or concludes the framed group was framed. Temporal protocols use the old release's profiles and KB and hold nothing out. Intervals: group-cluster bootstrap (n >= 50), else Wilson score interval.
+*Correct*: closed = names the true group; open = declines to name; false_flag = names the true group or concludes the framed group was framed. Temporal protocols use the old release's profiles and KB and hold nothing out. Intervals: group-cluster bootstrap (n >= 50), else Wilson score interval. A rate of exactly 0 (the similarity baseline never declines) has a degenerate bootstrap interval [0.00-0.00]; its Wilson upper bound is about 3.8/n (e.g. 0.007 for n = 575).
