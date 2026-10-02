@@ -166,6 +166,9 @@ cannot help. TTP similarity names the framed group 76.3\% of the time, IDF
 coverage 32.1\%, ACH 27.0\% (CI 21.3--33.5\%; paired difference to coverage
 $-$9 to $-$2 points). With six mimicked items ACH is framed 44.2\% of the
 time against 90.9\% for similarity.
+The gain is not shown to be specific to ACH's weighting: without
+diagnosticity weighting ACH is framed less under mimicry (18.2\%), at a cost
+in closed-world accuracy, and support-aware ranking is framed more (35.4\%).
 \paragraph{Ablations.} Removing the false-flag hypotheses leaves ACH's framed
 rate at 1.1\% and raises ``names the true group'' from 2.2\% to 20.1\%;
 removing the 0.5 spoofable discount changes accuracy by under one point; the
@@ -180,18 +183,29 @@ of the time; the abstaining baseline declines 94.5\% but its closed-world
 accuracy falls to 26.6\%. With one setting-agnostic calibration map,
 cross-fitted by group, ACH's Brier score is 0.189 / 0.249 / 0.205 in the
 closed / open / false-flag settings against 0.315 / 0.032 / 0.131 for
-similarity.
+similarity (over all three settings together: 0.214 vs 0.160). One map cannot
+help similarity, which never declines: its open-world answers are all wrong, the
+map lowers every probability, and its closed-world Brier rises from 0.179
+uncalibrated to 0.315.
 \paragraph{Larger and later data.} Over all 575 report incidents, 21 held-out
 campaigns and temporal splits (profiles from ATT\&CK v12.1 or v15.1,
-activity added afterwards, renamed technique ids mapped back), the pattern is
-the same. In the temporal splits both methods are weak in the closed world
+activity added afterwards, renamed technique ids mapped back), the closed,
+open and planted-marker comparison with the naive matcher points the same way;
+the authentic, mimicry and simple-baseline controls were run only on the
+274-incident set. In the temporal splits both methods are weak in the closed world
 (v12.1: 21.3\% vs 20.2\%) and ACH declines 50.6\% of the time when the group is
 removed. An earlier version of this split reported 67.7\%; that figure was
 inflated by technique ids the old release did not know.
 \paragraph{Real reports.} On 72 APTnotes reports labelled by file name and
 title, with ATT\&CK citations that match the report held out, ACH's top-1
 accuracy is 31.9\% (Wilson CI 22--43\%) against 26.4\% for similarity, with no
-answer wrong at stated probability $\ge 0.8$ (similarity: 9 of 72).
+answer wrong at stated probability $\ge 0.8$ (similarity: 9 of 72). Neither
+is a significant win: the top-1 difference is 23 vs 19 reports, and even if
+all four net discordant reports favoured ACH an exact McNemar test gives
+$p=0.125$. The second figure holds almost by construction, because ACH's
+grades are capped (HIGH, 0.875, is rarely reachable; answers are capped at MODERATE, 0.675,
+whenever deception indicators fire or a same-actor false-flag hypothesis is
+not rejected), so this metric can barely fail for ACH.
 Attributing on software names alone is better for both (47.2\% and 44.4\%);
 techniques alone are near zero.
 \paragraph{Reproduction.} On rcATT's 1,490 reports, its 5-fold split and
