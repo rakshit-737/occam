@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use OCCAM, please cite it as below."
+title: "OCCAM: auditable ACH attribution with planted, authentic and mimicked false-flag evaluation"
+authors:
+  - given-names: Rakshit
+    affiliation: "Vellore Institute of Technology, Chennai"
+type: software
+version: 1.0.0
+license: MIT
+repository-code: "https://github.com/rakshit-737/occam"
+url: "https://rakshit-737.github.io/occam/"
+keywords: [threat-intelligence, attribution, analysis-of-competing-hypotheses, false-flag, mitre-attack]

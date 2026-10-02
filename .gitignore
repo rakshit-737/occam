@@ -14,3 +14,40 @@ enterprise-attack.json
 models/
 .ruff_cache/
 site/
+ui/node_modules/
+ui/dist/
+node_modules/
+
+# datasets must never enter git (they live outside the repo)
+/data/
+/datasets/
+enterprise-attack*.json
+*-attack-*.json
+attack-history/
+aptnotes/
+tram/
+rcatt/
+nltk_data/
+*.pdf
+!paper/occam.pdf
+
+# environments, coverage, outputs of README commands
+.venv/
+venv/
+.env
+.env.*
+.mypy_cache/
+.coverage
+htmlcov/
+*.cypher
+layer.json
+
+# LaTeX build artefacts
+*.aux
+*.bbl
+*.blg
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
