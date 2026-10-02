@@ -291,7 +291,10 @@ def render(o: dict) -> str:
           "Mimicry items are ordinary technique/software rows, so the gate cannot see them (it equals plain similarity there). "
           "*Brier, pooled calibration*: one grade/probability map fitted on closed+open+false_flag together and "
           "cross-fitted by group, i.e. without knowing which setting an incident comes from. "
-          "The same map and cross-fitting as the per-setting rows in [attribution.md](attribution.md) (which this column reproduces exactly: e.g. similarity 0.315 / 0.032 / 0.131 and ACH 0.189 / 0.249 / 0.205 for closed / open / false_flag); this column is the single Brier over all three settings together, attribution.md gives the per-setting breakdown and is the canonical table."]
+          "The same map and cross-fitting as the per-setting rows in `results/attribution.md` (which this column "
+          "reproduces exactly: e.g. similarity 0.315 / 0.032 / 0.131 and ACH 0.189 / 0.249 / 0.205 for closed / open / "
+          "false_flag); this column is the single Brier over all three settings together, attribution.md gives the per-"
+          "setting breakdown and is the canonical table."]
     return "\n".join(L) + "\n"
 
 

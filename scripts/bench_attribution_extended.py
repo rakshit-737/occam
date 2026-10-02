@@ -259,7 +259,9 @@ def render(o: dict) -> str:
                      f"{d['named_true']['mean']:.3f} ± {d['named_true']['sd']:.3f} |")
     L += ["", "*Correct*: closed = names the true group; open = declines to name; false_flag = names the true group "
           "or concludes the framed group was framed. Temporal protocols use the old release's profiles and KB and hold "
-          "nothing out. Intervals: group-cluster bootstrap (n >= 50), else Wilson score interval. A rate of exactly 0 (the similarity baseline never declines) has a degenerate bootstrap interval [0.00-0.00]; its Wilson upper bound is about 3.8/n (e.g. 0.007 for n = 575)."]
+          "nothing out. Intervals: group-cluster bootstrap (n >= 50), else Wilson score interval. A rate of exactly 0 "
+          "(the similarity baseline never declines) has a degenerate bootstrap interval [0.00-0.00]; its Wilson upper "
+          "bound is about 3.8/n (e.g. 0.007 for n = 575)."]
     return "\n".join(L) + "\n"
 
 
