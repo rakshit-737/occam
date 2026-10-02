@@ -7,7 +7,7 @@
 body { margin:0; font:14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--fg); }
 header { padding:14px 16px; border-bottom:1px solid var(--line); }
 header h1 { font-size:18px; margin:0 8px 0 0; display:inline; }
-.badge { font-size:12px; padding:2px 8px; border-radius:10px; border:1px solid var(--line); }
+.badge { white-space:nowrap; font-size:12px; padding:2px 8px; border-radius:10px; border:1px solid var(--line); }
 .badge.live { background:var(--cc); color:#fff; } .badge.static { background:var(--accent); color:#fff; }
 main { padding:16px; max-width:1300px; margin:0 auto; }
 section { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:14px 16px; min-width:0; }
@@ -26,3 +26,6 @@ td.cell.over { outline:2px solid var(--accent); outline-offset:-2px; }
 .verdict { font-size:15px; } .conf { text-transform:uppercase; }
 .muted { color:var(--muted); } .error { color:var(--ii); }
 ul { margin:4px 0 8px 18px; padding:0; }
+.links { float:right; display:flex; gap:12px; font-size:13px; }
+.links a { color:var(--accent); }
+td.cell:focus-visible { outline:2px solid var(--accent); outline-offset:-2px; }

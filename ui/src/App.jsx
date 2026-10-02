@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { RATINGS, score } from "./ach.js";
 
 async function tryLive() {
+  // the GitHub Pages build has no API behind it: do not probe (avoids a 404 at the domain root)
+  if (import.meta.env.VITE_STATIC) return null;
   try {
     const r = await fetch("/scenarios", { headers: { Accept: "application/json" } });
     if (!r.ok || !(r.headers.get("content-type") || "").includes("json")) return null;
@@ -89,6 +91,10 @@ export default function App() {
     <>
       <header>
         <h1>OCCAM analyst workbench</h1>
+        <nav className="links">
+          <a href="https://rakshit-737.github.io/occam/">docs</a>
+          <a href="https://github.com/rakshit-737/occam">GitHub</a>
+        </nav>
         <span className={`badge ${mode}`}>
           {mode === "live" ? "live API" : mode === "static" ? "static demo (no server)" : "loading"}
         </span>
@@ -138,7 +144,10 @@ export default function App() {
                           const k = `${e.id}|${h.id}`;
                           return (
                             <td key={h.id} className={`cell ${r}${k in overrides ? " over" : ""}`}
-                                onClick={() => cycle(e.id, h.id, r)} title="click to cycle rating">{r}</td>
+                                tabIndex={0} role="button" aria-label={`${e.id} vs ${h.id}: ${r}; press Enter to change`}
+                                onClick={() => cycle(e.id, h.id, r)}
+                                onKeyDown={(ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); cycle(e.id, h.id, r); } }}
+                                title="click to cycle rating">{r}</td>
                           );
                         })}
                       </tr>
