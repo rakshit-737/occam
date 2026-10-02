@@ -75,7 +75,14 @@ def scores(Y: np.ndarray, P: np.ndarray) -> dict[str, float]:
     return out
 
 
-def pipelines(task: str):
+def _ident(x):
+    return x
+
+
+def pipelines(task: str, docs: list[str]):
+    """Pipelines; the (slow) NLTK tokenisation is done once per task and the
+    vectoriser consumes the token lists -- equivalent to tokenising inside
+    every fold, because tokenisation is per document and has no fitted state."""
     import nltk
     from nltk.corpus import stopwords
     from nltk.stem import WordNetLemmatizer
@@ -101,10 +108,13 @@ def pipelines(task: str):
             return [wnl.lemmatize(t) for t in nltk.word_tokenize(d)]
         max_df = 0.90
 
+    stop_set = set(stop)
+    toks = [tuple(t for t in tok(d) if t not in stop_set) for d in docs]
+
     def released():
         return Pipeline([
-            ("tfidf", TfidfVectorizer(tokenizer=tok, token_pattern=None, stop_words=stop, min_df=2, max_df=max_df)),
-            ("clf", OneVsRestClassifier(Pipeline([("sel", SelectPercentile(chi2, percentile=50)),
+            ("tfidf", TfidfVectorizer(analyzer=_ident, min_df=2, max_df=max_df)),
+            ("clf", OneVsRestClassifier(n_jobs=4, estimator=Pipeline([("sel", SelectPercentile(chi2, percentile=50)),
                                                   ("svc", LinearSVC(dual=task == "tactics", class_weight="balanced",
                                                                     max_iter=5000))]))),
         ])
@@ -112,17 +122,17 @@ def pipelines(task: str):
     def paper():
         return Pipeline([
             ("tfidf", TfidfVectorizer(stop_words=stop, min_df=2, max_df=max_df)),
-            ("clf", OneVsRestClassifier(Pipeline([("sel", SelectPercentile(chi2, percentile=50)),
+            ("clf", OneVsRestClassifier(n_jobs=4, estimator=Pipeline([("sel", SelectPercentile(chi2, percentile=50)),
                                                   ("svc", LinearSVC(max_iter=5000))]))),
         ])
 
     def occam():
         return Pipeline([
             ("tfidf", TfidfVectorizer(ngram_range=(1, 2), min_df=2, max_df=0.9, sublinear_tf=True, max_features=200_000)),
-            ("clf", OneVsRestClassifier(LogisticRegression(C=4.0, max_iter=2000, class_weight="balanced"))),
+            ("clf", OneVsRestClassifier(n_jobs=4, estimator=LogisticRegression(C=4.0, max_iter=2000, class_weight="balanced"))),
         ])
 
-    return {"rcatt-released": released, "rcatt-paper": paper, "occam-lr": occam}
+    return {"rcatt-released": (released, toks), "rcatt-paper": (paper, docs), "occam-lr": (occam, docs)}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -147,11 +157,11 @@ def main(argv: list[str] | None = None) -> int:
             keep = Y.sum(axis=0) >= 5
             Y = Y[:, keep]
         out["tasks"][task] = {"n_labels": int(Y.shape[1]), "methods": {}}
-        for name, make in pipelines(task).items():
+        for name, (make, X) in pipelines(task, docs).items():
             folds = []
             for tr, te in KFold(5, shuffle=True, random_state=42).split(docs):
-                m = make().fit([docs[i] for i in tr], Y[tr])
-                folds.append(scores(Y[te], m.predict([docs[i] for i in te])))
+                m = make().fit([X[i] for i in tr], Y[tr])
+                folds.append(scores(Y[te], m.predict([X[i] for i in te])))
             agg = {k: (statistics.fmean(f[k] for f in folds), statistics.stdev(f[k] for f in folds)) for k in folds[0]}
             out["tasks"][task]["methods"][name] = {"mean_sd": agg, "folds": folds}
             print(f"[{task}] {name}: micro F0.5 {agg['micro_f05'][0]:.2f} macro F0.5 {agg['macro_f05'][0]:.2f} "
