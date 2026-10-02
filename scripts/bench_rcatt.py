@@ -8,7 +8,7 @@ Setup taken from the paper (Sec. 2-4, Tables 2-4) and the released code
 (``training_data_original.csv``, ISO-8859-1), techniques with < 5 reports
 dropped, 5-fold cross-validation (KFold, shuffle, random_state=42), binary
 relevance (one classifier per label), micro / macro precision, recall and
-F0.5 (beta = 0.5). Paper reference numbers are the "Inde." rows of Table 4
+F0.5 (beta = 0.5). Paper reference numbers are the "Inde." rows of the result tables of arXiv:2004.14322
 (mean +- sd over folds).
 
 Pipelines:
@@ -45,7 +45,7 @@ from _rcatt_preprocessing import clean_text  # noqa: E402
 
 DATA = Path(os.environ.get("OCCAM_DATA", REPO.parent.parent / "datasets" / "occam"))
 
-PAPER = {  # Legoy et al. 2020, Table 4, "Inde." rows (mean +- sd over 5 folds), percent
+PAPER = {  # Legoy et al. 2020 (arXiv:2004.14322), "Inde." rows (mean +- sd over 5 folds), percent
     "techniques": {"micro_p": (37.18, 6.75), "micro_r": (29.79, 5.91), "micro_f05": (35.02, 5.32),
                    "macro_p": (28.84, 6.9), "macro_r": (22.67, 5.94), "macro_f05": (25.06, 6.09)},
     "tactics": {"micro_p": (65.64, 3.76), "micro_r": (64.69, 3.0), "micro_f05": (65.38, 2.87),
@@ -176,7 +176,7 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def render(o: dict) -> str:
-    names = {"paper": "rcATT paper, Table 4 (reported)", "rcatt-released": "Reproduction, released rcATT pipeline",
+    names = {"paper": "rcATT paper (reported)", "rcatt-released": "Reproduction, released rcATT pipeline",
              "rcatt-paper": "Reproduction, pipeline as described in the paper", "occam-lr": "OCCAM TF-IDF + LR, same folds"}
     L = ["### Reproduction of rcATT (Legoy et al. 2020) report-level TTP classification", "",
          f"{o['n_reports']} reports, 5-fold CV (KFold, shuffle, seed 42), binary relevance; mean ± SD over folds, percent.", ""]

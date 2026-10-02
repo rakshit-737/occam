@@ -18,6 +18,9 @@
 - **spaCy entity and relation extraction.** It is a heavy dependency with uncertain wheels for Python 3.14 on this machine, and it needs a labelled relation set to evaluate. The regex and classifier extractors cover IOCs and techniques.
 - **LLM extractor.** It needs a hosted or local model and a human-judged set of span-grounded extractions, which cannot be reproduced in CI.
 - **Live Neo4j / OpenCTI.** OCCAM now emits an idempotent Cypher script (`occam cluster --cypher`). It has not been load-tested against a running Neo4j or OpenCTI instance.
+- **Workbench graph view and `/cluster` API endpoint.** Clustering is available from the CLI (`occam cluster`) and Python API only; the workbench has no graph view yet.
+- **Reference verification log.** The preprint's references were checked by hand; no script resolving each DOI/arXiv id is committed.
+- **Published artefacts before 1.1.0** (the v1.0.0 wheel and `:latest` image) lack the packaged demo data and later fixes; use 1.1.0 or newer.
 - **Persistent TAXII collection.** The TAXII endpoint stays read-only and in-memory until authentication exists.
 
 ## Roadmap

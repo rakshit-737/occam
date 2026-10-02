@@ -9,7 +9,7 @@
 
 **Auditable attribution for threat intelligence: span-anchored ATT&CK extraction, campaign clustering, and Analysis of Competing Hypotheses that has to consider "unknown actor" and "someone framed X".**
 
-**Contribution.** An open, leakage-controlled benchmark for attack attribution under *planted*, *authentic* and *mimicked* false-flag evidence, and an auditable ACH engine measured on it. On 274 held-out ATT&CK incidents it shows that resisting planted markers comes from typing evidence as spoofable (a baseline that ignores spoofable rows is never framed either), while under TTP **mimicry** ACH names the framed group 27% of the time vs 76% (TTP-similarity) and 32% (IDF coverage; paired CI -9 to -2 points), but is also correct less often (17.9% vs 28.8% for IDF coverage), and removing diagnosticity weighting lowers framing further (18%), so the gain is not attributable to ACH's weighting. On untracked actors ACH declines 46% of the time; the similarity baseline that cannot abstain declines 0%, while a cosine-threshold similarity baseline that can abstain declines 94.5% at a closed-world accuracy (26.6%) not significantly different from ACH's (29.9%). The cost: 30% vs 53% closed-world accuracy, and genuine markers are called a frame-up 19% of the time.
+**Contribution.** An open, leakage-controlled benchmark for attack attribution under planted, authentic and mimicked false-flag evidence, plus an auditable ACH engine measured on it; the numbers, including where ACH loses, are in the table below.
 
 [![The OCCAM workbench on the false_flag_games scenario](docs/figures/workbench.png)](https://rakshit-737.github.io/occam/demo/)
 
@@ -19,7 +19,7 @@
 
 *Does automated ACH with mandatory disconfirming-evidence weighting give better-calibrated, less overconfident attribution than naive TTP-similarity matching, especially under false flags?*
 
-Partly. Against the naive, marker-trusting matcher, yes by a wide margin. Against baselines that already ignore spoofable evidence, ACH is **not** better on planted markers; its real gains are against TTP mimicry and in declining when the actor is untracked. It is worse when nobody is lying.
+Mostly no. On calibration, under one setting-agnostic calibration map ACH is *less* well calibrated overall (pooled Brier 0.214 vs 0.160 for the marker-boost similarity baseline); it is better only in the closed world. On overconfidence under planted markers, ACH names the framed group far less often than the naive marker-trusting matcher (1.1% vs 88%), but a baseline that simply ignores spoofable evidence does as well. Under TTP mimicry ACH is framed slightly less often but is correct less often; a simple abstaining baseline declines more on untracked actors at similar closed-world accuracy. ACH is worse when nobody is lying. Its advantage is mainly auditability.
 
 | Question (274 held-out ATT&CK incidents unless noted) | OCCAM ACH | Best simple baseline | Naive TTP-similarity |
 | --- | --- | --- | --- |

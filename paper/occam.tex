@@ -40,7 +40,7 @@ against IDF coverage $-9$ to $-2$ points), but it is also correct less often
 (17.9\% vs 28.8\%), and removing diagnosticity weighting lowers framing further
 (18.2\%), so the gain is not attributable to ACH's weighting. On untracked
 actors ACH declines 46.0\% of the time; the 0\% comparator cannot abstain, and
-a cosine-threshold similarity baseline that can abstain declines 94.5\% with
+a cosine-threshold similarity baseline that can abstain declines 94.5\% (and 69.0\% when the true group \emph{is} tracked, vs 36.5\% for ACH) with
 closed-world accuracy (26.6\%) not significantly different from ACH's. The costs are closed-world accuracy (29.9\% vs 53.3\%) and an 18.6\% rate of calling genuine
 overlap a frame-up. We release the benchmark, code and all result files.
 \end{abstract}
@@ -239,7 +239,7 @@ to commits and checksummed. Code, result files and exact commands are at
 
 \section*{Acknowledgements}
 The code, experiments and this text were developed with AI assistance
-(Claude, Anthropic). References were checked against their DOI, arXiv or publisher records; the author is responsible for
+(Claude, Anthropic). Reference details were checked manually; no automated DOI/arXiv resolution log is included. The author is responsible for
 all claims.
 
 \bibliographystyle{plainnat}

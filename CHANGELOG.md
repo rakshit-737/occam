@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-02
+
 ### Added
 - `scripts/bench_falseflag.py`: false-flag benchmark with an **authentic-marker** control, a **TTP-mimicry** attack, marker-aware baselines (spoofable-blind similarity, IDF coverage, cross-fitted abstention and consistency gate), a marker-boost sweep, one-at-a-time ACH ablations and group-cluster paired CIs (`results/falseflag.md`).
 - ACH ablation switches (`false_flag_hypotheses`, `unknown_hypothesis`, `spoofable_discount`, `confidence_caps`, `diagnosticity`) and `IDFCoverageAttributor`.
@@ -25,6 +27,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Fixed
 - `occam demo` failed from any non-editable install (fixtures not packaged); demo data now ships in `occam/demo`.
 - ReDoS in the domain and email IOC regexes (69 s on 16 KB of crafted text) and quadratic IOC overlap check.
+- README research-question answer and preprint now state that ACH is less well calibrated under a pooled map and that its advantage is mainly auditability; rcATT table citations and the reference-check sentence corrected.
 - API: Host allow-list (DNS rebinding), body and field size limits, capped TAXII store, 422 instead of 500 on malformed input, docs UI off by default, optional bearer token.
 
 ## [1.0.0] - 2026-09-26
