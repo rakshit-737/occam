@@ -6,6 +6,9 @@ updates:
   - package-ecosystem: npm
     directory: /ui
     schedule: { interval: weekly }
+    groups:
+      ui:
+        patterns: ["*"]
   - package-ecosystem: docker
     directory: /
     schedule: { interval: weekly }

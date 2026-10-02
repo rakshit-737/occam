@@ -89,5 +89,7 @@ The [Evaluation](evaluation.md) page measures this machinery on hundreds of
 held-out ATT&CK incidents, including the cases where it does **not** help: a
 simple baseline that ignores spoofable rows resists planted markers just as
 well, ACH costs closed-world accuracy, and it sometimes mistakes genuine
-overlap for a frame-up. Its distinct advantage is against **mimicry**, where
-the adversary copies the framed group's rare techniques as hard evidence.
+overlap for a frame-up. Under **mimicry**, where
+the adversary copies the framed group's rare techniques as hard evidence, it is
+framed less often than the baselines but is also correct less often, and the
+ablation does not attribute that gain to diagnosticity weighting.

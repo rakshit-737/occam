@@ -2,7 +2,7 @@
 
 ## Limitations
 - **Closed-world accuracy is modest.** Pure Heuer ACH names the right group less often than naive similarity when there is no deception (30% vs 53%). The support-aware variant reaches 40% but gives up declining on untracked actors (46% to 5.5%).
-- **Planted-marker resistance is not specific to ACH.** A baseline that ignores spoofable rows is never framed either, and a consistency gate is correct more often (`results/falseflag.md`). ACH's distinct advantage is under TTP mimicry and in declining.
+- **Planted-marker resistance is not specific to ACH.** A baseline that ignores spoofable rows is never framed either, and a consistency gate is correct more often (`results/falseflag.md`). Under TTP mimicry ACH is framed less often but is correct less often, and the ablation does not tie that to its weighting; a thresholded similarity baseline declines on untracked actors more often than ACH at similar closed-world accuracy.
 - **Genuine overlap is sometimes called a frame-up** (18.6% with 3 authentic markers), and ACH rarely names the true actor behind a detected frame (2%).
 - **The false-flag evaluation uses synthetic markers.** Planted markers and mimicked items are evidence rows, not forged artefacts.
 - **Incidents are reported slices of ATT&CK, not telemetry.**

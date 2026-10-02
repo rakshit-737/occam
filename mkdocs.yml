@@ -55,6 +55,9 @@ markdown_extensions:
 
 plugins:
   - search
+  - redirects:
+      redirect_maps:
+        benchmarks.md: evaluation.md
   - mkdocstrings:
       handlers:
         python:
