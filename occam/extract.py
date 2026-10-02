@@ -1,7 +1,7 @@
 """Prose -> IOCs + ATT&CK techniques, every hit carrying a source span.
 
 Baseline is deterministic keyword/regex matching. A trained sentence-level
-text->technique classifier (:mod:`occam.classifier`) can be layered on top;
+text->technique classifier (`occam.classifier`) can be layered on top;
 like any future (e.g. LLM) extractor it must emit span-anchored
 ``TechniqueHit`` objects so that hallucinated facts (no span) can be rejected.
 """
@@ -40,7 +40,7 @@ def _clean_value(v: str) -> str:
 def extract(text: str, source_id: str = "doc", kb: AttackKB | None = None, classifier=None) -> ExtractionResult:
     """Extract IOCs, techniques and software from prose.
 
-    ``classifier`` (optional, see :mod:`occam.classifier`) adds sentence-level
+    ``classifier`` (optional, see `occam.classifier`) adds sentence-level
     technique predictions; each still carries the sentence span it came from.
     """
     kb = kb or load_bundled()

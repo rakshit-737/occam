@@ -29,7 +29,7 @@ def _lit(s: str) -> str:
 
 
 def to_cypher(events: Mapping[str, Mapping[str, Iterable[str]]], campaigns: Mapping[str, str] | None = None) -> str:
-    """Render ``{event_id: {facet: [values]}}`` (the :mod:`occam.graph` input) as Cypher."""
+    """Render ``{event_id: {facet: [values]}}`` (the `occam.graph` input) as Cypher."""
     lines = [
         "// OCCAM Diamond-model graph -- generated, idempotent (MERGE)",
         *(f"CREATE CONSTRAINT IF NOT EXISTS FOR (n:{lab}) REQUIRE n.value IS UNIQUE;" for lab, _ in LABELS.values()),

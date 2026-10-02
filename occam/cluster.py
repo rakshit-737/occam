@@ -2,7 +2,8 @@
 
 Baseline is weighted-Jaccard similarity + single-linkage (union-find) over a
 threshold. Common techniques are ignored since they carry no signal. Graph
-community detection (Louvain) is a TODO once a real graph store exists.
+community detection (kNN-Louvain over the Diamond graph) lives in
+`occam.graph`.
 """
 from __future__ import annotations
 

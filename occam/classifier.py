@@ -5,7 +5,7 @@ regression. Deliberately simple, CPU-only and inspectable; it is trained on
 MITRE ATT&CK *procedure examples* (the "uses" relationship descriptions) and
 technique descriptions, and optionally on TRAM2 annotated report sentences.
 
-Every prediction is emitted as a span-anchored :class:`TechniqueHit` whose
+Every prediction is emitted as a span-anchored `TechniqueHit` whose
 span is the sentence it was predicted from, so the provenance contract of the
 keyword extractor holds for ML output too.
 

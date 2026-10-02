@@ -1,7 +1,7 @@
 """ATT&CK knowledge base: bundled subset + optional loader for the full STIX bundle.
 
 The full ``enterprise-attack.json`` is fetched by ``scripts/download_data.py``
-(pinned + checksummed) and parsed by :mod:`occam.knowledge`;
+(pinned + checksummed) and parsed by `occam.knowledge`;
 ``convert_stix_bundle`` turns it into OCCAM's compact KB format.
 """
 from __future__ import annotations

@@ -33,7 +33,7 @@ Extra settings (opt-in via ``settings=``), added after the round-3 audit:
   Scored as ``false_flag``.
 
 Stated probabilities are compared with outcomes via Brier score and ECE.
-:func:`crossfit_calibrate` additionally re-maps stated probabilities with
+`crossfit_calibrate` additionally re-maps stated probabilities with
 histogram binning fitted on the *other* half of the groups (2-fold, split by
 group so no actor is in both halves), for a calibrated comparison.
 """
@@ -254,8 +254,8 @@ def evaluate(data: AttackData, factories: dict[str, Factory], settings: Iterable
              incs: list[Incident] | None = None, hw=None) -> dict[str, dict[str, list[Outcome]]]:
     """Run every attributor on every incident in every setting.
 
-    By default the incidents are :func:`incidents` of ``data`` in a
-    :class:`HoldoutWorld`; pass ``incs`` / ``hw`` for campaign or temporal
+    By default the incidents are `incidents` of ``data`` in a
+    `HoldoutWorld`; pass ``incs`` / ``hw`` for campaign or temporal
     protocols.
     """
     hw = hw or HoldoutWorld.build(data)
@@ -346,7 +346,7 @@ def crossfit_calibrate(outcomes: list[Outcome], bins: int = 10, prior: float = 1
 
 def crossfit_grade_calibrate(outcomes: list[Outcome]) -> list[float]:
     """Replace each stated probability with the learned probability of its ACH
-    grade, fitted on the *other* group fold (see :class:`occam.calibration.GradeCalibrator`)."""
+    grade, fitted on the *other* group fold (see `occam.calibration.GradeCalibrator`)."""
     from .calibration import GradeCalibrator
 
     cal = {}

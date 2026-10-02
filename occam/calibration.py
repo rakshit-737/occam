@@ -1,8 +1,8 @@
 """Learned confidence-grade -> probability map (a calibrated grader).
 
 ACH states its confidence as a grade (high / moderate / low). By default the
-grade maps to fixed ICD-203 band midpoints (:data:`occam.attribution.GRADE_PROB`).
-:class:`GradeCalibrator` learns that map from labelled outcomes instead: each
+grade maps to fixed ICD-203 band midpoints (`occam.attribution.GRADE_PROB`).
+`GradeCalibrator` learns that map from labelled outcomes instead: each
 grade's probability is the Beta-smoothed empirical accuracy of answers given
 at that grade, optionally monotone (a higher grade never gets a lower
 probability, via pooling adjacent violators).
@@ -22,6 +22,13 @@ GRADES = ("low", "moderate", "high")
 
 @dataclass
 class GradeCalibrator:
+    """Learned map from an ACH confidence grade to a stated probability.
+
+    ``fit`` estimates each grade's accuracy (Beta prior of strength
+    ``prior_strength`` around ``prior_mean``), ``calibrator[grade]`` returns
+    it, and ``save`` / ``load`` round-trip it as JSON.
+    """
+
     prior_strength: float = 2.0
     prior_mean: float = 0.5
     monotone: bool = True

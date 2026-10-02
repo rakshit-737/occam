@@ -2,12 +2,12 @@
 
 Two attributors share one interface -- ``attribute(evidence) -> Attribution``:
 
-* :class:`SimilarityAttributor` -- the *naive TTP-similarity* baseline the
+* `SimilarityAttributor` -- the *naive TTP-similarity* baseline the
   research question is framed against: IDF-weighted cosine similarity between
   the observed techniques/software and every group profile, confidence =
   softmax over similarities. Spoofable markers are (naively) counted as
   matches for the actor they point at.
-* :class:`ACHAttributor` -- the Heuer ACH engine from :mod:`occam.ach` with the
+* `ACHAttributor` -- the Heuer ACH engine from `occam.ach` with the
   mandatory unknown-actor and false-flag hypotheses and capped confidence.
 
 Both return the *probability that the leading named answer is correct*, so
@@ -124,9 +124,9 @@ class ACHAttributor:
         self.shortlist = shortlist
         self.ranking_rule = ranking_rule
         #: grade -> stated probability; defaults to ICD-203 midpoints, or a learned
-        #: :class:`occam.calibration.GradeCalibrator` mapping
+        #: `occam.calibration.GradeCalibrator` mapping
         self.grade_prob = dict(grade_prob or GRADE_PROB)
-        #: extra :class:`occam.ach.ACHEngine` switches (ablations)
+        #: extra `occam.ach.ACHEngine` switches (ablations)
         self.engine_kw = engine_kw
         self._sim = SimilarityAttributor(profiles, kb) if shortlist else None
 

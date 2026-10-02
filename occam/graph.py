@@ -11,7 +11,7 @@ Graph schema (networkx ``MultiDiGraph``-compatible, stored as a ``Graph``):
 Clustering projects events onto an event-event similarity graph (IDF-weighted
 Jaccard over capabilities + infrastructure; infrastructure weighted higher)
 and runs Louvain community detection. The single-linkage union-find clusterer
-in :mod:`occam.cluster` is kept as the baseline.
+in `occam.cluster` is kept as the baseline.
 
 Requires the optional ``graph`` extra (networkx).
 """

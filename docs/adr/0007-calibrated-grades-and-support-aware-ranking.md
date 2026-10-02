@@ -1,6 +1,7 @@
-# 0007 Learned grade map and an optional support-aware ranking
+# ADR 0007: Learned grade map and an optional support-aware ranking
 
-**Status:** accepted
+- Status: accepted
+- Date: 2026-09-29
 
 ## Context
 The v0.2 benchmark showed two weaknesses. ACH's ICD-203 midpoint probabilities were over-optimistic (closed-world ECE 0.26). Least-inconsistency also favours groups with large ATT&CK profiles, so closed-world top-1 was 30% against 53% for naive similarity.
