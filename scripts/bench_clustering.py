@@ -9,9 +9,11 @@ cluster has several members. ATT&CK carries no infrastructure, so this is a
 capability-only (TTP + software) clustering test -- the hardest case.
 
 Methods: Louvain community detection on an IDF-weighted Jaccard event graph
-(``occam.graph``) vs the single-linkage union-find baseline, the latter shown
-both at its default threshold and at its best threshold chosen *on the test
-data* (an optimistic upper bound for the baseline).
+(``occam.graph``), with and without the kNN sparsification, vs the
+single-linkage union-find baseline. Every method's hyper-parameters are
+chosen on DEV groups and reported on disjoint TEST groups. Louvain depends on
+node order, so the selected configuration is also re-run on 10 random
+permutations of the test events (mean, SD, range of ARI).
 
 Usage::
 
@@ -21,6 +23,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import random
+import statistics
 import sys
 import time
 from collections import Counter, defaultdict
@@ -33,7 +38,7 @@ from occam.graph import louvain_clusters, single_linkage_clusters  # noqa: E402
 from occam.knowledge import AttackData  # noqa: E402
 from occam.metrics import ari, nmi, purity  # noqa: E402
 
-DATA = REPO.parent.parent / "datasets" / "occam"
+DATA = Path(os.environ.get("OCCAM_DATA", REPO.parent.parent / "datasets" / "occam"))
 
 
 def build_events(data: AttackData, min_items: int, min_events: int) -> tuple[dict, dict]:
@@ -85,26 +90,41 @@ def main(argv: list[str] | None = None) -> int:
 
     (dev_ev, dev_tr), (test_ev, test_tr) = split(0), split(1)
     lv_grid = [(k, r) for k in (3, 5, 10) for r in (1.0, 2.0, 3.0, 5.0, 8.0)]
+    dense_grid = [1.0, 2.0, 3.0, 5.0, 8.0]
     sl_grid = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
     lv_dev = {p: score(dev_tr, louvain_clusters(dev_ev, resolution=p[1], knn=p[0]))["ari"] for p in lv_grid}
     sl_dev = {t: score(dev_tr, single_linkage_clusters(dev_ev, t))["ari"] for t in sl_grid}
+    dense_dev = {r: score(dev_tr, louvain_clusters(dev_ev, resolution=r, knn=None))["ari"] for r in dense_grid}
     best_lv, best_sl = max(lv_dev, key=lv_dev.get), max(sl_dev, key=sl_dev.get)
+    best_dense = max(dense_dev, key=dense_dev.get)
+    print(f"dev ARI: best kNN {lv_dev[best_lv]:.3f}, best dense {dense_dev[best_dense]:.3f} (res={best_dense})")
     print(f"dev-selected: louvain knn={best_lv[0]} resolution={best_lv[1]}; single-linkage t={best_sl}")
 
     rows = {
         f"Louvain, IDF-weighted Jaccard kNN graph (k={best_lv[0]}, res={best_lv[1]}; dev-tuned)":
             score(test_tr, louvain_clusters(test_ev, resolution=best_lv[1], knn=best_lv[0])),
-        "Louvain, dense graph (no kNN, res=1.0)": score(test_tr, louvain_clusters(test_ev, knn=None)),
-        f"Single-linkage Jaccard (t={best_sl}; dev-tuned)": score(test_tr, single_linkage_clusters(test_ev, best_sl)),
-        "Single-linkage Jaccard (default t=0.3)": score(test_tr, single_linkage_clusters(test_ev, 0.3)),
+        f"Louvain, dense graph (no kNN, res={best_dense}; dev-tuned)":
+            score(test_tr, louvain_clusters(test_ev, resolution=best_dense, knn=None)),
+        "Louvain, dense graph (no kNN, default res=1.0)": score(test_tr, louvain_clusters(test_ev, knn=None)),
+        f"Single-linkage Jaccard (t={best_sl}; dev-tuned{' = default' if best_sl == 0.3 else ''})":
+            score(test_tr, single_linkage_clusters(test_ev, best_sl)),
         "Trivial: one cluster per event": score(test_tr, {e: i for i, e in enumerate(sorted(test_ev))}),
     }
+    if best_sl != 0.3:
+        rows["Single-linkage Jaccard (default t=0.3)"] = score(test_tr, single_linkage_clusters(test_ev, 0.3))
+    perm = []
+    for sd in range(10):
+        keys = list(test_ev)
+        random.Random(sd).shuffle(keys)
+        perm.append(score(test_tr, louvain_clusters({k: test_ev[k] for k in keys}, resolution=best_lv[1], knn=best_lv[0]))["ari"])
+    order_spread = {"seeds": 10, "mean": statistics.fmean(perm), "sd": statistics.stdev(perm), "min": min(perm), "max": max(perm)}
 
     out = {"attack_version": data.version, "events": len(events), "groups": len(set(truth.values())),
            "test_events": len(test_ev), "test_groups": len(set(test_tr.values())),
            "dev_events": len(dev_ev), "dev_groups": len(set(dev_tr.values())),
            "selected": {"louvain_knn": best_lv[0], "louvain_resolution": best_lv[1], "single_linkage_t": best_sl},
            "min_items": a.min_items, "min_events": a.min_events, "results": rows,
+           "dev_ari": {"knn_best": lv_dev[best_lv], "dense_best": dense_dev[best_dense]}, "kNN_order_spread": order_spread,
            "runtime_s": round(time.time() - t0, 1)}
     a.out.mkdir(parents=True, exist_ok=True)
     (a.out / "clustering.json").write_text(json.dumps(out, indent=1), encoding="utf-8")

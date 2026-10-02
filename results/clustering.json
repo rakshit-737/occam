@@ -20,19 +20,19 @@
    "ari": 0.24866274557444784,
    "clusters": 37
   },
-  "Louvain, dense graph (no kNN, res=1.0)": {
+  "Louvain, dense graph (no kNN, res=5.0; dev-tuned)": {
+   "purity": 0.6592592592592592,
+   "nmi": 0.7045913078746233,
+   "ari": 0.20298496475827676,
+   "clusters": 84
+  },
+  "Louvain, dense graph (no kNN, default res=1.0)": {
    "purity": 0.17777777777777778,
    "nmi": 0.25508243806821335,
    "ari": 0.047161909830036625,
    "clusters": 4
   },
-  "Single-linkage Jaccard (t=0.3; dev-tuned)": {
-   "purity": 0.8,
-   "nmi": 0.6943670289596251,
-   "ari": 0.10660985303476675,
-   "clusters": 181
-  },
-  "Single-linkage Jaccard (default t=0.3)": {
+  "Single-linkage Jaccard (t=0.3; dev-tuned = default)": {
    "purity": 0.8,
    "nmi": 0.6943670289596251,
    "ari": 0.10660985303476675,
@@ -45,5 +45,16 @@
    "clusters": 270
   }
  },
- "runtime_s": 41.9
+ "dev_ari": {
+  "knn_best": 0.36947733448736136,
+  "dense_best": 0.3726650863947776
+ },
+ "kNN_order_spread": {
+  "seeds": 10,
+  "mean": 0.24800631723407524,
+  "sd": 0.012924284712603328,
+  "min": 0.22831705061343632,
+  "max": 0.26729929907690075
+ },
+ "runtime_s": 101.3
 }
