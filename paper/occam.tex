@@ -34,10 +34,14 @@ at which the framed group is named from 88.0\% to 1.1\%. However, a baseline
 that simply ignores spoofable evidence is never framed either, a simple
 consistency gate is correct more often under planted markers (92.0\% vs
 73.4\%), and an ablation shows ACH's false-flag hypotheses are not what blocks
-the frame. ACH's distinct advantage appears under mimicry (framed group named
-27.0\% vs 76.3\% for TTP similarity and 32.1\% for IDF coverage) and in
-declining when the true actor is untracked (46.0\% vs 0\%). The costs are
-closed-world accuracy (29.9\% vs 53.3\%) and an 18.6\% rate of calling genuine
+the frame. Under mimicry ACH names the framed group less often (27.0\%
+vs 76.3\% for TTP similarity and 32.1\% for IDF coverage; paired difference
+against IDF coverage $-9$ to $-2$ points), but it is also correct less often
+(17.9\% vs 28.8\%), and removing diagnosticity weighting lowers framing further
+(18.2\%), so the gain is not attributable to ACH's weighting. On untracked
+actors ACH declines 46.0\% of the time; the 0\% comparator cannot abstain, and
+a cosine-threshold similarity baseline that can abstain declines 94.5\% with
+closed-world accuracy (26.6\%) not significantly different from ACH's. The costs are closed-world accuracy (29.9\% vs 53.3\%) and an 18.6\% rate of calling genuine
 overlap a frame-up. We release the benchmark, code and all result files.
 \end{abstract}
 
@@ -200,9 +204,9 @@ inflated by technique ids the old release did not know.
 title, with ATT\&CK citations that match the report held out, ACH's top-1
 accuracy is 31.9\% (Wilson CI 22--43\%) against 26.4\% for similarity, with no
 answer wrong at stated probability $\ge 0.8$ (similarity: 9 of 72). Neither
-is a significant win: the top-1 difference is 23 vs 19 reports, and even if
-all four net discordant reports favoured ACH an exact McNemar test gives
-$p=0.125$. The second figure holds almost by construction, because ACH's
+is a significant win: the top-1 difference is 23 vs 19 reports, with 12
+reports correct only for ACH and 8 only for similarity (exact McNemar
+$p=0.50$). The second figure holds almost by construction, because ACH's
 grades are capped (HIGH, 0.875, is rarely reachable; answers are capped at MODERATE, 0.675,
 whenever deception indicators fire or a same-actor false-flag hypothesis is
 not rejected), so this metric can barely fail for ACH.
