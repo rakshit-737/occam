@@ -8,6 +8,14 @@ Protocol: 5-fold CV grouped by document, seed 13; thresholds tuned on inner 20% 
 | TF-IDF+LR trained on ATT&CK procedures only | 0.376 | 0.387 | 0.381 | 0.353 | 0.552 | 0.703 | 0.618 | 0.579 |
 | TF-IDF+LR trained on ATT&CK + TRAM train folds | 0.471 | 0.518 | 0.493 | 0.446 | 0.647 | 0.787 | 0.710 | 0.663 |
 
+| Method | Doc micro-F1, fold mean ± SD | Doc micro-F1, document bootstrap 95% CI |
+|---|---|---|
+| Keyword baseline (ATT&CK technique names) | 0.388 ± 0.044 | 0.329-0.434 |
+| TF-IDF+LR trained on ATT&CK procedures only | 0.618 ± 0.030 | 0.587-0.648 |
+| TF-IDF+LR trained on ATT&CK + TRAM train folds | 0.710 ± 0.023 | 0.680-0.738 |
+
+2 TRAM labels (T1562.001, T1574.002) are revoked in ATT&CK v19.2, so the keyword and ATT&CK-only models cannot predict them (3.3% of sentence-level gold labels).
+
 Best / worst techniques (sentence F1, ATT&CK+TRAM model):
 
 | Technique | Support | F1 |

@@ -25,7 +25,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import random
+import statistics
 import sys
 import time
 from collections import defaultdict
@@ -39,7 +41,7 @@ from occam.extract import _patterns  # noqa: E402
 from occam.knowledge import AttackData  # noqa: E402
 from occam.metrics import prf  # noqa: E402
 
-DATA = REPO.parent.parent / "datasets" / "occam"
+DATA = Path(os.environ.get("OCCAM_DATA", REPO.parent.parent / "datasets" / "occam"))
 THRESHOLDS = [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
 
@@ -131,7 +133,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"clf-attack trained: {len(clf_a.classes)} classes ({time.time() - t0:.0f}s)")
     chosen: dict[str, list[float]] = {"clf-attack": [], "clf-attack+tram": []}
 
-    for k, test_docs in enumerate(folds_by_doc(docs, a.folds, a.seed)):
+    folds = folds_by_doc(docs, a.folds, a.seed)
+    for k, test_docs in enumerate(folds):
         train_docs = sorted(set(docs) - test_docs)
         random.Random(a.seed + k).shuffle(train_docs)
         val_docs = set(train_docs[: max(1, len(train_docs) // 5)])
@@ -159,6 +162,22 @@ def main(argv: list[str] | None = None) -> int:
         _, dp = doc_level(docs, p)
         doc = prf(dg, dp)
         results[m] = {"sentence": sent, "document": doc}
+        # spread: per-fold document micro-F1 (mean, sample SD) and a document bootstrap 95% CI
+        per_fold = []
+        for fd in folds:
+            idx = [i for i, d in enumerate(docs) if d in fd]
+            _, g_ = doc_level([docs[i] for i in idx], [gold[i] for i in idx])
+            _, p_ = doc_level([docs[i] for i in idx], [p[i] for i in idx])
+            per_fold.append(prf(g_, p_)["micro_f1"])
+        rng = random.Random(0)
+        boot = []
+        for _ in range(500):
+            pick = [rng.randrange(len(dk)) for _ in dk]
+            boot.append(prf([dg[j] for j in pick], [dp[j] for j in pick])["micro_f1"])
+        boot.sort()
+        results[m]["document_micro_f1_folds"] = {"mean": statistics.fmean(per_fold), "sd": statistics.stdev(per_fold),
+                                                 "values": per_fold}
+        results[m]["document_micro_f1_ci95"] = (boot[12], boot[487])
     # per-technique F1 for the best model (sentence level)
     per = {}
     for t in labels:
@@ -167,7 +186,10 @@ def main(argv: list[str] | None = None) -> int:
         per[t] = {"name": kb.techniques[t].name if t in kb.techniques else t, "support": sum(1 for g in g1 if g),
                   "f1": prf(g1, p1)["micro_f1"]}
 
+    unpredictable = sorted(t for t in labels if t not in kb.techniques)
     out = {
+        "labels_not_in_attack_kb": {"labels": unpredictable,
+                                    "sentence_gold_share": sum(len(g & set(unpredictable)) for g in gold) / max(1, sum(len(g) for g in gold))},
         "dataset": {"name": "TRAM2 multi_label.json", "sentences": len(rows), "documents": len(set(docs)),
                     "techniques": len(labels), "labelled_sentences": sum(1 for g in gold if g)},
         "protocol": f"{a.folds}-fold CV grouped by document, seed {a.seed}; thresholds tuned on inner 20% doc split",
@@ -202,6 +224,15 @@ def render(o: dict) -> str:
         lines.append(f"| {names[m]} | {s['micro_precision']:.3f} | {s['micro_recall']:.3f} | {s['micro_f1']:.3f} | "
                      f"{s['macro_f1']:.3f} | {d['micro_precision']:.3f} | {d['micro_recall']:.3f} | {d['micro_f1']:.3f} | "
                      f"{d['macro_f1']:.3f} |")
+    lines += ["", "| Method | Doc micro-F1, fold mean ± SD | Doc micro-F1, document bootstrap 95% CI |", "|---|---|---|"]
+    for m, r in o["results"].items():
+        if "document_micro_f1_folds" in r:
+            f, c = r["document_micro_f1_folds"], r["document_micro_f1_ci95"]
+            lines.append(f"| {names[m]} | {f['mean']:.3f} ± {f['sd']:.3f} | {c[0]:.3f}-{c[1]:.3f} |")
+    u = o.get("labels_not_in_attack_kb")
+    if u and u["labels"]:
+        lines += ["", f"{len(u['labels'])} TRAM labels ({', '.join(u['labels'])}) are revoked in ATT&CK v{o['attack_version']}, so the "
+                  f"keyword and ATT&CK-only models cannot predict them ({u['sentence_gold_share']:.1%} of sentence-level gold labels)."]
     per = sorted(o["per_technique"].items(), key=lambda kv: -kv[1]["f1"])
     lines += ["", "Best / worst techniques (sentence F1, ATT&CK+TRAM model):", "",
               "| Technique | Support | F1 |", "|---|---|---|"]

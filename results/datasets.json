@@ -1,0 +1,56 @@
+{
+ "attack_enterprise_19.2": {
+  "version": "19.2",
+  "techniques": 697,
+  "subtechniques": 475,
+  "groups": 176,
+  "software": 825,
+  "campaigns": 56,
+  "uses_relationships": 18457,
+  "procedure_examples": 17376,
+  "attributed_campaigns": 25,
+  "sha256": "dc1639caa5501d720e280cf1cbd8fbe009884a0c9b3e6e9ed9d0c25166c3d8f4"
+ },
+ "attack_enterprise_12.1": {
+  "version": "12.1",
+  "techniques": 594,
+  "subtechniques": 401,
+  "groups": 134,
+  "software": 621,
+  "campaigns": 13,
+  "uses_relationships": 12279,
+  "procedure_examples": 11440,
+  "attributed_campaigns": 1,
+  "sha256": "e84679af4bc46bba2ba92f60182101f146d5b966898e47924de7321e6bffeaa1"
+ },
+ "attack_enterprise_15.1": {
+  "version": "15.1",
+  "techniques": 637,
+  "subtechniques": 435,
+  "groups": 149,
+  "software": 678,
+  "campaigns": 28,
+  "uses_relationships": 14030,
+  "procedure_examples": 13057,
+  "attributed_campaigns": 12,
+  "sha256": "a57988bffe402bb3e19d92dbe80a12143e1970b814e013e080f9df2fa5a3f6bc"
+ },
+ "tram2_multi_label": {
+  "sentences": 19178,
+  "documents": 151,
+  "sha256": "8a0c6644e4477eab28c92efd3bd7004b9563cb120ae1681d7d0a05dc170cd91b"
+ },
+ "aptnotes_labelled": {
+  "reports": 73,
+  "groups": 32,
+  "label_sources": {
+   "group": 73,
+   "campaign": 0
+  }
+ },
+ "rcatt_training_data": {
+  "reports": 1490,
+  "label_columns": 227,
+  "sha256": "d1aa3b5880a965b98ed9cb3cf974a5ccba9c457813ff2f38bc3799eeee93602e"
+ }
+}
