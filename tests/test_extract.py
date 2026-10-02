@@ -1,7 +1,7 @@
 from occam.attack import convert_stix_bundle, load_bundled
 from occam.extract import extract, navigator_layer
 
-from conftest import FIX
+from conftest import DEMO
 
 
 def test_bundled_kb_loads():
@@ -10,7 +10,7 @@ def test_bundled_kb_loads():
 
 
 def test_ttps_have_valid_source_spans():
-    text = (FIX / "reports" / "r3_tide_energy.txt").read_text()
+    text = (DEMO / "reports" / "r3_tide_energy.txt").read_text()
     r = extract(text, "r3")
     assert {"T1190", "T1021.002", "T1485", "T1490", "T1070.001"} <= r.technique_ids()
     for h in r.techniques + r.tools:

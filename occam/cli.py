@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -10,12 +11,25 @@ from . import __version__
 from .ach import ACHEngine, render_matrix
 from .attack import convert_stix_bundle, load
 from .cluster import cluster
+from .demo import DEMO
 from .extract import extract, navigator_layer
 from .scenario import load_scenario
 from .stix import export
 
-ROOT = Path(__file__).resolve().parent.parent
-FIXTURES = ROOT / "fixtures"
+#: demo scenarios + reports; packaged with the wheel, overridable for custom fixture sets
+FIXTURES = Path(os.environ.get("OCCAM_FIXTURES") or DEMO)
+
+
+def _scenario(path: str) -> str:
+    """A scenario file, or the name of a bundled one (e.g. ``false_flag_games``)."""
+    p = Path(path)
+    if not p.exists():
+        bundled = FIXTURES / "scenarios" / f"{p.stem}.json"
+        if p.suffix in ("", ".json") and p.parent == Path(".") and bundled.exists():
+            return str(bundled)
+        names = ", ".join(sorted(x.stem for x in (FIXTURES / "scenarios").glob("*.json")))
+        raise FileNotFoundError(f"no such scenario file {path!r} (bundled scenarios: {names})")
+    return path
 
 
 def _dump(obj) -> None:
@@ -64,7 +78,7 @@ def cmd_cluster(a) -> int:
 
 
 def _run_ach(path: str, overrides: list[str], kb_path: str | None):
-    q, actors, evidence, _ = load_scenario(path)
+    q, actors, evidence, _ = load_scenario(_scenario(path))
     eng = ACHEngine(actors, evidence, q, kb=load(kb_path))
     for o in overrides or []:
         cell, rating = o.split("=", 1)
@@ -194,7 +208,7 @@ def main(argv: list[str] | None = None) -> int:
     sub = p.add_subparsers(dest="cmd", required=True)
 
     s = sub.add_parser("extract", help="extract IOCs + ATT&CK techniques from a text report")
-    s.add_argument("file")
+    s.add_argument("file", help="plain-text report (UTF-8)")
     g = s.add_mutually_exclusive_group()
     g.add_argument("--navigator", action="store_true", help="emit ATT&CK Navigator layer")
     g.add_argument("--stix", action="store_true", help="emit STIX 2.1 bundle")
@@ -202,38 +216,38 @@ def main(argv: list[str] | None = None) -> int:
     s.set_defaults(func=cmd_extract)
 
     s = sub.add_parser("cluster", help="cluster *.txt reports in a directory into campaigns")
-    s.add_argument("dir")
-    s.add_argument("--threshold", type=float, default=0.3)
+    s.add_argument("dir", help="directory of *.txt reports")
+    s.add_argument("--threshold", type=float, default=0.3, metavar="T", help="Jaccard merge threshold (default 0.3)")
     s.add_argument("--cypher", metavar="FILE", help="also write the Diamond graph + campaigns as a Neo4j Cypher script")
     s.set_defaults(func=cmd_cluster)
 
     s = sub.add_parser("ach", help="run ACH attribution on a scenario JSON")
-    s.add_argument("scenario")
+    s.add_argument("scenario", help="scenario JSON file, or a bundled name: clean_attribution, false_flag_games, thin_evidence")
     s.add_argument("--override", action="append", metavar="EID:HID=RATING", help="analyst cell override, e.g. E5:H-TIDE=II")
     g = s.add_mutually_exclusive_group()
-    g.add_argument("--json", action="store_true")
-    g.add_argument("--stix", action="store_true")
+    g.add_argument("--json", action="store_true", help="emit the assessment as JSON")
+    g.add_argument("--stix", action="store_true", help="emit the assessment as a STIX 2.1 bundle")
     s.set_defaults(func=cmd_ach)
 
     s = sub.add_parser("load-attack", help="convert a local enterprise-attack.json STIX bundle to OCCAM KB format")
-    s.add_argument("bundle")
-    s.add_argument("--out", default="attack_kb.json")
+    s.add_argument("bundle", help="enterprise-attack STIX 2.1 bundle (JSON)")
+    s.add_argument("--out", default="attack_kb.json", metavar="FILE", help="output KB JSON (default attack_kb.json)")
     s.set_defaults(func=cmd_load_attack)
 
     s = sub.add_parser("attribute", help="attribute a report to ATT&CK groups with ACH (needs enterprise-attack.json)")
-    s.add_argument("file")
+    s.add_argument("file", help="plain-text report (UTF-8)")
     s.add_argument("--attack", required=True, help="path to MITRE ATT&CK enterprise-attack STIX bundle")
     s.add_argument("--calibration", help="learned grade->probability map (results/grade_calibration.json)")
     s.add_argument("--shortlist", type=int, default=8, help="candidate groups kept by TTP similarity (default 8)")
     s.add_argument("--classifier", help="trained model from `occam train-classifier` (adds ML technique hits)")
-    s.add_argument("--json", action="store_true")
+    s.add_argument("--json", action="store_true", help="emit the assessment as JSON")
     s.set_defaults(func=cmd_attribute)
 
     s = sub.add_parser("train-classifier", help="train the text->technique classifier (needs the `ml` extra)")
     s.add_argument("--attack", required=True, help="path to enterprise-attack STIX bundle")
     s.add_argument("--tram", help="optional TRAM2 multi_label.json for extra training sentences")
     s.add_argument("--threshold", type=float, default=0.8, help="decision threshold stored with the model")
-    s.add_argument("--out", default="occam_classifier.pkl")
+    s.add_argument("--out", default="occam_classifier.pkl", metavar="FILE", help="model file (pickle; load only your own)")
     s.set_defaults(func=cmd_train_classifier)
 
     s = sub.add_parser("demo", help="run all demo scenarios on bundled synthetic fixtures")

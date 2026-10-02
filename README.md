@@ -186,10 +186,10 @@ python -m occam demo                              # synthetic scenarios, incl. O
 | `thin_evidence` | *Unknown actor*, **LOW** |
 
 ```bash
-python -m occam ach fixtures/scenarios/false_flag_games.json
-python -m occam ach fixtures/scenarios/clean_attribution.json --override E1:H-QUILL=II --json   # analyst flips a cell
-python -m occam ach fixtures/scenarios/false_flag_games.json --stix                            # STIX 2.1 bundle
-python -m occam extract fixtures/reports/r3_tide_energy.txt --navigator > layer.json           # ATT&CK Navigator layer
+python -m occam ach occam/demo/scenarios/false_flag_games.json
+python -m occam ach occam/demo/scenarios/clean_attribution.json --override E1:H-QUILL=II --json   # analyst flips a cell
+python -m occam ach occam/demo/scenarios/false_flag_games.json --stix                            # STIX 2.1 bundle
+python -m occam extract occam/demo/reports/r3_tide_energy.txt --navigator > layer.json           # ATT&CK Navigator layer
 ```
 
 ### Real data

@@ -19,11 +19,11 @@ docker run --rm -p 127.0.0.1:8000:8000 ghcr.io/rakshit-737/occam:latest
 ## Synthetic scenarios
 
 ```bash
-python -m occam ach fixtures/scenarios/false_flag_games.json
-python -m occam ach fixtures/scenarios/clean_attribution.json --override E1:H-QUILL=II --json
-python -m occam ach fixtures/scenarios/false_flag_games.json --stix
-python -m occam extract fixtures/reports/r3_tide_energy.txt --navigator > layer.json
-python -m occam cluster fixtures/reports --cypher graph.cypher   # Neo4j import script
+python -m occam ach occam/demo/scenarios/false_flag_games.json
+python -m occam ach occam/demo/scenarios/clean_attribution.json --override E1:H-QUILL=II --json
+python -m occam ach occam/demo/scenarios/false_flag_games.json --stix
+python -m occam extract occam/demo/reports/r3_tide_energy.txt --navigator > layer.json
+python -m occam cluster occam/demo/reports --cypher graph.cypher   # Neo4j import script
 ```
 
 ## Real data

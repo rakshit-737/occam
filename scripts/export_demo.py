@@ -30,7 +30,7 @@ def snapshot(path: Path) -> dict:
 
 
 def main() -> int:
-    scen = sorted((REPO / "fixtures" / "scenarios").glob("*.json"))
+    scen = sorted((REPO / "occam" / "demo" / "scenarios").glob("*.json"))
     data = {"spoofable_discount": SPOOFABLE_DISCOUNT, "scenarios": {p.stem: snapshot(p) for p in scen}}
     out = REPO / "ui" / "public" / "demo-data.json"
     out.write_text(json.dumps(data, indent=1), encoding="utf-8")

@@ -7,13 +7,13 @@ from occam.models import Consistency, Evidence, EvidenceKind
 from occam.scenario import load_scenario
 from occam.stix import export
 
-from conftest import FIX
+from conftest import DEMO
 
 RANK = {"low": 0, "moderate": 1, "high": 2}
 
 
 def run(name):
-    q, actors, ev, exp = load_scenario(FIX / "scenarios" / f"{name}.json")
+    q, actors, ev, exp = load_scenario(DEMO / "scenarios" / f"{name}.json")
     return ACHEngine(actors, ev, q), exp
 
 
@@ -76,14 +76,14 @@ def test_override_validation():
 
 
 def test_spoofable_only_evidence_never_high():
-    _, actors, _, _ = load_scenario(FIX / "scenarios" / "clean_attribution.json")
+    _, actors, _, _ = load_scenario(DEMO / "scenarios" / "clean_attribution.json")
     ev = [Evidence(f"E{i}", "planted marker", EvidenceKind.CODE_OVERLAP, points_to=["EMBER"], reliability="A", credibility=1)
           for i in range(6)]
     assert ACHEngine(actors, ev).assess().confidence == "low"
 
 
 def test_bad_inputs_rejected():
-    _, actors, _, _ = load_scenario(FIX / "scenarios" / "clean_attribution.json")
+    _, actors, _, _ = load_scenario(DEMO / "scenarios" / "clean_attribution.json")
     with pytest.raises(ValueError):
         ACHEngine(actors, []).assess()
     with pytest.raises(ValueError):

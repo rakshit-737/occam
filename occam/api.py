@@ -23,12 +23,13 @@ from pydantic import BaseModel, Field
 from . import __version__
 from .ach import ACHEngine
 from .attack import load
+from .demo import DEMO
 from .extract import extract, navigator_layer
 from .models import ActorProfile, Evidence
 from .scenario import load_scenario
 from .stix import export
 
-FIXTURES = Path(os.environ.get("OCCAM_FIXTURES", Path(__file__).resolve().parent.parent / "fixtures"))
+FIXTURES = Path(os.environ.get("OCCAM_FIXTURES") or DEMO)
 TAXII = "application/taxii+json;version=2.1"
 COLLECTION_ID = str(uuid.uuid5(uuid.NAMESPACE_URL, "occam/assessments"))
 

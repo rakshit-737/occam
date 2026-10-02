@@ -5,20 +5,20 @@ from occam.extract import extract
 from occam.scenario import load_scenario
 from occam.stix import export, validate
 
-from conftest import FIX
+from conftest import DEMO
 
 stix2 = pytest.importorskip("stix2")
 
 
 @pytest.mark.parametrize("name", ["clean_attribution", "false_flag_games", "thin_evidence"])
 def test_assessment_bundle_is_valid_stix21(name):
-    q, actors, ev, _ = load_scenario(FIX / "scenarios" / f"{name}.json")
+    q, actors, ev, _ = load_scenario(DEMO / "scenarios" / f"{name}.json")
     bundle = export(assessment=ACHEngine(actors, ev, q).assess())
     assert validate(bundle) == len(bundle["objects"])
 
 
 def test_extraction_bundle_is_valid_stix21():
-    text = (FIX / "reports" / "r3_tide_energy.txt").read_text()
+    text = (DEMO / "reports" / "r3_tide_energy.txt").read_text()
     bundle = export(extraction=extract(text, "r3"))
     assert validate(bundle) >= 1
 

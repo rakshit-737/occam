@@ -1,11 +1,11 @@
 from occam.cluster import cluster, similarity
 from occam.extract import extract
 
-from conftest import FIX
+from conftest import DEMO
 
 
 def test_reports_cluster_into_campaigns():
-    files = sorted((FIX / "reports").glob("*.txt"))
+    files = sorted((DEMO / "reports").glob("*.txt"))
     results = [extract(f.read_text(), f.name) for f in files]
     camps = {tuple(c.members) for c in cluster(results)}
     assert ("r1_ember_retail.txt", "r2_ember_finance.txt") in camps

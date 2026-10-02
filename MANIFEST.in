@@ -1,0 +1,4 @@
+include LICENSE README.md CHANGELOG.md
+include tests/conftest.py
+recursive-include tests *.py
+include fixtures/*.json
