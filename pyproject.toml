@@ -56,7 +56,7 @@ markers = ["realdata: needs the downloaded datasets (skipped when absent)"]
 filterwarnings = [
   "error::DeprecationWarning",
   # starlette's TestClient-on-httpx deprecation: tracked, not ours to fix yet
-  "ignore:Using httpx with starlette.testclient:DeprecationWarning",
+  "ignore:Using .httpx. with .starlette.testclient. is deprecated",
 ]
 
 [tool.ruff]
