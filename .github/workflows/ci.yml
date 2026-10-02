@@ -3,46 +3,114 @@ name: ci
 on:
   push:
   pull_request:
+  workflow_call:
+  schedule:
+    - cron: "17 4 * * 1"   # weekly: catch runner / dependency drift before a release does
 
 permissions:
   contents: read
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
-      - run: python -m pip install "ruff>=0.5"
+      - run: python -m pip install "ruff==0.16.10"
       - run: python -m ruff check .
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10", "3.12", "3.13"]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
       - run: python -m pip install -r requirements.txt
       # real-data tests are skipped automatically: datasets are never in the repo
       - run: python -m pytest -q -m "not realdata"
-      - run: python -m occam demo
 
   core-stdlib-only:
-    # the core (extraction, ACH, STIX export, CLI) must work with zero dependencies
-    runs-on: ubuntu-latest
+    # the core (extraction, ACH, STIX export, CLI) must work with zero dependencies;
+    # optional-dependency tests skip themselves via importorskip
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
-      - run: python -m pip install pytest
-      - run: python -m pytest -q tests/test_ach.py tests/test_cli.py tests/test_cluster.py tests/test_extract.py tests/test_knowledge.py tests/test_metrics.py
-      - run: python -m occam demo
+      - run: python -m pip install "pytest>=9.0.3"
+      - run: python -m pytest -q -m "not realdata"
+
+  package:
+    # build the wheel + sdist, install the wheel in a clean venv OUTSIDE the checkout
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - run: python -m pip install "build>=1.2"
+      - run: python -m build
+      - name: wheel works from a neutral directory
+        run: |
+          python -m venv "$RUNNER_TEMP/v"
+          "$RUNNER_TEMP/v/bin/pip" install dist/*.whl
+          cd "$RUNNER_TEMP"
+          "$RUNNER_TEMP/v/bin/occam" --help
+          "$RUNNER_TEMP/v/bin/occam" demo | tee demo.txt
+          grep -q "False flag: another actor framed ACTOR-EMBER" demo.txt
+          "$RUNNER_TEMP/v/bin/occam" ach false_flag_games --json > /dev/null
+      - name: tests run from the unpacked sdist
+        run: |
+          mkdir "$RUNNER_TEMP/sd" && tar xzf dist/*.tar.gz -C "$RUNNER_TEMP/sd"
+          cd "$RUNNER_TEMP"/sd/occam-*
+          "$RUNNER_TEMP/v/bin/pip" install "pytest>=9.0.3"
+          "$RUNNER_TEMP/v/bin/python" -m pytest -q -m "not realdata" -p no:cacheprovider
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: dist
+          path: dist/
+
+  docker:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: docker build -t occam:ci .
+      - run: docker run --rm occam:ci occam --help
+      - run: docker run --rm occam:ci occam demo | grep -q "CONFIDENCE"
+      - name: API health on loopback
+        run: |
+          docker run -d --name api -p 127.0.0.1:8000:8000 occam:ci
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/health && break; sleep 1; done
+          curl -fsS http://127.0.0.1:8000/health
+          docker rm -f api
+
+  audit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - run: python -m pip install pip-audit
+      - run: pip-audit -r requirements.txt --progress-spinner off
