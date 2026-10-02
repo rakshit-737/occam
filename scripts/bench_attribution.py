@@ -185,7 +185,8 @@ def render(o: dict) -> str:
           "*recal.*: histogram binning cross-fitted over a 2-fold group split."]
     L += ["", "#### Setting-agnostic calibration (the realistic number)", "",
           "One map fitted on closed + open + false_flag together, cross-fitted by group. The per-setting maps further below "
-          "know which setting an incident comes from and are an oracle upper bound.", "",
+          "know which setting an incident comes from and are an oracle upper bound. "
+          "Canonical pooled-calibration table; [falseflag.md](falseflag.md) quotes the same map as one number over all three settings. A single map cannot help the similarity baseline: it never declines, so all its open-world answers are wrong and the map pulls every probability down. The closed-world Brier therefore rises from 0.179 (raw) to 0.315, while the open-world Brier falls to 0.032.", "",
           "| Setting | Method | Brier (pooled map) | ECE (pooled map) |", "|---|---|---|---|"]
     for s in SETTINGS:
         for m in o["pooled_calibrated"]:
