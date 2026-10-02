@@ -4,6 +4,29 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- `scripts/bench_falseflag.py`: false-flag benchmark with an **authentic-marker** control, a **TTP-mimicry** attack, marker-aware baselines (spoofable-blind similarity, IDF coverage, cross-fitted abstention and consistency gate), a marker-boost sweep, one-at-a-time ACH ablations and group-cluster paired CIs (`results/falseflag.md`).
+- ACH ablation switches (`false_flag_hypotheses`, `unknown_hypothesis`, `spoofable_discount`, `confidence_caps`, `diagnosticity`) and `IDFCoverageAttributor`.
+- Extended evaluation: all 575 report incidents, 21 held-out campaigns, unattributed campaigns (and a clean subset), temporal splits from ATT&CK v12.1 / v15.1 with renamed-id mapping (`results/attribution_extended.md`).
+- `scripts/bench_rcatt.py`: reproduction of Legoy et al. (2020) on rcATT's own data and folds (tactic micro F0.5 64.63 vs 65.38 published; technique 35.81 vs 35.02).
+- APTnotes: 72 reports, leak-controlled profiles, software-only / techniques-only ablations, Wilson CIs.
+- Preprint in `paper/` (built by the `paper` workflow), How it works / Evaluation / Reproduce docs pages, workbench screenshot, `results/datasets.json`.
+- CI: Python 3.10-3.14, wheel install + `occam demo` outside the checkout, sdist tests, Docker build + health smoke test, pip-audit, weekly schedule; release gated on CI and docs, image smoke-tested before push, SHA256SUMS + build provenance.
+- CODEOWNERS, dependabot, issue/PR templates, CITATION.cff.
+
+### Changed
+- Headline claims restated against marker-aware baselines: planted-marker resistance is not specific to ACH; its distinct gain is under mimicry and in declining.
+- Attribution CIs use a group-cluster bootstrap; the realistic calibration number is a setting-agnostic (pooled) map (closed-world ACH Brier 0.189, not the per-setting 0.156).
+- Temporal splits: correct decline 0.677 -> 0.506 (v12.1) after mapping ids unknown to the old release; release dates corrected.
+- APTnotes labels from software "exclusive" to one group are no longer used (circular; FinFisher would be labelled Dark Caracal).
+- Clustering benchmark tunes the dense-graph Louvain too (test ARI 0.203 vs 0.249 for kNN).
+- UI on vite 8; dependency floors raised above known advisories; SPDX licence metadata.
+
+### Fixed
+- `occam demo` failed from any non-editable install (fixtures not packaged); demo data now ships in `occam/demo`.
+- ReDoS in the domain and email IOC regexes (69 s on 16 KB of crafted text) and quadratic IOC overlap check.
+- API: Host allow-list (DNS rebinding), body and field size limits, capped TAXII store, 422 instead of 500 on malformed input, docs UI off by default, optional bearer token.
+
 ## [1.0.0] - 2026-09-26
 
 ### Added

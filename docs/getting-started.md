@@ -22,17 +22,17 @@ docker run --rm -p 127.0.0.1:8000:8000 ghcr.io/rakshit-737/occam:latest
 python -m occam ach occam/demo/scenarios/false_flag_games.json
 python -m occam ach occam/demo/scenarios/clean_attribution.json --override E1:H-QUILL=II --json
 python -m occam ach occam/demo/scenarios/false_flag_games.json --stix
-python -m occam extract occam/demo/reports/r3_tide_energy.txt --navigator > layer.json
+python -m occam extract occam/demo/reports/r3_tide_energy.txt --navigator > layer.json   # layer.json is git-ignored
 python -m occam cluster occam/demo/reports --cypher graph.cypher   # Neo4j import script
 ```
 
 ## Real data
 
 ```bash
-python scripts/download_data.py        # ~180 MB into ../../datasets/occam (or $OCCAM_DATA), pinned + checksummed
+python scripts/download_data.py        # ~400 MB into ../../datasets/occam (or $OCCAM_DATA), pinned + checksummed
 D=../../datasets/occam
 python -m occam train-classifier --attack $D/enterprise-attack-19.2.json --tram $D/tram/multi_label.json --out model.pkl
-python -m occam attribute report.txt --attack $D/enterprise-attack-19.2.json \
+python -m occam attribute occam/demo/reports/r3_tide_energy.txt --attack $D/enterprise-attack-19.2.json \
     --classifier model.pkl --calibration results/grade_calibration.json
 ```
 
@@ -47,10 +47,4 @@ Without an API, as in this site's [demo](https://rakshit-737.github.io/occam/dem
 
 ## Reproduce the benchmarks
 
-| Step | Command | Runtime (laptop) |
-| --- | --- | --- |
-| Data | `python scripts/download_data.py` | ~10 min |
-| Extraction | `python scripts/bench_extraction.py` | ~15-25 min |
-| Attribution (+5 framing seeds) | `python scripts/bench_attribution.py` | ~6 min |
-| Clustering | `python scripts/bench_clustering.py` | ~2 min |
-| APTnotes | `python scripts/bench_aptnotes.py [--classifier --top-k 10]` | ~10 min |
+See [Reproduce](reproduce.md) for every command, its output files, the expected numbers and measured runtimes.

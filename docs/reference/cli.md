@@ -1,9 +1,10 @@
 # CLI and HTTP reference
 
 ```text
+occam [--kb KB.json] [--version] <command> ...
 occam extract FILE [--navigator | --stix] [--classifier MODEL]
 occam cluster DIR [--threshold 0.3] [--cypher FILE]
-occam ach SCENARIO.json [--override EID:HID=RATING ...] [--json | --stix]
+occam ach SCENARIO.json|BUNDLED_NAME [--override EID:HID=RATING ...] [--json | --stix]
 occam attribute FILE --attack enterprise-attack.json [--shortlist 8] [--classifier MODEL] [--calibration MAP.json] [--json]
 occam train-classifier --attack enterprise-attack.json [--tram multi_label.json] [--threshold 0.8] [--out MODEL]
 occam load-attack BUNDLE [--out attack_kb.json]
@@ -21,4 +22,4 @@ occam demo
 | POST | `/stix` | STIX 2.1 bundle of an assessment |
 | GET | `/taxii2/...` | read-only TAXII 2.1 discovery, API root, collections and objects |
 
-Interactive OpenAPI docs are served at `/docs` while the API runs.
+Interactive OpenAPI docs (`/docs`) are off by default because they load third-party CDN JavaScript; set `OCCAM_API_DOCS=1` to enable them. Other environment variables: `OCCAM_API_TOKEN` (require `Authorization: Bearer <token>`), `OCCAM_ALLOWED_HOSTS` (Host allow-list, default loopback names), `OCCAM_FIXTURES` (alternative demo scenarios), `OCCAM_KB`. Limits: 1 MB request body, 500,000 characters of text.

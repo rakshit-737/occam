@@ -1,32 +1,38 @@
 # Architecture
 
+Two small diagrams instead of one wide one: the offline pipeline that turns
+text into graded evidence, and the reasoning/serving path.
+
+**1. Text to evidence**
+
 ```mermaid
-flowchart LR
-  subgraph Data["Public data (pinned + checksummed)"]
-    ATT[("MITRE ATT&CK 19.2 STIX")]
-    TRAM[("CTID TRAM2 sentences")]
-    APT[("APTnotes report PDFs")]
-  end
-  R["Report text"] --> EX["extract.py: IOC regexes + keyword TTPs, span-anchored"]
-  R --> CLF["classifier.py: TF-IDF + LR, top-k per report"]
-  ATT --> KN["knowledge.py: profiles, usage-based rarity"]
+flowchart TB
+  ATT[("ATT&CK 19.2 bundle")] --> KN["Group profiles + rarity"]
+  TRAM[("TRAM2 sentences")] --> CLF["Sentence classifier"]
   ATT --> CLF
-  TRAM --> CLF
-  KN --> EX
+  R["Report text"] --> EX["Span-anchored extraction"]
   CLF --> EX
-  EX --> G["graph.py: Diamond graph, kNN Louvain"]
-  G --> NEO["neo4j.py: Cypher export"]
-  EX --> EV["Evidence rows, Admiralty graded"]
-  KN --> ACH
-  EV --> ACH["ach.py: least-inconsistency ACH + unknown + false flag"]
-  AN["Analyst cell overrides"] --> ACH
-  ACH --> CONF["Confidence caps + learned grade map"]
-  CONF --> STIX["stix.py: STIX 2.1"]
-  STIX --> API["api.py: FastAPI + TAXII 2.1"]
-  CONF --> API
-  API --> UI["React workbench"]
-  APT --> BENCH["scripts/bench_*.py"]
+  KN --> EX
+  EX --> EV["Graded evidence rows"]
+  EX --> G["Diamond graph + campaigns"]
 ```
+
+**2. Evidence to assessment**
+
+```mermaid
+flowchart TB
+  EV["Graded evidence rows"] --> ACH["ACH matrix"]
+  KN["Group profiles"] --> ACH
+  AN["Analyst overrides"] --> ACH
+  ACH --> RANK["Least-inconsistency ranking"]
+  RANK --> CONF["Confidence caps"]
+  CONF --> OUT["CLI / JSON"]
+  CONF --> STIX["STIX 2.1 + TAXII"]
+  CONF --> UI["Workbench"]
+```
+
+File-level detail is in the module table below; the reasoning is walked
+through step by step in [How it works](how-it-works.md).
 
 | Module | Role | Extra deps |
 | --- | --- | --- |

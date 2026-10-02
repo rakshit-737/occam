@@ -21,9 +21,12 @@ theme:
 nav:
   - Home: index.md
   - Getting started: getting-started.md
+  - How it works: how-it-works.md
   - Architecture: architecture.md
+  - Evaluation: evaluation.md
+  - Reproduce: reproduce.md
   - Datasets: data.md
-  - Benchmarks: benchmarks.md
+  - Live demo: https://rakshit-737.github.io/occam/demo/
   - Reference:
       - CLI & HTTP: reference/cli.md
       - Python API: reference/api.md
