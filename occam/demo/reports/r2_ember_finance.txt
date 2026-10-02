@@ -1,3 +1,3 @@
 SYNTHETIC REPORT R2. A bank was hit by a weaponized document. The loader, EMBERLOAD (sha256
-9f2c4e1a7b3d5f60819a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f70), contacted hxxps://update-cdn-sync[.]xyz/gate.php.
+9f2c4e1a7b3d5f60819a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f70), contacted hxxps://update-cdn-sync[.]test/gate.php.
 Persistence via schtasks; credentials were taken with mimikatz and exfiltrated over the C2.

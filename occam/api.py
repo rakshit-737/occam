@@ -6,19 +6,25 @@ Run::
     pip install -e ".[api]"
     uvicorn occam.api:app --reload        # http://127.0.0.1:8000
 
-Localhost-only by default; there is no authentication, so do not expose it.
+Localhost-only by default. Optional bearer-token auth: set ``OCCAM_API_TOKEN``
+and send ``Authorization: Bearer <token>``. Requests whose Host header is not in
+``OCCAM_ALLOWED_HOSTS`` (default: loopback names) are rejected, which blocks DNS
+rebinding. Interactive API docs are off unless ``OCCAM_API_DOCS=1``.
 """
 from __future__ import annotations
 
+import hmac
 import os
 import uuid
+from collections import deque
 from importlib import resources
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel, Field
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from . import __version__
 from .ach import ACHEngine
@@ -33,28 +39,68 @@ FIXTURES = Path(os.environ.get("OCCAM_FIXTURES") or DEMO)
 TAXII = "application/taxii+json;version=2.1"
 COLLECTION_ID = str(uuid.uuid5(uuid.NAMESPACE_URL, "occam/assessments"))
 
-app = FastAPI(title="OCCAM", version=__version__, description="Auditable ACH attribution + TTP extraction")
+MAX_BODY = 1_000_000          # bytes, whole request
+MAX_TEXT = 500_000            # characters of report text
+MAX_PUBLISHED = 500           # TAXII collection keeps the newest N bundles
+_TOKEN = os.environ.get("OCCAM_API_TOKEN") or None
+_DOCS = os.environ.get("OCCAM_API_DOCS") == "1"
+
+
+def _auth(request: Request) -> None:
+    if _TOKEN is None:
+        return
+    got = request.headers.get("authorization", "")
+    if not hmac.compare_digest(got, f"Bearer {_TOKEN}"):
+        raise HTTPException(401, "missing or wrong bearer token", headers={"WWW-Authenticate": "Bearer"})
+
+
+app = FastAPI(title="OCCAM", version=__version__, description="Auditable ACH attribution + TTP extraction",
+              docs_url="/docs" if _DOCS else None, redoc_url="/redoc" if _DOCS else None,
+              openapi_url="/openapi.json" if _DOCS else None, dependencies=[Depends(_auth)])
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=[
+    h.strip() for h in os.environ.get("OCCAM_ALLOWED_HOSTS", "127.0.0.1,localhost,[::1],testserver").split(",") if h.strip()])
+
+
+@app.middleware("http")
+async def _limits_and_headers(request: Request, call_next):
+    n = request.headers.get("content-length")
+    if n is not None and (not n.isdigit() or int(n) > MAX_BODY):
+        return JSONResponse({"detail": f"request body over {MAX_BODY} bytes"}, status_code=413)
+    if n is None and request.method in ("POST", "PUT", "PATCH"):
+        body = b""
+        async for chunk in request.stream():
+            body += chunk
+            if len(body) > MAX_BODY:
+                return JSONResponse({"detail": f"request body over {MAX_BODY} bytes"}, status_code=413)
+        request._body = body  # starlette reuses the buffered body
+    resp = await call_next(request)
+    resp.headers.setdefault("X-Content-Type-Options", "nosniff")
+    resp.headers.setdefault("X-Frame-Options", "DENY")
+    resp.headers.setdefault("Referrer-Policy", "no-referrer")
+    return resp
+
+
 _kb = load(os.environ.get("OCCAM_KB") or None)
-_published: list[dict[str, Any]] = []  # in-memory TAXII collection
+_published: deque[dict[str, Any]] = deque(maxlen=MAX_PUBLISHED)  # in-memory TAXII collection
 
 
 class ExtractIn(BaseModel):
-    text: str = Field(..., max_length=2_000_000)
-    source_id: str = "api"
+    text: str = Field(..., max_length=MAX_TEXT)
+    source_id: str = Field("api", max_length=256)
 
 
 class Override(BaseModel):
-    evidence: str
-    hypothesis: str
-    rating: str
+    evidence: str = Field(..., max_length=64)
+    hypothesis: str = Field(..., max_length=128)
+    rating: str = Field(..., max_length=4)
 
 
 class AchIn(BaseModel):
-    scenario: str | None = None                 # fixture scenario name
-    actors: list[dict[str, Any]] | None = None  # or an inline scenario
-    evidence: list[dict[str, Any]] | None = None
-    question: str = "Who conducted the activity?"
-    overrides: list[Override] = []
+    scenario: str | None = Field(None, max_length=128)                     # fixture scenario name
+    actors: list[dict[str, Any]] | None = Field(None, max_length=500)      # or an inline scenario
+    evidence: list[dict[str, Any]] | None = Field(None, max_length=500)
+    question: str = Field("Who conducted the activity?", max_length=1000)
+    overrides: list[Override] = Field(default_factory=list, max_length=500)
     publish: bool = False
 
 
@@ -96,8 +142,8 @@ def api_ach(body: AchIn) -> dict[str, Any]:
         for o in body.overrides:
             eng.override(o.evidence, o.hypothesis, o.rating)
         a = eng.assess()
-    except (ValueError, KeyError) as exc:
-        raise HTTPException(422, str(exc)) from exc
+    except (ValueError, KeyError, TypeError) as exc:
+        raise HTTPException(422, f"invalid scenario: {exc}") from exc
     out = a.to_dict()
     out["hypotheses"] = [{"id": h.id, "label": h.label, "kind": h.kind} for h in eng.hypotheses]
     out["evidence"] = [
@@ -115,10 +161,13 @@ def api_ach(body: AchIn) -> dict[str, Any]:
 def api_stix(body: AchIn) -> dict[str, Any]:
     body.publish = False
     q, actors, evidence, _ = load_scenario(_scenario_path(body.scenario or ""))
-    eng = ACHEngine(actors, evidence, q, kb=_kb)
-    for o in body.overrides:
-        eng.override(o.evidence, o.hypothesis, o.rating)
-    return export(assessment=eng.assess())
+    try:
+        eng = ACHEngine(actors, evidence, q, kb=_kb)
+        for o in body.overrides:
+            eng.override(o.evidence, o.hypothesis, o.rating)
+        return export(assessment=eng.assess())
+    except (ValueError, KeyError, TypeError) as exc:
+        raise HTTPException(422, f"invalid override: {exc}") from exc
 
 
 # -- minimal read-only TAXII 2.1 ---------------------------------------------

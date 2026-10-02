@@ -19,11 +19,11 @@ def test_ttps_have_valid_source_spans():
 
 
 def test_defanged_iocs_are_refanged_and_spanned():
-    text = "beacon to hxxps://evil-cdn[.]xyz/gate.php and 185.220.101.47, CVE-2099-0001"
+    text = "beacon to hxxps://evil-cdn[.]test/gate.php and 198.51.100.47, CVE-2099-0001"
     r = extract(text, "t")
     vals = {(i.type, i.value) for i in r.indicators}
-    assert ("url", "https://evil-cdn.xyz/gate.php") in vals
-    assert ("ipv4", "185.220.101.47") in vals
+    assert ("url", "https://evil-cdn.test/gate.php") in vals
+    assert ("ipv4", "198.51.100.47") in vals
     assert ("cve", "CVE-2099-0001") in vals
     for i in r.indicators:
         assert text[i.span.start:i.span.end] == i.span.text
@@ -53,3 +53,12 @@ def test_convert_stix_bundle():
     assert out["tools"][0]["id"] == "S9999"
     assert out["tools"][0]["keywords"] == ["FakeMal"]
     assert out["techniques"][0]["tactic"] == "impact"
+
+
+def test_ioc_regexes_stay_fast_on_crafted_input():
+    import time
+
+    t0 = time.perf_counter()
+    extract("a." * 100_000)  # used to take minutes (nested unbounded repeats)
+    extract(" ".join(f"10.0.{i // 256}.{i % 256}" for i in range(20_000)))  # used to be quadratic in IOC count
+    assert time.perf_counter() - t0 < 15

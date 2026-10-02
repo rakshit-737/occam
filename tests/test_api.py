@@ -40,3 +40,18 @@ def test_taxii_publish_roundtrip():
     objs = client.get(f"/taxii2/api/collections/{COLLECTION_ID}/objects/").json()["objects"]
     assert any(o["type"] == "note" for o in objs)
     assert client.get("/taxii2/api/collections/bogus/objects/").status_code == 404
+
+
+def test_hardening_limits_and_errors():
+    # DNS rebinding: a foreign Host header is refused
+    assert client.get("/health", headers={"Host": "attacker.example"}).status_code == 400
+    # oversize body and oversize fields
+    assert client.post("/extract", content=b"x" * 1_000_001, headers={"Content-Type": "application/json"}).status_code == 413
+    assert client.post("/extract", json={"text": "a", "source_id": "s" * 300}).status_code == 422
+    # malformed inline actors / unknown override ids are client errors, not 500s
+    assert client.post("/ach", json={"actors": [{"bogus": 1}], "evidence": []}).status_code == 422
+    r = client.post("/stix", json={"scenario": "clean_attribution",
+                                   "overrides": [{"evidence": "E99", "hypothesis": "H-QUILL", "rating": "II"}]})
+    assert r.status_code == 422
+    assert client.get("/docs").status_code == 404
+    assert client.get("/health").headers["X-Content-Type-Options"] == "nosniff"
