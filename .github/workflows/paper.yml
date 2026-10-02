@@ -1,0 +1,26 @@
+name: paper
+
+on:
+  push:
+    paths: ["paper/**", ".github/workflows/paper.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pdf:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends latexmk texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended texlive-bibtex-extra
+      - working-directory: paper
+        run: |
+          latexmk -pdf -interaction=nonstopmode -halt-on-error occam.tex
+          ! grep -E "undefined|Citation .* undefined" occam.log
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: occam-preprint
+          path: paper/occam.pdf

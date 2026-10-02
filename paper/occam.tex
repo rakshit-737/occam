@@ -1,0 +1,229 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[hidelinks]{hyperref}
+\usepackage{natbib}
+
+\title{What Does Analysis of Competing Hypotheses Add to Attack Attribution?\\
+\large A Leakage-Controlled Benchmark with Planted, Authentic and Mimicked False Flags}
+\author{Rakshit\\Vellore Institute of Technology, Chennai}
+\date{Preprint, October 2026 (not peer reviewed)}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Automated attribution of cyber attacks usually matches observed tactics,
+techniques and software against actor profiles. Such matching is easy to
+steer: an adversary who plants code, language or metadata artefacts of
+another actor can have that actor named. Heuer's Analysis of Competing
+Hypotheses (ACH), which ranks hypotheses by how much evidence contradicts
+them and which practitioners already recommend for false flags, is a natural
+remedy, but it has not been measured against sensible baselines. We
+implement ACH over MITRE ATT\&CK with mandatory ``unknown actor'' and
+``false flag'' hypotheses and evaluate it on 274 held-out ATT\&CK incidents
+(103 groups) in five settings: closed world, open world, planted spoofable
+markers, \emph{authentic} markers (a false-alarm control) and \emph{mimicry},
+where the adversary copies the framed group's rare techniques as hard
+evidence. Against a marker-trusting similarity matcher, ACH reduces the rate
+at which the framed group is named from 88.0\% to 1.1\%. However, a baseline
+that simply ignores spoofable evidence is never framed either, a simple
+consistency gate is correct more often under planted markers (92.0\% vs
+73.4\%), and an ablation shows ACH's false-flag hypotheses are not what blocks
+the frame. ACH's distinct advantage appears under mimicry (framed group named
+27.0\% vs 76.3\% for TTP similarity and 32.1\% for IDF coverage) and in
+declining when the true actor is untracked (46.0\% vs 0\%). The costs are
+closed-world accuracy (29.9\% vs 53.3\%) and an 18.6\% rate of calling genuine
+overlap a frame-up. We release the benchmark, code and all result files.
+\end{abstract}
+
+\section{Introduction}
+Attribution, deciding who is behind an intrusion, is uncertain and
+consequential \citep{rid2015}. Analysts reason from technical evidence whose
+reliability varies widely: a rare custom implant is hard to fake, whereas
+compiler metadata, language strings and code fragments can be planted
+\citep{skopik2020}. Automated attribution systems usually profile actors by
+their tactics, techniques and procedures (TTPs) and software and match new
+activity to the closest profile \citep{noor2019}. Such matchers inherit the
+weakness of the evidence they consume.
+
+Heuer's ACH \citep{heuer1999} asks the analyst to list all reasonable
+hypotheses, rate every piece of evidence against every hypothesis, and prefer
+the hypothesis with the least inconsistent evidence. \citet{steffens2020}
+recommends ACH for reasoning about planted evidence in advanced persistent
+threat attribution. We ask a narrower, measurable question: \emph{does
+automated ACH with mandatory disconfirming-evidence weighting give
+better-calibrated, less overconfident attribution than TTP-similarity
+matching, especially under false flags, and which of its mechanisms is
+responsible?}
+
+\paragraph{Contributions.} (1) An open, leakage-controlled benchmark built
+from ATT\&CK \citep{strom2018} with five settings, including an authentic-marker
+control and a TTP-mimicry attack, plus campaign, unattributed and temporal
+protocols. (2) An auditable ACH engine with span-anchored evidence and
+confidence caps. (3) Baselines a reviewer would ask for (spoofable-blind
+similarity, IDF coverage, abstention, a consistency gate) with thresholds
+cross-fitted by group, one-at-a-time ablations, and group-cluster bootstrap
+intervals. (4) A reproduction of a published TTP-extraction result
+\citep{legoy2020}. The novelty claimed is the measurement, not ACH or
+false-flag reasoning.
+
+\section{Related work}
+\citet{heuer1999} introduced ACH for intelligence analysis;
+\citet{steffens2020} applies it to planted evidence in APT attribution, and
+\citet{rid2015} describe attribution as a layered process that must state its
+uncertainty. \citet{skopik2020} survey technical artefacts along the kill chain
+and rate how easily each can be spoofed; we use their distinction between
+spoofable and hard evidence. The Diamond Model \citep{caltagirone2013}
+organises intrusion events by adversary, capability, infrastructure and
+victim. \citet{noor2019} profile actors by TTPs and software extracted from
+327 reports and report 94\% accuracy for a neural classifier; their data and
+protocol differ from ours, so the figure is context only. Report-level TTP
+extraction has been studied by \citet{legoy2020} (rcATT) and
+\citet{orbinato2022}. Calibration is measured with the Brier score
+\citep{brier1950} and expected calibration error \citep{guo2017}.
+
+\section{Method}
+\paragraph{Evidence.} Each evidence row is an observed technique, software,
+infrastructure or victim attribute, or a marker (code overlap, language
+artefact, metadata, claim) that points at an actor. Markers are typed
+spoofable. Rows from text keep the character span they were extracted from,
+and every row carries an Admiralty grade.
+\paragraph{Hypotheses.} One per candidate actor, one ``false flag: someone
+framed $X$'' for each actor a spoofable marker points at, and ``unknown
+actor''.
+\paragraph{Cells and weights.} Cells take values CC, C, N, I, II. A technique
+used by at least 30\% of ATT\&CK groups is non-diagnostic; one used by at most
+three groups rates CC on a match; a profile miss is I. Markers support the
+matching false-flag hypothesis; hard evidence that contradicts the framed
+actor supports the frame. A row's weight is its Admiralty weight times its
+diagnosticity (the spread of its ratings across hypotheses); spoofable rows
+are multiplied by 0.5.
+\paragraph{Ranking and confidence.} Hypotheses are ranked by least weighted
+inconsistency; ties go to unknown, then false flag, then a named actor.
+Confidence comes from the relative margin and the number of diagnostic rows
+and is capped (LOW when support is mostly spoofable; at most MODERATE for
+deception or unknown conclusions or when planted-marker indicators fire).
+
+\section{Experimental setup}
+\paragraph{Incidents.} Every (group, cited report) pair in ATT\&CK Enterprise
+19.2 with at least four techniques or software is an incident (at most three
+per group: 274 incidents, 103 groups, 176 candidate profiles). Items cited
+only by that report are removed from the group's profile before attribution.
+\paragraph{Settings.} \emph{Closed}: the true group is a candidate.
+\emph{Open}: it is removed; the correct answer is to decline. \emph{False
+flag}: three spoofable markers frame a random other group; naming the true
+group or concluding that the framed group was framed counts as correct.
+\emph{Authentic}: the same markers point at the true group; concluding a
+frame-up is a false alarm. \emph{Mimicry}: the framed group's three rarest
+techniques or tools are added as ordinary hard evidence.
+\paragraph{Baselines.} IDF-weighted cosine similarity with softmax confidence,
+with a marker boost $b$ per marker ($b=0.15$ is the marker-trusting default;
+$b=0$ ignores spoofable rows); IDF coverage; similarity that declines below a
+cosine threshold $\tau$; and a consistency gate that concludes a frame when
+the marker target is not among the top-$k$ groups by hard-evidence similarity.
+$\tau$ and $k$ are chosen on one half of the groups and applied to the other
+(2-fold, by group). Intervals are 95\% group-cluster bootstrap intervals; paired
+differences use the same resamples.
+
+\section{Results}
+\begin{table}[t]
+\centering\small
+\begin{tabular}{lrrrrr}
+\toprule
+Method & \multicolumn{2}{c}{Planted markers} & \multicolumn{2}{c}{Authentic} & Mimicry\\
+ & correct & framed & names true & false alarm & framed\\
+\midrule
+Similarity, $b=0.15$ & 0.113 & 0.880 & 1.000 & 0.000 & 0.763\\
+Similarity, $b=0.05$ & 0.496 & 0.124 & 0.854 & 0.000 & 0.763\\
+Similarity, $b=0$ & 0.533 & 0.000 & 0.533 & 0.000 & 0.763\\
+IDF coverage & 0.420 & 0.000 & 0.420 & 0.000 & 0.321\\
+Similarity + abstain & 0.266 & 0.000 & 0.266 & 0.000 & 0.445\\
+Consistency gate & \textbf{0.920} & 0.080 & 0.770 & 0.230 & 0.763\\
+OCCAM ACH & 0.734 & 0.011 & 0.358 & 0.186 & \textbf{0.270}\\
+\bottomrule
+\end{tabular}
+\caption{False-flag settings, 274 incidents, 3 markers or mimicked items.
+Source: \texttt{results/falseflag.md}.}
+\label{tab:ff}
+\end{table}
+
+\paragraph{Planted markers.} Table~\ref{tab:ff}: the marker-trusting matcher
+names the framed group 88.0\% of the time, ACH 1.1\% (95\% CI 0.0--3.0\%). The
+result depends on how strongly the matcher trusts markers: at $b=0.05$ it is
+framed 12.4\% of the time and at $b=0$ never. The consistency gate is correct
+92.0\% of the time against ACH's 73.4\%.
+\paragraph{Authentic markers.} With genuine markers ACH calls the overlap a
+frame-up in 18.6\% of incidents (CI 13.8--24.4\%) and names the true group only
+35.8\% of the time; the marker-trusting matcher names it 100\%.
+\paragraph{Mimicry.} When the adversary copies the framed group's rarest
+techniques as hard evidence, nothing is pre-typed as spoofable and the gate
+cannot help. TTP similarity names the framed group 76.3\% of the time, IDF
+coverage 32.1\%, ACH 27.0\% (CI 21.3--33.5\%; paired difference to coverage
+$-$9 to $-$2 points). With six mimicked items ACH is framed 44.2\% of the
+time against 90.9\% for similarity.
+\paragraph{Ablations.} Removing the false-flag hypotheses leaves ACH's framed
+rate at 1.1\% and raises ``names the true group'' from 2.2\% to 20.1\%;
+removing the 0.5 spoofable discount changes accuracy by under one point; the
+confidence caps do not change any accuracy metric. Resistance to planted
+markers therefore comes from the least-inconsistency ranking over hard
+evidence; the false-flag hypotheses convert outcomes into explicit ``framed''
+conclusions. Removing the unknown hypothesis raises closed-world accuracy
+from 29.9\% to 37.2\% but removes all declines.
+\paragraph{Closed and open world.} Similarity names the true group 53.3\% of
+the time and ACH 29.9\%. When the true group is untracked ACH declines 46.0\%
+of the time; the abstaining baseline declines 94.5\% but its closed-world
+accuracy falls to 26.6\%. With one setting-agnostic calibration map,
+cross-fitted by group, ACH's Brier score is 0.189 / 0.249 / 0.205 in the
+closed / open / false-flag settings against 0.315 / 0.032 / 0.131 for
+similarity.
+\paragraph{Larger and later data.} Over all 575 report incidents, 21 held-out
+campaigns and temporal splits (profiles from ATT\&CK v12.1 or v15.1,
+activity added afterwards, renamed technique ids mapped back), the pattern is
+the same. In the temporal splits both methods are weak in the closed world
+(v12.1: 21.3\% vs 20.2\%) and ACH declines 50.6\% of the time when the group is
+removed. An earlier version of this split reported 67.7\%; that figure was
+inflated by technique ids the old release did not know.
+\paragraph{Real reports.} On 72 APTnotes reports labelled by file name and
+title, with ATT\&CK citations that match the report held out, ACH's top-1
+accuracy is 31.9\% (Wilson CI 22--43\%) against 26.4\% for similarity, with no
+answer wrong at stated probability $\ge 0.8$ (similarity: 9 of 72).
+Attributing on software names alone is better for both (47.2\% and 44.4\%);
+techniques alone are near zero.
+\paragraph{Reproduction.} On rcATT's 1,490 reports, its 5-fold split and
+F$_{0.5}$ metric, the released pipeline reproduces the published tactic
+micro-F$_{0.5}$ of 65.38 \citep{legoy2020} as 64.63, and the technique
+micro-F$_{0.5}$ of 35.02 (197 techniques) as 35.81. The pipeline exactly as the
+paper text describes it, without the released code's balanced class weights,
+reaches only 28.30, so that undocumented setting accounts for the gap.
+OCCAM's TF-IDF + logistic regression gets 34.18 micro but 12.94 macro
+F$_{0.5}$ on the same folds: it is not better than rcATT on this task.
+
+\section{Limitations}
+False-flag evidence is synthetic: markers and mimicked items are evidence
+rows, not forged binaries. Incidents are slices of ATT\&CK's reading of
+public reporting rather than telemetry. The APTnotes set is small and its
+leak control is a title-matching heuristic. ACH rarely names the true actor
+behind a detected frame (2.2\%), and its closed-world accuracy is well below
+plain similarity. Thresholds of the cell rules (30\%, three groups) were set
+by hand.
+
+\section{Ethics and reproducibility}
+Attribution affects people and states; OCCAM is decision support and every
+output says so. Results about real ATT\&CK groups are benchmark artefacts, not
+findings. No malware was downloaded or executed; all data are public, pinned
+to commits and checksummed. Code, result files and exact commands are at
+\url{https://github.com/rakshit-737/occam}.
+
+\section*{Acknowledgements}
+The code, experiments and this text were developed with AI assistance
+(Claude, Anthropic). References were checked against their DOI, arXiv or publisher records; the author is responsible for
+all claims.
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+\end{document}
