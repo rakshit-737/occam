@@ -34,6 +34,7 @@ class Attribution:
     confidence: str              # high | moderate | low (baseline derives it from probability)
     ranked_actors: list[str] = field(default_factory=list)  # named actors, best first
     flagged: str | None = None   # actor the conclusion says was *framed* (false-flag conclusions)
+    hard_score: float | None = None  # baseline only: best cosine on non-spoofable evidence
 
 
 def evidence_from_items(items: list[str], kb: AttackKB, prefix: str = "E") -> list[Evidence]:
@@ -61,7 +62,14 @@ def _grade(p: float) -> str:
 
 
 class SimilarityAttributor:
-    """IDF-weighted cosine nearest-profile matching with softmax confidence."""
+    """IDF-weighted cosine nearest-profile matching with softmax confidence.
+
+    ``marker_boost`` is how much cosine each spoofable marker adds to the actor
+    it points at (0 = the baseline ignores spoofable evidence entirely) and
+    ``temperature`` is the softmax temperature. The defaults (0.15, 0.05) are
+    the *marker-trusting* baseline; results depend strongly on ``marker_boost``
+    (see ``results/falseflag.md`` for a sweep).
+    """
 
     name = "baseline: TTP-similarity (IDF cosine + softmax)"
 
@@ -91,7 +99,17 @@ class SimilarityAttributor:
         m = max(s)
         z = [math.exp((x - m) / self.temperature) for x in s]
         p = z[order[0]] / sum(z)
-        return Attribution(self.profiles[order[0]].id, "actor", p, _grade(p), [self.profiles[i].id for i in order])
+        hard = max(self.hard_scores(evidence), default=0.0)
+        return Attribution(self.profiles[order[0]].id, "actor", p, _grade(p), [self.profiles[i].id for i in order],
+                           hard_score=hard)
+
+    def hard_scores(self, evidence: list[Evidence]) -> list[float]:
+        """Cosine on non-spoofable evidence only (no marker boost)."""
+        boost, self.marker_boost = self.marker_boost, 0.0
+        try:
+            return self.scores(evidence)
+        finally:
+            self.marker_boost = boost
 
 
 class ACHAttributor:
@@ -100,7 +118,7 @@ class ACHAttributor:
     name = "OCCAM ACH (least-inconsistency + confidence caps)"
 
     def __init__(self, profiles: list[ActorProfile], kb: AttackKB, shortlist: int | None = None,
-                 ranking_rule: str = "heuer", grade_prob: dict[str, float] | None = None):
+                 ranking_rule: str = "heuer", grade_prob: dict[str, float] | None = None, **engine_kw):
         self.profiles = profiles
         self.kb = kb
         self.shortlist = shortlist
@@ -108,6 +126,8 @@ class ACHAttributor:
         #: grade -> stated probability; defaults to ICD-203 midpoints, or a learned
         #: :class:`occam.calibration.GradeCalibrator` mapping
         self.grade_prob = dict(grade_prob or GRADE_PROB)
+        #: extra :class:`occam.ach.ACHEngine` switches (ablations)
+        self.engine_kw = engine_kw
         self._sim = SimilarityAttributor(profiles, kb) if shortlist else None
 
     def candidates(self, evidence: list[Evidence]) -> list[ActorProfile]:
@@ -123,7 +143,7 @@ class ACHAttributor:
 
     def assess(self, evidence: list[Evidence]):
         return ACHEngine(self.candidates(evidence), evidence, kb=self.kb, sensitivity=False,
-                         ranking_rule=self.ranking_rule).assess()
+                         ranking_rule=self.ranking_rule, **self.engine_kw).assess()
 
     def attribute(self, evidence: list[Evidence]) -> Attribution:
         a = self.assess(evidence)
@@ -132,3 +152,19 @@ class ACHAttributor:
         return Attribution(top.actor_id if top.kind == "actor" else None, top.kind,
                            self.grade_prob[a.confidence], a.confidence, actors,
                            flagged=top.actor_id if top.kind == "false_flag" else None)
+
+
+class IDFCoverageAttributor(SimilarityAttributor):
+    """Plain coverage baseline: the share of the observed IDF mass that a
+    group's profile covers (no length normalisation of the profile, so large
+    profiles are not penalised). Spoofable markers are ignored."""
+
+    name = "baseline: IDF coverage"
+
+    def __init__(self, profiles: list[ActorProfile], kb: AttackKB, temperature: float = 0.05):
+        super().__init__(profiles, kb, temperature=temperature, marker_boost=0.0)
+
+    def scores(self, evidence: list[Evidence]) -> list[float]:
+        obs = {e.value: self._idf(e.value) for e in evidence if e.value and not e.spoofable}
+        tot = sum(obs.values()) or 1.0
+        return [sum(w for x, w in obs.items() if x in vec) / tot for vec in self._vecs]

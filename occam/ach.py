@@ -35,16 +35,23 @@ C = Consistency
 _PHRASES = {"high": "highly likely", "moderate": "likely", "low": "roughly even chance / cannot be determined"}
 
 
-def build_hypotheses(actors: Iterable[ActorProfile], evidence: Iterable[Evidence]) -> list[Hypothesis]:
+def build_hypotheses(actors: Iterable[ActorProfile], evidence: Iterable[Evidence],
+                     false_flags: bool = True, unknown: bool = True) -> list[Hypothesis]:
+    """Actor hypotheses plus (by default) the mandatory alternatives.
+
+    ``false_flags`` / ``unknown`` exist only for ablation studies; turning them
+    off removes the deception and untracked-actor hypotheses.
+    """
     actors = list(actors)
     hyps = [Hypothesis(f"H-{a.id}", f"{a.name} conducted the activity", "actor", a.id) for a in actors]
-    framed = sorted({p for e in evidence if e.spoofable for p in e.points_to})
+    framed = sorted({p for e in evidence if e.spoofable for p in e.points_to}) if false_flags else []
     names = {a.id: a.name for a in actors}
     for aid in framed:
         hyps.append(
             Hypothesis(f"H-FF-{aid}", f"False flag: another actor framed {names.get(aid, aid)}", "false_flag", aid)
         )
-    hyps.append(Hypothesis("H-UNKNOWN", "An unknown / untracked actor", "unknown", None))
+    if unknown:
+        hyps.append(Hypothesis("H-UNKNOWN", "An unknown / untracked actor", "unknown", None))
     return hyps
 
 
@@ -119,6 +126,12 @@ class ACHEngine:
     #: lets consistent evidence count and so reduces the pull towards large profiles.
     ranking_rule: str = "heuer"
     support_weight: float = 0.5
+    # -- ablation switches (defaults = the method as published) --------------
+    false_flag_hypotheses: bool = True
+    unknown_hypothesis: bool = True
+    spoofable_discount: float = SPOOFABLE_DISCOUNT
+    confidence_caps: bool = True
+    diagnosticity: bool = True
 
     def __post_init__(self) -> None:
         ids = [e.id for e in self.evidence]
@@ -127,7 +140,9 @@ class ACHEngine:
         if self.ranking_rule not in ("heuer", "balanced"):
             raise ValueError(f"unknown ranking_rule {self.ranking_rule!r}")
         self._actors = {a.id: a for a in self.actors}
-        self.hypotheses = build_hypotheses(self.actors, self.evidence)
+        self.hypotheses = build_hypotheses(self.actors, self.evidence, self.false_flag_hypotheses, self.unknown_hypothesis)
+        if len(self.hypotheses) < 2:
+            raise ValueError("ACH needs at least two hypotheses")
         self._rows: dict[str, dict[str, Consistency]] = {}
 
     # -- matrix -------------------------------------------------------------
@@ -153,12 +168,11 @@ class ACHEngine:
             raise KeyError(hypothesis_id)
         self.overrides[(evidence_id, hypothesis_id)] = rating if isinstance(rating, Consistency) else Consistency.parse(rating)
 
-    @staticmethod
-    def _diag_weight(e: Evidence, row: dict[str, Consistency]) -> float:
+    def _diag_weight(self, e: Evidence, row: dict[str, Consistency]) -> float:
         vals = [r.value for r in row.values()]
         spread = (max(vals) - min(vals)) / 4.0  # 0 = non-diagnostic, 1 = maximally diagnostic
-        w = e.weight * spread
-        return w * SPOOFABLE_DISCOUNT if e.spoofable else w
+        w = e.weight * (spread if self.diagnosticity else 1.0)
+        return w * self.spoofable_discount if e.spoofable else w
 
     def _score(self, evidence: list[Evidence]) -> tuple[list[HypothesisScore], dict, dict[str, float]]:
         m = self.matrix(evidence)
@@ -210,6 +224,8 @@ class ACHEngine:
 
         def cap(level: str, why: str) -> None:
             nonlocal conf
+            if not self.confidence_caps:
+                return
             rank = {"low": 0, "moderate": 1, "high": 2}
             if rank[conf] > rank[level]:
                 conf = level
