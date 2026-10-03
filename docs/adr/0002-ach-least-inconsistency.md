@@ -21,6 +21,8 @@ Naive attribution counts matching TTPs and names the closest actor, which is wha
 ## Consequences
 - The engine is deliberately conservative. The benchmark (`results/attribution.md`) shows the trade-off:
   - ACH names the true group less often than the similarity baseline in the closed world (0.30 vs 0.53).
-  - It declines correctly far more often when the true group is untracked (0.46 vs 0.00).
-  - It almost never names the framed group under planted markers (1% vs 88%), and it makes zero overconfident errors.
+  - It declines correctly far more often than the never-abstaining matcher when the true group is untracked (0.46 vs 0.00).
+  - It almost never names the framed group under planted markers (1% vs 88%).
+
+> **Note (2026-10-03, after 1.1.0).** Two of these consequences need qualifying against the later benchmark (`results/falseflag.md`, `results/attribution.md`). First, a cosine-threshold baseline that *can* abstain declines more: 0.945 with its threshold cross-fitted for closed + open accuracy, and 0.934 when the threshold is matched to ACH's closed-world accuracy. Second, the overconfident-error rate (wrong at stated p >= 0.8) is not zero: it is 0.000 / 0.004 / 0.000 in the closed / open / false-flag settings, which is 1 of 274 open-world answers. The confidence caps nearly guarantee such a low rate, so it is not evidence of better calibration. Under one setting-agnostic calibration map ACH's pooled Brier score is worse than the matcher's (0.214 vs 0.160).
 - Because least-inconsistency ignores support, large profiles have an advantage: they have fewer "absent" cells. The optional similarity shortlist (ADR 0005) reduces the candidate set, which partly mitigates this.

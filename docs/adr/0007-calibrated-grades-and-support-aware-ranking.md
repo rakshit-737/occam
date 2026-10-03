@@ -12,4 +12,13 @@ The v0.2 benchmark showed two weaknesses. ACH's ICD-203 midpoint probabilities w
 
 ## Consequences
 - Calibrated closed-world Brier is 0.156 (from 0.238), below the baseline's 0.179.
+
+  > **Superseded comparison (2026-10-03, 1.1.0).** The line above compares ACH's *per-setting* learned map with the baseline's *raw* Brier. A per-setting map knows which setting an incident comes from, so it is an oracle upper bound. Like-for-like numbers (`results/attribution.md`):
+  >
+  > | Calibration map | ACH, closed world | Similarity, closed world |
+  > | --- | --- | --- |
+  > | Per setting, each method with its own map (oracle) | 0.156 | 0.180 |
+  > | One deployable pooled map | 0.189 | 0.315 |
+  >
+  > Over all three settings pooled, the deployable map gives ACH 0.214 and similarity 0.160 (paired difference +0.031 to +0.080, `results/falseflag.md`), so ACH is less well calibrated overall.
 - Support-aware ranking lifts closed-world top-1 to 40% and false-flag correctness to 89%. Open-world correct-decline collapses from 46% to 5.5%, because the unknown hypothesis never receives support. Declining when the actor is untracked is a core safety property, so the variant stays opt-in.
