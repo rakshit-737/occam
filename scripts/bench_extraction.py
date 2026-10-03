@@ -35,6 +35,9 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
+sys.path.insert(0, str(REPO / "scripts"))
+
+from _benchutil import provenance, source_line  # noqa: E402
 
 from occam.classifier import TechniqueClassifier, training_corpus  # noqa: E402
 from occam.extract import _patterns  # noqa: E402
@@ -101,6 +104,7 @@ def main(argv: list[str] | None = None) -> int:
     a = ap.parse_args(argv)
 
     t0 = time.time()
+    prov = provenance([a.data / "enterprise-attack-19.2.json", a.data / "tram" / "multi_label.json"], argv)
     attack = AttackData.load(a.data / "enterprise-attack-19.2.json")
     kb = attack.to_kb()
     rows = load_tram(a.data / "tram" / "multi_label.json")
@@ -198,6 +202,7 @@ def main(argv: list[str] | None = None) -> int:
         "results": results,
         "per_technique": per,
         "runtime_s": round(time.time() - t0, 1),
+        "provenance": prov,
     }
     a.out.mkdir(parents=True, exist_ok=True)
     (a.out / "extraction.json").write_text(json.dumps(out, indent=1), encoding="utf-8")
@@ -216,6 +221,8 @@ def render(o: dict) -> str:
         "",
         f"Protocol: {o['protocol']}. ATT&CK v{o['attack_version']}.",
         "",
+        source_line(o.get("provenance")),
+        "",
         "| Method | Sent. P | Sent. R | Sent. micro-F1 | Sent. macro-F1 | Doc P | Doc R | Doc micro-F1 | Doc macro-F1 |",
         "|---|---|---|---|---|---|---|---|---|",
     ]
@@ -224,7 +231,7 @@ def render(o: dict) -> str:
         lines.append(f"| {names[m]} | {s['micro_precision']:.3f} | {s['micro_recall']:.3f} | {s['micro_f1']:.3f} | "
                      f"{s['macro_f1']:.3f} | {d['micro_precision']:.3f} | {d['micro_recall']:.3f} | {d['micro_f1']:.3f} | "
                      f"{d['macro_f1']:.3f} |")
-    lines += ["", "| Method | Doc micro-F1, fold mean ± SD | Doc micro-F1, document bootstrap 95% CI |", "|---|---|---|"]
+    lines += ["", "| Method | Doc micro-F1, fold mean ± SD (dispersion) | Doc micro-F1, document bootstrap 95% CI |", "|---|---|---|"]
     for m, r in o["results"].items():
         if "document_micro_f1_folds" in r:
             f, c = r["document_micro_f1_folds"], r["document_micro_f1_ci95"]

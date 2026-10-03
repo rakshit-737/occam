@@ -34,7 +34,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import os
 import random
 import re
@@ -48,6 +47,7 @@ REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(REPO / "scripts"))
 
+from _benchutil import degenerate_safe, provenance, source_line, wilson  # noqa: E402
 from bench_attribution import NAMES  # noqa: E402
 
 from occam.attribution import ACHAttributor, SimilarityAttributor  # noqa: E402
@@ -81,19 +81,18 @@ def factories() -> dict:
             "ach-balanced": partial(ACHAttributor, ranking_rule="balanced")}
 
 
-def interval(oc, key=lambda o: float(o.correct), n_boot: int = 1000, seed: int = 0) -> tuple[float, float]:
-    """Wilson interval for small n, group-cluster bootstrap otherwise."""
+def interval(oc, key=lambda o: float(o.correct), n_boot: int = 1000, seed: int = 0) -> tuple[tuple[float, float], bool]:
+    """Wilson interval for small n, group-cluster bootstrap otherwise. A rate of
+    exactly 0 or 1 makes the bootstrap degenerate; it is then replaced by a
+    Wilson interval with the number of groups as the sample size (second item
+    of the result: whether that happened)."""
     vals = [key(o) for o in oc]
     n = len(vals)
     if not n:
-        return (0.0, 0.0)
+        return (0.0, 0.0), False
     groups = sorted({o.incident.group for o in oc})
     if n < 50 or len(groups) < 10:
-        k, z = sum(vals), 1.96
-        p = k / n
-        c = (p + z * z / (2 * n)) / (1 + z * z / n)
-        h = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / (1 + z * z / n)
-        return (max(0.0, c - h), min(1.0, c + h))
+        return wilson(sum(vals), n), False
     by: dict[str, list[float]] = {}
     for o, v in zip(oc, vals):
         by.setdefault(o.incident.group, []).append(v)
@@ -103,7 +102,7 @@ def interval(oc, key=lambda o: float(o.correct), n_boot: int = 1000, seed: int =
         xs = [v for g in (groups[rng.randrange(len(groups))] for _ in groups) for v in by[g]]
         means.append(sum(xs) / len(xs))
     means.sort()
-    return means[int(0.025 * n_boot)], means[int(0.975 * n_boot) - 1]
+    return degenerate_safe((means[int(0.025 * n_boot)], means[int(0.975 * n_boot) - 1]), sum(vals) / n, len(groups))
 
 
 def remap(incs: list[Incident], old: AttackData, new_bundle: dict) -> tuple[list[Incident], dict]:
@@ -202,8 +201,8 @@ def run_protocol(protocol: str, new: AttackData, a) -> dict:
         for m in facs:
             oc = res[m][s]
             r = summarize(oc)
-            r["ci95_accuracy"] = interval(oc)
-            r["ci95_framed"] = interval(oc, key=lambda o: float(o.framed))
+            r["ci95_accuracy"], r["ci95_accuracy_wilson"] = interval(oc)
+            r["ci95_framed"], r["ci95_framed_wilson"] = interval(oc, key=lambda o: float(o.framed))
             out["settings"][s][m] = r
     if "false_flag" in settings and len(a.seeds) > 1:
         per = {m: {"accuracy": [], "framed_rate": [], "named_true": []} for m in facs}
@@ -223,7 +222,8 @@ def run_protocol(protocol: str, new: AttackData, a) -> dict:
 
 
 def render(o: dict) -> str:
-    L = [f"### Extended attribution evaluation (profiles/incidents from ATT&CK, current release v{o['attack_version']})", ""]
+    L = [f"### Extended attribution evaluation (profiles/incidents from ATT&CK, current release v{o['attack_version']})", "",
+         source_line(o.get("provenance")), ""]
     L += ["| Protocol | Incidents | Groups | Candidate profiles |", "|---|---|---|---|"]
     for p, r in o["protocols"].items():
         L.append(f"| `{p}`: {r['description']} | {r['n_incidents']} ({r['n_campaign_incidents']} campaigns) | "
@@ -244,7 +244,8 @@ def render(o: dict) -> str:
         for s, per in r["settings"].items():
             for m, x in per.items():
                 ca = x["ci95_accuracy"]
-                L.append(f"| {p} | {s} | {NAMES[m]} | {x['accuracy']:.3f} [{ca[0]:.2f}-{ca[1]:.2f}] | "
+                dag = "†" if x.get("ci95_accuracy_wilson") else ""
+                L.append(f"| {p} | {s} | {NAMES[m]} | {x['accuracy']:.3f} [{ca[0]:.2f}-{ca[1]:.2f}]{dag} | "
                          f"{x['named_true']:.3f} | {x['framed_rate']:.3f} | {x['brier']:.3f} | "
                          f"{x['overconfident_errors']:.3f} |")
     L += ["", "False-flag setting over framing seeds (mean ± sample SD):", "",
@@ -259,9 +260,9 @@ def render(o: dict) -> str:
                      f"{d['named_true']['mean']:.3f} ± {d['named_true']['sd']:.3f} |")
     L += ["", "*Correct*: closed = names the true group; open = declines to name; false_flag = names the true group "
           "or concludes the framed group was framed. Temporal protocols use the old release's profiles and KB and hold "
-          "nothing out. Intervals: group-cluster bootstrap (n >= 50), else Wilson score interval. A rate of exactly 0 "
-          "(the similarity baseline never declines) has a degenerate bootstrap interval [0.00-0.00]; its Wilson upper "
-          "bound is about 3.8/n (e.g. 0.007 for n = 575)."]
+          "nothing out. Intervals: group-cluster bootstrap (n >= 50), else Wilson score interval. † = a rate of exactly 0 "
+          "or 1 (e.g. the similarity baseline never declines), whose bootstrap interval is degenerate: a Wilson interval "
+          "with the number of groups as the sample size is shown instead."]
     return "\n".join(L) + "\n"
 
 
@@ -274,10 +275,14 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out", type=Path, default=REPO / "results")
     a = ap.parse_args(argv)
     a.seeds = [int(x) for x in a.seeds.split(",")]
-    new = AttackData.load(a.data / "enterprise-attack-19.2.json")
+    attack = a.data / "enterprise-attack-19.2.json"
+    hist = [a.data / "attack-history" / f"enterprise-attack-{v}.json" for v in ("12.1", "15.1")]
+    prov = provenance([attack, *hist], argv)
+    new = AttackData.load(attack)
     path = a.out / "attribution_extended.json"
     out = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"protocols": {}}
     out["attack_version"] = new.version
+    out["provenance"] = prov
     for p in a.only:
         out["protocols"][p] = run_protocol(p, new, a)
         out["protocols"] = {k: out["protocols"][k] for k in PROTOCOLS if k in out["protocols"]}

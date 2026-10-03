@@ -25,6 +25,9 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
+sys.path.insert(0, str(REPO / "scripts"))
+
+from _benchutil import degenerate_safe, provenance, source_line  # noqa: E402
 
 from occam.attribution import ACHAttributor, SimilarityAttributor  # noqa: E402
 from occam.calibration import GradeCalibrator  # noqa: E402
@@ -74,7 +77,9 @@ def main(argv: list[str] | None = None) -> int:
     a = ap.parse_args(argv)
 
     t0 = time.time()
-    data = AttackData.load(a.data / "enterprise-attack-19.2.json")
+    attack = a.data / "enterprise-attack-19.2.json"
+    prov = provenance([attack], argv)
+    data = AttackData.load(attack)
     print(json.dumps(data.summary()))
     factories = {"similarity": SimilarityAttributor, "ach": ACHAttributor, "ach-top5": partial(ACHAttributor, shortlist=5),
                  "ach-balanced": partial(ACHAttributor, ranking_rule="balanced")}
@@ -103,9 +108,16 @@ def main(argv: list[str] | None = None) -> int:
             if m != "similarity":
                 out["grade_calibrated"].setdefault(m, {})[s] = summarize(oc, crossfit_grade_calibrate(oc))
             grp = [o.incident.group for o in oc]
+            n_g = len(set(grp))
+            acc, acc_w = degenerate_safe(bootstrap_ci([float(o.correct) for o in oc], groups=grp),
+                                         out["raw"][m][s]["accuracy"], n_g)
+            ovc, ovc_w = degenerate_safe(
+                bootstrap_ci([float(not o.correct and o.attribution.probability >= 0.8) for o in oc], groups=grp),
+                out["raw"][m][s]["overconfident_errors"], n_g)
             out["ci95"][m][s] = {
-                "accuracy": bootstrap_ci([float(o.correct) for o in oc], groups=grp),
+                "accuracy": acc, "accuracy_wilson": acc_w,
                 "brier": bootstrap_ci([(o.attribution.probability - o.correct) ** 2 for o in oc], groups=grp),
+                "overconfident_errors": ovc, "overconfident_errors_wilson": ovc_w,
             }
             out["reliability"][m][s] = reliability([o.attribution.probability for o in oc], [o.correct for o in oc])
     # setting-agnostic (pooled) calibration, cross-fitted by group: what a deployed
@@ -125,7 +137,14 @@ def main(argv: list[str] | None = None) -> int:
         out["pooled_calibrated"][m] = {}
         for s in SETTINGS:
             idx = [i for i, o in enumerate(pool) if o.setting == s]
-            out["pooled_calibrated"][m][s] = summarize([pool[i] for i in idx], [p_all[i] for i in idx])
+            sub, ps = [pool[i] for i in idx], [p_all[i] for i in idx]
+            r = summarize(sub, ps)
+            grp = [o.incident.group for o in sub]
+            r["overconfident_count"] = sum(1 for o, p in zip(sub, ps) if not o.correct and p >= 0.8)
+            r["overconfident_ci95"], r["overconfident_wilson"] = degenerate_safe(
+                bootstrap_ci([float(not o.correct and p >= 0.8) for o, p in zip(sub, ps)], groups=grp),
+                r["overconfident_errors"], len(set(grp)))
+            out["pooled_calibrated"][m][s] = r
     # the shipped calibrated grader: fitted on every setting of plain ACH
     pooled = [o for s in SETTINGS for o in res["ach"][s]]
     grader = GradeCalibrator().fit([o.attribution.confidence for o in pooled], [o.correct for o in pooled])
@@ -135,6 +154,7 @@ def main(argv: list[str] | None = None) -> int:
     seeds = [a.seed] + [int(x) for x in a.extra_seeds.split(",") if x.strip()]
     out["seed_variance"] = seed_variance(data, factories, a, seeds, res)
     out["runtime_s"] = round(time.time() - t0, 1)
+    out["provenance"] = prov
     a.out.mkdir(parents=True, exist_ok=True)
     (a.out / "attribution.json").write_text(json.dumps(out, indent=1), encoding="utf-8")
     md = render(out)
@@ -165,19 +185,25 @@ def render(o: dict) -> str:
         "",
         f"{o['n_incidents']} leave-one-report-out incidents from {o['n_groups_with_incidents']} groups; "
         f"{o['n_candidate_groups']} candidate group profiles; {o['protocol']['markers']} planted markers in the false-flag setting. "
-        "95% CIs: group-cluster bootstrap.",
+        "95% CIs: group-cluster bootstrap; † = the rate is exactly 0 or 1, so the bootstrap interval is degenerate and a "
+        "Wilson interval with the number of groups as the sample size is shown.",
+        "",
+        source_line(o.get("provenance")),
         "",
         "| Setting | Method | Correct [95% CI] | Names true group | Framed | Brier [95% CI] | ECE "
-        "| Overconfident errors | Brier (recal.) | ECE (recal.) |",
+        "| Overconfident errors [95% CI] | Brier (recal.) | ECE (recal.) |",
         "|---|---|---|---|---|---|---|---|---|---|",
     ]
     for s in SETTINGS:
         for m in o["raw"]:
             r, c, ci = o["raw"][m][s], o["calibrated"][m][s], o["ci95"][m][s]
+            da = "†" if ci.get("accuracy_wilson") else ""
+            dv = "†" if ci.get("overconfident_errors_wilson") else ""
+            oc = ci.get("overconfident_errors", (0.0, 0.0))
             L.append(
-                f"| {s} | {NAMES[m]} | {r['accuracy']:.3f} [{ci['accuracy'][0]:.2f}-{ci['accuracy'][1]:.2f}] | "
+                f"| {s} | {NAMES[m]} | {r['accuracy']:.3f} [{ci['accuracy'][0]:.2f}-{ci['accuracy'][1]:.2f}]{da} | "
                 f"{r['named_true']:.3f} | {r['framed_rate']:.3f} | {r['brier']:.3f} [{ci['brier'][0]:.2f}-{ci['brier'][1]:.2f}] | "
-                f"{r['ece']:.3f} | {r['overconfident_errors']:.3f} | {c['brier']:.3f} | {c['ece']:.3f} |"
+                f"{r['ece']:.3f} | {r['overconfident_errors']:.3f} [{oc[0]:.2f}-{oc[1]:.2f}]{dv} | {c['brier']:.3f} | {c['ece']:.3f} |"
             )
     L += ["", "*Correct*: closed = names the true group; open = declines to name (true group absent); "
           "false_flag = names the true group or concludes the framed group was framed. "
@@ -188,13 +214,19 @@ def render(o: dict) -> str:
           "know which setting an incident comes from and are an oracle upper bound. "
           "Canonical pooled-calibration table; `results/falseflag.md` quotes the same map as one number over all three "
           "settings. A single map cannot help the similarity baseline: it never declines, so all its open-world answers "
-          "are wrong and the map pulls every probability down. The closed-world Brier therefore rises from 0.179 (raw) to"
-          " 0.315, while the open-world Brier falls to 0.032.", "",
-          "| Setting | Method | Brier (pooled map) | ECE (pooled map) |", "|---|---|---|---|"]
+          "are wrong and the map pulls every probability down. The closed-world Brier therefore rises from "
+          f"{o['raw']['similarity']['closed']['brier']:.3f} (raw) to {o['pooled_calibrated']['similarity']['closed']['brier']:.3f}, "
+          f"while the open-world Brier falls to {o['pooled_calibrated']['similarity']['open']['brier']:.3f}. "
+          "*Overconfident errors*: wrong with calibrated probability >= 0.8.", "",
+          "| Setting | Method | Brier (pooled map) | ECE (pooled map) | Overconfident errors (pooled map) [95% CI] |",
+          "|---|---|---|---|---|"]
     for s in SETTINGS:
         for m in o["pooled_calibrated"]:
             r = o["pooled_calibrated"][m][s]
-            L.append(f"| {s} | {NAMES[m]} | {r['brier']:.3f} | {r['ece']:.3f} |")
+            lo, hi = r.get("overconfident_ci95", (0.0, 0.0))
+            dag = "†" if r.get("overconfident_wilson") else ""
+            L.append(f"| {s} | {NAMES[m]} | {r['brier']:.3f} | {r['ece']:.3f} | "
+                     f"{r.get('overconfident_count', 0)}/{r['n']} [{lo:.3f}-{hi:.3f}]{dag} |")
     L += ["", "#### Learned grade -> probability map, fitted per setting (oracle upper bound)", "",
           "Stated probability per ACH grade, learned (Beta-smoothed, monotone) instead of fixed ICD-203 midpoints. "
           "Brier with the learned map is cross-fitted over a 2-fold group split.", "",
