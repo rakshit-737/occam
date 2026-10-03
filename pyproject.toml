@@ -43,12 +43,14 @@ Homepage = "https://rakshit-737.github.io/occam/"
 Source = "https://github.com/rakshit-737/occam"
 
 [tool.setuptools]
-packages = ["occam", "occam.data", "occam.demo", "occam.web"]
+packages = ["occam", "occam.data", "occam.demo", "occam.demo.reports", "occam.demo.scenarios", "occam.web"]
 
 [tool.setuptools.package-data]
 "occam.data" = ["*.json"]
 "occam.web" = ["*.html"]
-"occam.demo" = ["*.json", "scenarios/*.json", "reports/*.txt"]
+"occam.demo" = ["*.json"]
+"occam.demo.reports" = ["*.txt"]
+"occam.demo.scenarios" = ["*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
