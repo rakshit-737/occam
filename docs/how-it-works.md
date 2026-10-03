@@ -91,5 +91,6 @@ simple baseline that ignores spoofable rows resists planted markers just as
 well, ACH costs closed-world accuracy, and it sometimes mistakes genuine
 overlap for a frame-up. Under **mimicry**, where
 the adversary copies the framed group's rare techniques as hard evidence, it is
-framed less often than the baselines but is also correct less often, and the
-ablation does not attribute that gain to diagnosticity weighting.
+framed less often than IDF coverage (27.0% vs 32.1%) but is also correct less
+often than IDF coverage (17.9% vs 28.8%), and the ablation does not attribute
+that gain to diagnosticity weighting.

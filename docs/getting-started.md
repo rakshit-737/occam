@@ -9,7 +9,7 @@ python -m pytest -q                            # real-data tests skip when the d
 python -m occam demo                           # synthetic scenarios, incl. an Olympic-Destroyer-style false flag
 ```
 
-Or run the API and workbench in a container. It is published on loopback only, because the API has no authentication:
+Or run the API and workbench in a container. It is published on loopback only, because the API has no authentication by default (set `OCCAM_API_TOKEN` to require a bearer token; the workbench has a token field):
 
 ```bash
 docker compose up --build                      # http://127.0.0.1:8000/
