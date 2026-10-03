@@ -1,6 +1,6 @@
 # Reproduce
 
-Each result file in [`results/`](https://github.com/rakshit-737/occam/tree/main/results) is written by one script. Every JSON has a `provenance` block with the code commit, a dirty flag, the command, package versions, input checksums and, when it ran in GitHub Actions, the run id and URL. Each Markdown table names that run on its source line.
+Each result file in [`results/`](https://github.com/rakshit-737/occam/tree/main/results) is written by one script. Every benchmark JSON has a `provenance` block with the code commit, a dirty flag, the command, package versions, input checksums and, when it ran in GitHub Actions, the run id and URL. Each Markdown table names that run on its source line. The exception is `grade_calibration.json`, a fitted model file with no provenance block; it comes from the same `bench_attribution.py` run as `attribution.json`.
 
 The committed results come from bench run [37093689060](https://github.com/rakshit-737/occam/actions/runs/37093689060), an ubuntu-24.04 GitHub-hosted runner with Python 3.12. All randomness is seeded. Dataset commits and SHA-256 hashes are pinned in `scripts/download_data.py`, and `python scripts/dataset_stats.py` writes the dataset counts quoted in the docs to `results/datasets.json`.
 

@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-10-03
+
+### Fixed
+- README and the Reproduce page no longer say every result JSON has a `provenance` block: `results/grade_calibration.json` is a fitted map without one (it comes from the same bench run as `results/attribution.json`). Re-verification from a fresh clone found every other headline number traceable to bench run 37093689060.
+- `ui/package.json` version was stale (1.1.0); it now follows the package version.
+
 ## [1.1.1] - 2026-10-03
 
 ### Added
