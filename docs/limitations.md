@@ -24,7 +24,7 @@
 - **LLM extractor.** It needs a hosted or local model and a human-judged set of span-grounded extractions, which cannot be reproduced in CI.
 - **Live Neo4j / OpenCTI.** OCCAM emits an idempotent Cypher script (`occam cluster --cypher`). It has not been load-tested against a running Neo4j or OpenCTI instance.
 - **Workbench graph view and `/cluster` API endpoint.** Clustering is available from the CLI (`occam cluster`) and the Python API only; the workbench has no graph view yet.
-- **Old published artefacts.** Artefacts published before 1.1.0 (the v1.0.0 wheel and the `1.0.0` / `1.0` image tags) lack the packaged demo data and later fixes. Use 1.1.2 or newer; `:latest` is 1.1.2.
+- **Old published artefacts.** Artefacts published before 1.1.0 (the v1.0.0 wheel and the `1.0.0` / `1.0` image tags) lack the packaged demo data and later fixes. Use 1.1.3 or newer; `:latest` is 1.1.3.
 - **Persistent TAXII collection.** The TAXII endpoint stays read-only and in-memory until authentication exists.
 
 ## Done in 1.1.1

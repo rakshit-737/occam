@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.1.3] - 2026-10-03
+
+### Changed
+- The GitHub repository was renamed from `rakshit-737/occam` to `rakshit-737/occam-cti-attribution`. Repository, docs-site (<https://rakshit-737.github.io/occam-cti-attribution/>), demo, preprint, badge, CITATION and package URLs now use the new name, and the container image is published as `ghcr.io/rakshit-737/occam-cti-attribution`. Older entries below keep the original names; the old Pages URLs no longer resolve.
+
+## [1.1.3] - 2026-10-03
+
+### Changed
+- The GitHub repository was renamed from `rakshit-737/occam` to `rakshit-737/occam-cti-attribution`. Repository, docs-site (<https://rakshit-737.github.io/occam-cti-attribution/>), demo, preprint, badge, citation and container-image (`ghcr.io/rakshit-737/occam-cti-attribution`) links now use the new name. Older entries below keep the original URLs and image name as historical record; the old Pages URLs no longer resolve.
+
 ## [1.1.2] - 2026-10-03
 
 ### Fixed
