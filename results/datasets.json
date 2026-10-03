@@ -41,10 +41,10 @@
   "sha256": "8a0c6644e4477eab28c92efd3bd7004b9563cb120ae1681d7d0a05dc170cd91b"
  },
  "aptnotes_labelled": {
-  "reports": 73,
-  "groups": 32,
+  "reports": 76,
+  "groups": 33,
   "label_sources": {
-   "group": 73,
+   "group": 76,
    "campaign": 0
   }
  },
@@ -52,5 +52,33 @@
   "reports": 1490,
   "label_columns": 227,
   "sha256": "d1aa3b5880a965b98ed9cb3cf974a5ccba9c457813ff2f38bc3799eeee93602e"
+ },
+ "provenance": {
+  "git_commit": "09cde531bd880cd890ccb6a92763ae14a1db6c46",
+  "git_describe": "v1.1.0-13-g09cde53",
+  "git_dirty": false,
+  "generated_utc": "2026-10-03T03:35:41+00:00",
+  "argv": [
+   "dataset_stats.py",
+   "--data",
+   "/home/runner/occam-data",
+   "--out",
+   "out/results/datasets.json"
+  ],
+  "platform": "Linux x86_64",
+  "versions": {
+   "python": "3.12.14",
+   "numpy": "2.5.3",
+   "scikit-learn": "1.9.1",
+   "networkx": "3.7",
+   "pypdf": "6.19.0",
+   "nltk": "3.10.3",
+   "matplotlib": "3.11.2"
+  },
+  "inputs": {},
+  "github_run_id": "37093689060",
+  "github_run_attempt": "1",
+  "github_workflow": "bench",
+  "run_url": "https://github.com/rakshit-737/occam/actions/runs/37093689060"
  }
 }

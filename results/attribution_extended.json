@@ -26,10 +26,12 @@
        0.4035656401944895,
        0.5561694290976059
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
-       0.0
-      ]
+       0.03595603210734395
+      ],
+      "ci95_framed_wilson": true
      },
      "ach": {
       "n": 575,
@@ -49,10 +51,12 @@
        0.3139745916515426,
        0.45385779122541603
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
-       0.0
-      ]
+       0.03595603210734395
+      ],
+      "ci95_framed_wilson": true
      },
      "ach-top5": {
       "n": 575,
@@ -72,10 +76,12 @@
        0.3319587628865979,
        0.4666666666666667
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
-       0.0
-      ]
+       0.03595603210734395
+      ],
+      "ci95_framed_wilson": true
      },
      "ach-balanced": {
       "n": 575,
@@ -95,10 +101,12 @@
        0.4223744292237443,
        0.5647382920110193
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
-       0.0
-      ]
+       0.03595603210734395
+      ],
+      "ci95_framed_wilson": true
      }
     },
     "open": {
@@ -118,12 +126,14 @@
       "high_conf_rate": 0.02434782608695652,
       "ci95_accuracy": [
        0.0,
-       0.0
+       0.03595603210734395
       ],
+      "ci95_accuracy_wilson": true,
       "ci95_framed": [
        0.0,
-       0.0
-      ]
+       0.03595603210734395
+      ],
+      "ci95_framed_wilson": true
      },
      "ach": {
       "n": 575,
@@ -143,10 +153,12 @@
        0.41682974559686886,
        0.5260869565217391
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
-       0.0
-      ]
+       0.03595603210734395
+      ],
+      "ci95_framed_wilson": true
      },
      "ach-top5": {
       "n": 575,
@@ -166,10 +178,12 @@
        0.5896551724137931,
        0.6855828220858896
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
-       0.0
-      ]
+       0.03595603210734395
+      ],
+      "ci95_framed_wilson": true
      },
      "ach-balanced": {
       "n": 575,
@@ -189,10 +203,12 @@
        0.03900709219858156,
        0.08712121212121213
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
-       0.0
-      ]
+       0.03595603210734395
+      ],
+      "ci95_framed_wilson": true
      }
     },
     "false_flag": {
@@ -214,10 +230,12 @@
        0.03894080996884735,
        0.11444652908067542
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.8764705882352941,
        0.9543859649122807
-      ]
+      ],
+      "ci95_framed_wilson": false
      },
      "ach": {
       "n": 575,
@@ -237,10 +255,12 @@
        0.6894977168949772,
        0.786692759295499
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0017699115044247787,
        0.01601164483260553
-      ]
+      ],
+      "ci95_framed_wilson": false
      },
      "ach-top5": {
       "n": 575,
@@ -260,10 +280,12 @@
        0.6447140381282496,
        0.7495682210708118
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0017699115044247787,
        0.01601164483260553
-      ]
+      ],
+      "ci95_framed_wilson": false
      },
      "ach-balanced": {
       "n": 575,
@@ -283,10 +305,12 @@
        0.8637236084452975,
        0.9201807228915663
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.015217391304347827,
        0.043029259896729774
-      ]
+      ],
+      "ci95_framed_wilson": false
      }
     }
    },
@@ -357,7 +381,7 @@
      }
     }
    },
-   "runtime_s": 633.6
+   "runtime_s": 53.9
   },
   "campaigns": {
    "description": "ATT&CK campaigns attributed to a group, held out with all their references",
@@ -385,10 +409,12 @@
        0.13813675745628204,
        0.49956773822837586
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
        0.15464382326420195
-      ]
+      ],
+      "ci95_framed_wilson": false
      },
      "ach": {
       "n": 21,
@@ -408,10 +434,12 @@
        0.10627856389112261,
        0.45091581972345923
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
        0.15464382326420195
-      ]
+      ],
+      "ci95_framed_wilson": false
      },
      "ach-top5": {
       "n": 21,
@@ -431,10 +459,12 @@
        0.10627856389112261,
        0.45091581972345923
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
        0.15464382326420195
-      ]
+      ],
+      "ci95_framed_wilson": false
      },
      "ach-balanced": {
       "n": 21,
@@ -454,10 +484,12 @@
        0.24469699486521043,
        0.6345378370296754
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
        0.15464382326420195
-      ]
+      ],
+      "ci95_framed_wilson": false
      }
     },
     "open": {
@@ -479,10 +511,12 @@
        0.0,
        0.15464382326420195
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
        0.15464382326420195
-      ]
+      ],
+      "ci95_framed_wilson": false
      },
      "ach": {
       "n": 21,
@@ -502,10 +536,12 @@
        0.40878295815501514,
        0.7924923220201749
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
        0.15464382326420195
-      ]
+      ],
+      "ci95_framed_wilson": false
      },
      "ach-top5": {
       "n": 21,
@@ -525,10 +561,12 @@
        0.6536350585077049,
        0.950190782017865
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
        0.15464382326420195
-      ]
+      ],
+      "ci95_framed_wilson": false
      },
      "ach-balanced": {
       "n": 21,
@@ -548,10 +586,12 @@
        0.008455769471923294,
        0.22669816586235464
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
        0.15464382326420195
-      ]
+      ],
+      "ci95_framed_wilson": false
      }
     },
     "false_flag": {
@@ -573,10 +613,12 @@
        0.0,
        0.15464382326420195
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.8453561767357979,
        0.9999999999999999
-      ]
+      ],
+      "ci95_framed_wilson": false
      },
      "ach": {
       "n": 21,
@@ -596,10 +638,12 @@
        0.45373075657210293,
        0.8280546356731631
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
        0.15464382326420195
-      ]
+      ],
+      "ci95_framed_wilson": false
      },
      "ach-top5": {
       "n": 21,
@@ -619,10 +663,12 @@
        0.3654621629703244,
        0.7553030051347894
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
        0.15464382326420195
-      ]
+      ],
+      "ci95_framed_wilson": false
      },
      "ach-balanced": {
       "n": 21,
@@ -642,10 +688,12 @@
        0.8453561767357979,
        0.9999999999999999
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
        0.15464382326420195
-      ]
+      ],
+      "ci95_framed_wilson": false
      }
     }
    },
@@ -716,7 +764,7 @@
      }
     }
    },
-   "runtime_s": 40.7
+   "runtime_s": 3.2
   },
   "unattributed": {
    "description": "ATT&CK campaigns with no attributed group (correct = decline)",
@@ -779,10 +827,12 @@
        0.0,
        0.11025900073475385
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
        0.11025900073475385
-      ]
+      ],
+      "ci95_framed_wilson": false
      },
      "ach": {
       "n": 31,
@@ -802,10 +852,12 @@
        0.3196998603127883,
        0.6515988171302683
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
        0.11025900073475385
-      ]
+      ],
+      "ci95_framed_wilson": false
      },
      "ach-top5": {
       "n": 31,
@@ -825,10 +877,12 @@
        0.5675352757228489,
        0.8629845626313024
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
        0.11025900073475385
-      ]
+      ],
+      "ci95_framed_wilson": false
      },
      "ach-balanced": {
       "n": 31,
@@ -848,14 +902,16 @@
        0.0,
        0.11025900073475385
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
        0.11025900073475385
-      ]
+      ],
+      "ci95_framed_wilson": false
      }
     }
    },
-   "runtime_s": 7.4
+   "runtime_s": 1.1
   },
   "unattributed-clean": {
    "description": "As unattributed, minus campaigns whose ATT&CK description names a tracked group",
@@ -918,10 +974,12 @@
        0.0,
        0.15464382326420195
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
        0.15464382326420195
-      ]
+      ],
+      "ci95_framed_wilson": false
      },
      "ach": {
       "n": 21,
@@ -941,10 +999,12 @@
        0.3654621629703244,
        0.7553030051347894
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
        0.15464382326420195
-      ]
+      ],
+      "ci95_framed_wilson": false
      },
      "ach-top5": {
       "n": 21,
@@ -964,10 +1024,12 @@
        0.5490841802765406,
        0.8937214361088773
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
        0.15464382326420195
-      ]
+      ],
+      "ci95_framed_wilson": false
      },
      "ach-balanced": {
       "n": 21,
@@ -987,14 +1049,16 @@
        0.0,
        0.15464382326420195
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
        0.15464382326420195
-      ]
+      ],
+      "ci95_framed_wilson": false
      }
     }
    },
-   "runtime_s": 4.0
+   "runtime_s": 0.9
   },
   "temporal-12.1": {
    "description": "Profiles from ATT&CK v12.1 (released Nov 2022); incidents added to ATT&CK after it (in v19.2)",
@@ -1032,10 +1096,12 @@
        0.10377358490566038,
        0.35135135135135137
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
-       0.0
-      ]
+       0.12873304380462175
+      ],
+      "ci95_framed_wilson": true
      },
      "ach": {
       "n": 89,
@@ -1055,10 +1121,12 @@
        0.10909090909090909,
        0.359375
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
-       0.0
-      ]
+       0.12873304380462175
+      ],
+      "ci95_framed_wilson": true
      },
      "ach-top5": {
       "n": 89,
@@ -1078,10 +1146,12 @@
        0.09876543209876543,
        0.3670886075949367
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
-       0.0
-      ]
+       0.12873304380462175
+      ],
+      "ci95_framed_wilson": true
      },
      "ach-balanced": {
       "n": 89,
@@ -1101,10 +1171,12 @@
        0.1557377049180328,
        0.4318181818181818
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
-       0.0
-      ]
+       0.12873304380462175
+      ],
+      "ci95_framed_wilson": true
      }
     },
     "open": {
@@ -1124,12 +1196,14 @@
       "high_conf_rate": 0.033707865168539325,
       "ci95_accuracy": [
        0.0,
-       0.0
+       0.12873304380462175
       ],
+      "ci95_accuracy_wilson": true,
       "ci95_framed": [
        0.0,
-       0.0
-      ]
+       0.12873304380462175
+      ],
+      "ci95_framed_wilson": true
      },
      "ach": {
       "n": 89,
@@ -1149,10 +1223,12 @@
        0.4264705882352941,
        0.5813953488372093
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
-       0.0
-      ]
+       0.12873304380462175
+      ],
+      "ci95_framed_wilson": true
      },
      "ach-top5": {
       "n": 89,
@@ -1172,10 +1248,12 @@
        0.6842105263157895,
        0.8428571428571429
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
-       0.0
-      ]
+       0.12873304380462175
+      ],
+      "ci95_framed_wilson": true
      },
      "ach-balanced": {
       "n": 89,
@@ -1195,10 +1273,12 @@
        0.0,
        0.0379746835443038
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
-       0.0
-      ]
+       0.12873304380462175
+      ],
+      "ci95_framed_wilson": true
      }
     },
     "false_flag": {
@@ -1220,10 +1300,12 @@
        0.0,
        0.0847457627118644
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.9152542372881356,
        1.0
-      ]
+      ],
+      "ci95_framed_wilson": false
      },
      "ach": {
       "n": 89,
@@ -1243,10 +1325,12 @@
        0.6153846153846154,
        0.8314606741573034
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
-       0.0
-      ]
+       0.12873304380462175
+      ],
+      "ci95_framed_wilson": true
      },
      "ach-top5": {
       "n": 89,
@@ -1266,10 +1350,12 @@
        0.5338983050847458,
        0.75
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.0,
-       0.0
-      ]
+       0.12873304380462175
+      ],
+      "ci95_framed_wilson": true
      },
      "ach-balanced": {
       "n": 89,
@@ -1289,10 +1375,12 @@
        0.8363636363636363,
        0.9487179487179487
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.009259259259259259,
        0.10126582278481013
-      ]
+      ],
+      "ci95_framed_wilson": false
      }
     }
    },
@@ -1363,7 +1451,7 @@
      }
     }
    },
-   "runtime_s": 43.3
+   "runtime_s": 7.8
   },
   "temporal-15.1": {
    "description": "Profiles from ATT&CK v15.1 (released May 2024); incidents added to ATT&CK after it (in v19.2)",
@@ -1401,10 +1489,12 @@
        0.02857142857142857,
        0.25
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
-       0.0,
-       0.0
-      ]
+       1.3877787807814457e-17,
+       0.14865952572596125
+      ],
+      "ci95_framed_wilson": true
      },
      "ach": {
       "n": 69,
@@ -1424,10 +1514,12 @@
        0.056179775280898875,
        0.23076923076923078
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
-       0.0,
-       0.0
-      ]
+       1.3877787807814457e-17,
+       0.14865952572596125
+      ],
+      "ci95_framed_wilson": true
      },
      "ach-top5": {
       "n": 69,
@@ -1447,10 +1539,12 @@
        0.043478260869565216,
        0.21621621621621623
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
-       0.0,
-       0.0
-      ]
+       1.3877787807814457e-17,
+       0.14865952572596125
+      ],
+      "ci95_framed_wilson": true
      },
      "ach-balanced": {
       "n": 69,
@@ -1470,10 +1564,12 @@
        0.0625,
        0.29411764705882354
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
-       0.0,
-       0.0
-      ]
+       1.3877787807814457e-17,
+       0.14865952572596125
+      ],
+      "ci95_framed_wilson": true
      }
     },
     "open": {
@@ -1492,13 +1588,15 @@
       "overconfident_errors": 0.014492753623188406,
       "high_conf_rate": 0.014492753623188406,
       "ci95_accuracy": [
-       0.0,
-       0.0
+       1.3877787807814457e-17,
+       0.14865952572596125
       ],
+      "ci95_accuracy_wilson": true,
       "ci95_framed": [
-       0.0,
-       0.0
-      ]
+       1.3877787807814457e-17,
+       0.14865952572596125
+      ],
+      "ci95_framed_wilson": true
      },
      "ach": {
       "n": 69,
@@ -1518,10 +1616,12 @@
        0.3076923076923077,
        0.5975609756097561
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
-       0.0,
-       0.0
-      ]
+       1.3877787807814457e-17,
+       0.14865952572596125
+      ],
+      "ci95_framed_wilson": true
      },
      "ach-top5": {
       "n": 69,
@@ -1541,10 +1641,12 @@
        0.6,
        0.8152173913043478
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
-       0.0,
-       0.0
-      ]
+       1.3877787807814457e-17,
+       0.14865952572596125
+      ],
+      "ci95_framed_wilson": true
      },
      "ach-balanced": {
       "n": 69,
@@ -1564,10 +1666,12 @@
        0.0,
        0.05084745762711865
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
-       0.0,
-       0.0
-      ]
+       1.3877787807814457e-17,
+       0.14865952572596125
+      ],
+      "ci95_framed_wilson": true
      }
     },
     "false_flag": {
@@ -1589,10 +1693,12 @@
        0.0,
        0.047058823529411764
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
        0.9529411764705882,
        1.0
-      ]
+      ],
+      "ci95_framed_wilson": false
      },
      "ach": {
       "n": 69,
@@ -1612,10 +1718,12 @@
        0.5684210526315789,
        0.8571428571428571
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
-       0.0,
-       0.0
-      ]
+       1.3877787807814457e-17,
+       0.14865952572596125
+      ],
+      "ci95_framed_wilson": true
      },
      "ach-top5": {
       "n": 69,
@@ -1635,10 +1743,12 @@
        0.4864864864864865,
        0.7857142857142857
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
-       0.0,
-       0.0
-      ]
+       1.3877787807814457e-17,
+       0.14865952572596125
+      ],
+      "ci95_framed_wilson": true
      },
      "ach-balanced": {
       "n": 69,
@@ -1658,10 +1768,12 @@
        0.8823529411764706,
        0.9814814814814815
       ],
+      "ci95_accuracy_wilson": false,
       "ci95_framed": [
-       0.0,
-       0.0
-      ]
+       1.3877787807814457e-17,
+       0.14865952572596125
+      ],
+      "ci95_framed_wilson": true
      }
     }
    },
@@ -1732,8 +1844,38 @@
      }
     }
    },
-   "runtime_s": 35.5
+   "runtime_s": 6.8
   }
  },
- "attack_version": "19.2"
+ "attack_version": "19.2",
+ "provenance": {
+  "git_commit": "09cde531bd880cd890ccb6a92763ae14a1db6c46",
+  "git_describe": "v1.1.0-13-g09cde53",
+  "git_dirty": false,
+  "generated_utc": "2026-10-03T03:35:44+00:00",
+  "argv": [
+   "bench_attribution_extended.py",
+   "--out",
+   "out/results"
+  ],
+  "platform": "Linux x86_64",
+  "versions": {
+   "python": "3.12.14",
+   "numpy": "2.5.3",
+   "scikit-learn": "1.9.1",
+   "networkx": "3.7",
+   "pypdf": "6.19.0",
+   "nltk": "3.10.3",
+   "matplotlib": "3.11.2"
+  },
+  "inputs": {
+   "enterprise-attack-19.2.json": "dc1639caa5501d720e280cf1cbd8fbe009884a0c9b3e6e9ed9d0c25166c3d8f4",
+   "enterprise-attack-12.1.json": "e84679af4bc46bba2ba92f60182101f146d5b966898e47924de7321e6bffeaa1",
+   "enterprise-attack-15.1.json": "a57988bffe402bb3e19d92dbe80a12143e1970b814e013e080f9df2fa5a3f6bc"
+  },
+  "github_run_id": "37093689060",
+  "github_run_attempt": "1",
+  "github_workflow": "bench",
+  "run_url": "https://github.com/rakshit-737/occam/actions/runs/37093689060"
+ }
 }

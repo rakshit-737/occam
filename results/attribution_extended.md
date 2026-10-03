@@ -1,5 +1,7 @@
 ### Extended attribution evaluation (profiles/incidents from ATT&CK, current release v19.2)
 
+*Source: GitHub Actions run [37093689060](https://github.com/rakshit-737/occam/actions/runs/37093689060), commit `09cde53`, 2026-10-03T03:35:44+00:00.*
+
 | Protocol | Incidents | Groups | Candidate profiles |
 |---|---|---|---|
 | `loro-all`: Leave-one-report-out, every (group, report) pair, no per-group cap | 575 (0 campaigns) | 103 | 176 |
@@ -21,7 +23,7 @@
 | loro-all | closed | OCCAM ACH | 0.390 [0.31-0.45] | 0.390 | 0.000 | 0.228 | 0.000 |
 | loro-all | closed | OCCAM ACH, top-5 similarity shortlist | 0.402 [0.33-0.47] | 0.402 | 0.000 | 0.250 | 0.005 |
 | loro-all | closed | OCCAM ACH, support-aware ranking | 0.503 [0.42-0.56] | 0.503 | 0.000 | 0.204 | 0.003 |
-| loro-all | open | TTP-similarity baseline | 0.000 [0.00-0.00] | 0.000 | 0.000 | 0.089 | 0.024 |
+| loro-all | open | TTP-similarity baseline | 0.000 [0.00-0.04]† | 0.000 | 0.000 | 0.089 | 0.024 |
 | loro-all | open | OCCAM ACH | 0.473 [0.42-0.53] | 0.000 | 0.000 | 0.247 | 0.002 |
 | loro-all | open | OCCAM ACH, top-5 similarity shortlist | 0.642 [0.59-0.69] | 0.000 | 0.000 | 0.233 | 0.014 |
 | loro-all | open | OCCAM ACH, support-aware ranking | 0.064 [0.04-0.09] | 0.000 | 0.000 | 0.314 | 0.028 |
@@ -53,7 +55,7 @@
 | temporal-12.1 | closed | OCCAM ACH | 0.213 [0.11-0.36] | 0.213 | 0.000 | 0.262 | 0.000 |
 | temporal-12.1 | closed | OCCAM ACH, top-5 similarity shortlist | 0.213 [0.10-0.37] | 0.213 | 0.000 | 0.312 | 0.000 |
 | temporal-12.1 | closed | OCCAM ACH, support-aware ranking | 0.270 [0.16-0.43] | 0.270 | 0.000 | 0.269 | 0.022 |
-| temporal-12.1 | open | TTP-similarity baseline | 0.000 [0.00-0.00] | 0.000 | 0.000 | 0.099 | 0.034 |
+| temporal-12.1 | open | TTP-similarity baseline | 0.000 [0.00-0.13]† | 0.000 | 0.000 | 0.099 | 0.034 |
 | temporal-12.1 | open | OCCAM ACH | 0.506 [0.43-0.58] | 0.000 | 0.000 | 0.262 | 0.000 |
 | temporal-12.1 | open | OCCAM ACH, top-5 similarity shortlist | 0.764 [0.68-0.84] | 0.000 | 0.000 | 0.205 | 0.000 |
 | temporal-12.1 | open | OCCAM ACH, support-aware ranking | 0.011 [0.00-0.04] | 0.000 | 0.000 | 0.338 | 0.045 |
@@ -65,7 +67,7 @@
 | temporal-15.1 | closed | OCCAM ACH | 0.130 [0.06-0.23] | 0.130 | 0.000 | 0.274 | 0.000 |
 | temporal-15.1 | closed | OCCAM ACH, top-5 similarity shortlist | 0.116 [0.04-0.22] | 0.116 | 0.000 | 0.326 | 0.000 |
 | temporal-15.1 | closed | OCCAM ACH, support-aware ranking | 0.159 [0.06-0.29] | 0.159 | 0.000 | 0.282 | 0.014 |
-| temporal-15.1 | open | TTP-similarity baseline | 0.000 [0.00-0.00] | 0.000 | 0.000 | 0.087 | 0.014 |
+| temporal-15.1 | open | TTP-similarity baseline | 0.000 [0.00-0.15]† | 0.000 | 0.000 | 0.087 | 0.014 |
 | temporal-15.1 | open | OCCAM ACH | 0.493 [0.31-0.60] | 0.000 | 0.000 | 0.237 | 0.000 |
 | temporal-15.1 | open | OCCAM ACH, top-5 similarity shortlist | 0.725 [0.60-0.82] | 0.000 | 0.000 | 0.197 | 0.000 |
 | temporal-15.1 | open | OCCAM ACH, support-aware ranking | 0.014 [0.00-0.05] | 0.000 | 0.000 | 0.299 | 0.014 |
@@ -95,4 +97,4 @@ False-flag setting over framing seeds (mean ± sample SD):
 | temporal-15.1 | OCCAM ACH, top-5 similarity shortlist | 0.617 ± 0.022 | 0.000 ± 0.000 | 0.003 ± 0.006 |
 | temporal-15.1 | OCCAM ACH, support-aware ranking | 0.933 ± 0.039 | 0.012 ± 0.016 | 0.014 ± 0.010 |
 
-*Correct*: closed = names the true group; open = declines to name; false_flag = names the true group or concludes the framed group was framed. Temporal protocols use the old release's profiles and KB and hold nothing out. Intervals: group-cluster bootstrap (n >= 50), else Wilson score interval. A rate of exactly 0 (the similarity baseline never declines) has a degenerate bootstrap interval [0.00-0.00]; its Wilson upper bound is about 3.8/n (e.g. 0.007 for n = 575).
+*Correct*: closed = names the true group; open = declines to name; false_flag = names the true group or concludes the framed group was framed. Temporal protocols use the old release's profiles and KB and hold nothing out. Intervals: group-cluster bootstrap (n >= 50), else Wilson score interval. † = a rate of exactly 0 or 1 (e.g. the similarity baseline never declines), whose bootstrap interval is degenerate: a Wilson interval with the number of groups as the sample size is shown instead.

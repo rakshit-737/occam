@@ -65,10 +65,10 @@
   },
   "clf-attack": {
    "sentence": {
-    "micro_precision": 0.37594553706505296,
+    "micro_precision": 0.3758744564189828,
     "micro_recall": 0.38654481819949443,
-    "micro_f1": 0.3811715080049851,
-    "macro_f1": 0.35308069861056923,
+    "micro_f1": 0.38113496932515334,
+    "macro_f1": 0.35306744934156337,
     "n_labels_in_gold": 50
    },
    "document": {
@@ -378,5 +378,34 @@
    "f1": 0.576
   }
  },
- "runtime_s": 319.8
+ "runtime_s": 63.1,
+ "provenance": {
+  "git_commit": "09cde531bd880cd890ccb6a92763ae14a1db6c46",
+  "git_describe": "v1.1.0-13-g09cde53",
+  "git_dirty": false,
+  "generated_utc": "2026-10-03T03:35:44+00:00",
+  "argv": [
+   "bench_extraction.py",
+   "--out",
+   "out/results"
+  ],
+  "platform": "Linux x86_64",
+  "versions": {
+   "python": "3.12.14",
+   "numpy": "2.5.3",
+   "scikit-learn": "1.9.1",
+   "networkx": "3.7",
+   "pypdf": "6.19.0",
+   "nltk": "3.10.3",
+   "matplotlib": "3.11.2"
+  },
+  "inputs": {
+   "enterprise-attack-19.2.json": "dc1639caa5501d720e280cf1cbd8fbe009884a0c9b3e6e9ed9d0c25166c3d8f4",
+   "multi_label.json": "8a0c6644e4477eab28c92efd3bd7004b9563cb120ae1681d7d0a05dc170cd91b"
+  },
+  "github_run_id": "37093689060",
+  "github_run_attempt": "1",
+  "github_workflow": "bench",
+  "run_url": "https://github.com/rakshit-737/occam/actions/runs/37093689060"
+ }
 }

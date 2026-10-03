@@ -1,20 +1,21 @@
 {
- "reports": 72,
+ "reports": 75,
  "skipped": [
   [
    "2014/h12756-wp-shell-crew.pdf",
-   "unreadable: Invalid argument"
+   "excluded: its converted text quotes webshell code and is quarantined by Windows Defender on the author's machine; skipped everywhere so local and CI runs match"
   ]
  ],
  "evidence": "all",
- "reports_with_self_citation": 22,
+ "reports_with_self_citation": 23,
  "no_items_extracted": 0,
- "groups": 32,
+ "groups": 33,
+ "groups_with_items": 33,
  "classifier": true,
  "top_k": 10,
- "mean_techniques": 12.375,
- "mean_software": 2.4027777777777777,
- "mean_indicators": 102.95833333333333,
+ "mean_techniques": 12.453333333333333,
+ "mean_software": 2.546666666666667,
+ "mean_indicators": 102.36,
  "reports_per_group": {
   "G0007": 8,
   "G0010": 7,
@@ -26,115 +27,148 @@
   "G0035": 3,
   "G0016": 3,
   "G0019": 3,
+  "G0024": 2,
   "G0004": 2,
   "G0081": 2,
   "G0008": 2,
+  "G0003": 2,
   "G0001": 2,
   "G0034": 2,
   "G0012": 2,
   "G0020": 2,
   "G1028": 2,
-  "G0024": 1,
   "G0066": 1,
   "G0005": 1,
   "G0094": 1,
   "G0021": 1,
   "G0006": 1,
   "G0095": 1,
-  "G0003": 1,
   "G0011": 1,
   "G0121": 1,
   "G0052": 1,
   "G0050": 1,
+  "G0013": 1,
   "G0030": 1,
   "G0123": 1
  },
  "attribution": {
   "similarity@asis": {
-   "top1": 0.3055555555555556,
+   "top1": 0.3333333333333333,
    "top1_ci95": [
-    0.21126482045921047,
-    0.4195446561341104
+    0.23708065705320355,
+    0.445827858248363
    ],
-   "top5": 0.4861111111111111,
+   "top5": 0.5066666666666667,
    "named_rate": 1.0,
-   "brier": 0.19705870020054497,
+   "brier": 0.19380443145103263,
    "high_conf_wrong": 0.0,
    "high_conf_wrong_count": 0
   },
   "ach@asis": {
-   "top1": 0.19444444444444445,
+   "top1": 0.18666666666666668,
    "top1_ci95": [
-    0.11951371043417634,
-    0.3003297527838992
+    0.11458005622312066,
+    0.2892879525438247
    ],
-   "top5": 0.3888888888888889,
-   "named_rate": 0.5833333333333334,
-   "brier": 0.24823784722222225,
+   "top5": 0.38666666666666666,
+   "named_rate": 0.5733333333333334,
+   "brier": 0.24830833333333335,
    "high_conf_wrong": 0.0,
    "high_conf_wrong_count": 0
   },
   "ach-top5@asis": {
-   "top1": 0.19444444444444445,
+   "top1": 0.18666666666666668,
    "top1_ci95": [
-    0.11951371043417634,
-    0.3003297527838992
+    0.11458005622312066,
+    0.2892879525438247
    ],
-   "top5": 0.4861111111111111,
-   "named_rate": 0.2916666666666667,
-   "brier": 0.3265538194444445,
+   "top5": 0.5066666666666667,
+   "named_rate": 0.28,
+   "brier": 0.3152666666666667,
    "high_conf_wrong": 0.0,
    "high_conf_wrong_count": 0
   },
   "similarity@leakfree": {
-   "top1": 0.2777777777777778,
+   "top1": 0.29333333333333333,
    "top1_ci95": [
-    0.18760146005322942,
-    0.3904665131962801
+    0.2023999721815816,
+    0.4044065867923611
    ],
-   "top5": 0.4583333333333333,
+   "top5": 0.4666666666666667,
    "named_rate": 1.0,
-   "brier": 0.21731792534770278,
+   "brier": 0.21113234744039328,
    "high_conf_wrong": 0.0,
    "high_conf_wrong_count": 0
   },
   "ach@leakfree": {
-   "top1": 0.16666666666666666,
+   "top1": 0.16,
    "top1_ci95": [
-    0.09799275085321624,
-    0.26910920902104796
+    0.09396421323774289,
+    0.25916915797745316
    ],
-   "top5": 0.3472222222222222,
-   "named_rate": 0.5694444444444444,
-   "brier": 0.2551041666666667,
+   "top5": 0.3466666666666667,
+   "named_rate": 0.5466666666666666,
+   "brier": 0.2549,
    "high_conf_wrong": 0.0,
    "high_conf_wrong_count": 0
   },
   "ach-top5@leakfree": {
-   "top1": 0.125,
+   "top1": 0.12,
    "top1_ci95": [
-    0.06717708293105555,
-    0.22081262192749168
+    0.06443298969072164,
+    0.2125984251968504
    ],
-   "top5": 0.4583333333333333,
-   "named_rate": 0.2222222222222222,
-   "brier": 0.33828125000000003,
+   "top5": 0.4666666666666667,
+   "named_rate": 0.21333333333333335,
+   "brier": 0.326525,
    "high_conf_wrong": 0.0,
    "high_conf_wrong_count": 0
   }
  },
+ "mcnemar": {
+  "ach_vs_similarity@asis": {
+   "only_first": 6,
+   "only_second": 17,
+   "both": 8,
+   "neither": 44,
+   "p_exact": 0.03468966484069824
+  },
+  "ach_vs_similarity@leakfree": {
+   "only_first": 7,
+   "only_second": 17,
+   "both": 5,
+   "neither": 46,
+   "p_exact": 0.06391465663909912
+  },
+  "ach_this_vs_aptnotes@leakfree": {
+   "only_first": 0,
+   "only_second": 12,
+   "both": 12,
+   "neither": 51,
+   "p_exact": 0.00048828125,
+   "n": 75
+  },
+  "similarity_this_vs_aptnotes@leakfree": {
+   "only_first": 5,
+   "only_second": 4,
+   "both": 17,
+   "neither": 49,
+   "p_exact": 1.0,
+   "n": 75
+  }
+ },
  "clustering": {
   "louvain (k=10, res=5.0)": {
-   "purity": 0.9166666666666666,
-   "nmi": 0.8689231839462287,
-   "ari": 0.23655913978494625,
-   "clusters": 55
+   "purity": 0.92,
+   "nmi": 0.8657058760215558,
+   "ari": 0.21673723088010088,
+   "clusters": 58
   },
   "single-linkage (t=0.3)": {
    "purity": 1.0,
-   "nmi": 0.866898118983603,
-   "ari": 0.04201165286721864,
-   "clusters": 70
+   "nmi": 0.8688163010779516,
+   "ari": 0.041200543607619725,
+   "clusters": 73
   }
  },
  "per_report": [
@@ -190,7 +224,7 @@
    "label_source": "group",
    "techniques": 10,
    "software": 1,
-   "indicators": 100,
+   "indicators": 102,
    "items": 11,
    "self_citations": [],
    "similarity@asis": {
@@ -334,7 +368,7 @@
    "label_source": "group",
    "techniques": 10,
    "software": 2,
-   "indicators": 24,
+   "indicators": 26,
    "items": 12,
    "self_citations": [],
    "similarity@asis": {
@@ -612,13 +646,13 @@
    "label_source": "group",
    "techniques": 11,
    "software": 0,
-   "indicators": 60,
+   "indicators": 61,
    "items": 11,
    "self_citations": [],
    "similarity@asis": {
     "leading": "G1049",
     "kind": "actor",
-    "p": 0.1768397333557747,
+    "p": 0.17638107171824657,
     "top5": false
    },
    "ach@asis": {
@@ -636,7 +670,7 @@
    "similarity@leakfree": {
     "leading": "G1049",
     "kind": "actor",
-    "p": 0.1768397333557747,
+    "p": 0.17638107171824657,
     "top5": false
    },
    "ach@leakfree": {
@@ -796,13 +830,13 @@
    "label_source": "group",
    "techniques": 14,
    "software": 4,
-   "indicators": 66,
+   "indicators": 60,
    "items": 18,
    "self_citations": [],
    "similarity@asis": {
     "leading": "G0108",
     "kind": "actor",
-    "p": 0.24727160132041223,
+    "p": 0.24229119196336074,
     "top5": true
    },
    "ach@asis": {
@@ -814,13 +848,13 @@
    "ach-top5@asis": {
     "leading": null,
     "kind": "unknown",
-    "p": 0.675,
+    "p": 0.5,
     "top5": true
    },
    "similarity@leakfree": {
     "leading": "G0108",
     "kind": "actor",
-    "p": 0.24727160132041223,
+    "p": 0.24229119196336074,
     "top5": true
    },
    "ach@leakfree": {
@@ -832,7 +866,7 @@
    "ach-top5@leakfree": {
     "leading": null,
     "kind": "unknown",
-    "p": 0.675,
+    "p": 0.5,
     "top5": true
    }
   },
@@ -977,6 +1011,54 @@
    }
   },
   {
+   "report": "2014/Cylance_Operation_Cleaver_Report.pdf",
+   "group": "G0003",
+   "label_source": "group",
+   "techniques": 14,
+   "software": 9,
+   "indicators": 56,
+   "items": 23,
+   "self_citations": [
+    "Cylance Cleaver"
+   ],
+   "similarity@asis": {
+    "leading": "G0003",
+    "kind": "actor",
+    "p": 0.5984283914997011,
+    "top5": true
+   },
+   "ach@asis": {
+    "leading": "G1017",
+    "kind": "actor",
+    "p": 0.5,
+    "top5": false
+   },
+   "ach-top5@asis": {
+    "leading": null,
+    "kind": "unknown",
+    "p": 0.5,
+    "top5": true
+   },
+   "similarity@leakfree": {
+    "leading": "G0093",
+    "kind": "actor",
+    "p": 0.04678937229975314,
+    "top5": false
+   },
+   "ach@leakfree": {
+    "leading": null,
+    "kind": "unknown",
+    "p": 0.5,
+    "top5": false
+   },
+   "ach-top5@leakfree": {
+    "leading": null,
+    "kind": "unknown",
+    "p": 0.5,
+    "top5": false
+   }
+  },
+  {
    "report": "2014/DEEP_PANDA_Sakula.pdf",
    "group": "G0009",
    "label_source": "group",
@@ -1080,7 +1162,7 @@
    "similarity@asis": {
     "leading": "G0035",
     "kind": "actor",
-    "p": 0.08741272324766694,
+    "p": 0.08663738806937932,
     "top5": true
    },
    "ach@asis": {
@@ -1092,13 +1174,13 @@
    "ach-top5@asis": {
     "leading": null,
     "kind": "unknown",
-    "p": 0.675,
+    "p": 0.5,
     "top5": true
    },
    "similarity@leakfree": {
     "leading": "G0035",
     "kind": "actor",
-    "p": 0.08741272324766694,
+    "p": 0.08663738806937932,
     "top5": true
    },
    "ach@leakfree": {
@@ -1110,7 +1192,7 @@
    "ach-top5@leakfree": {
     "leading": null,
     "kind": "unknown",
-    "p": 0.675,
+    "p": 0.5,
     "top5": true
    }
   },
@@ -1120,7 +1202,7 @@
    "label_source": "group",
    "techniques": 12,
    "software": 2,
-   "indicators": 10,
+   "indicators": 18,
    "items": 14,
    "self_citations": [
     "Securelist Machete Aug 2014"
@@ -1176,7 +1258,7 @@
    "similarity@asis": {
     "leading": "G1049",
     "kind": "actor",
-    "p": 0.11811326003862063,
+    "p": 0.11223512377811681,
     "top5": true
    },
    "ach@asis": {
@@ -1194,7 +1276,7 @@
    "similarity@leakfree": {
     "leading": "G1049",
     "kind": "actor",
-    "p": 0.11811326003862063,
+    "p": 0.11223512377811681,
     "top5": true
    },
    "ach@leakfree": {
@@ -1354,7 +1436,7 @@
    "label_source": "group",
    "techniques": 10,
    "software": 1,
-   "indicators": 35,
+   "indicators": 47,
    "items": 11,
    "self_citations": [],
    "similarity@asis": {
@@ -1400,7 +1482,7 @@
    "label_source": "group",
    "techniques": 10,
    "software": 0,
-   "indicators": 3,
+   "indicators": 5,
    "items": 10,
    "self_citations": [],
    "similarity@asis": {
@@ -1446,7 +1528,7 @@
    "label_source": "group",
    "techniques": 10,
    "software": 1,
-   "indicators": 35,
+   "indicators": 47,
    "items": 11,
    "self_citations": [],
    "similarity@asis": {
@@ -1729,7 +1811,7 @@
    "label_source": "group",
    "techniques": 10,
    "software": 5,
-   "indicators": 6,
+   "indicators": 9,
    "items": 15,
    "self_citations": [
     "Leonardo Turla Penquin May 2020"
@@ -2195,12 +2277,58 @@
    }
   },
   {
+   "report": "2014/putter-panda.pdf",
+   "group": "G0024",
+   "label_source": "group",
+   "techniques": 13,
+   "software": 3,
+   "indicators": 78,
+   "items": 16,
+   "self_citations": [],
+   "similarity@asis": {
+    "leading": "G0024",
+    "kind": "actor",
+    "p": 0.555949220545336,
+    "top5": true
+   },
+   "ach@asis": {
+    "leading": null,
+    "kind": "unknown",
+    "p": 0.5,
+    "top5": false
+   },
+   "ach-top5@asis": {
+    "leading": null,
+    "kind": "unknown",
+    "p": 0.5,
+    "top5": true
+   },
+   "similarity@leakfree": {
+    "leading": "G0024",
+    "kind": "actor",
+    "p": 0.555949220545336,
+    "top5": true
+   },
+   "ach@leakfree": {
+    "leading": null,
+    "kind": "unknown",
+    "p": 0.5,
+    "top5": false
+   },
+   "ach-top5@leakfree": {
+    "leading": null,
+    "kind": "unknown",
+    "p": 0.5,
+    "top5": true
+   }
+  },
+  {
    "report": "2014/snake_whitepaper.pdf",
    "group": "G0010",
    "label_source": "group",
    "techniques": 16,
    "software": 1,
-   "indicators": 209,
+   "indicators": 207,
    "items": 17,
    "self_citations": [],
    "similarity@asis": {
@@ -2923,7 +3051,7 @@
    "similarity@leakfree": {
     "leading": "G1008",
     "kind": "actor",
-    "p": 0.08046983696789048,
+    "p": 0.08046983696789049,
     "top5": false
    },
    "ach@leakfree": {
@@ -3222,6 +3350,52 @@
    }
   },
   {
+   "report": "2015/rpt-apt30.pdf",
+   "group": "G0013",
+   "label_source": "group",
+   "techniques": 16,
+   "software": 6,
+   "indicators": 96,
+   "items": 22,
+   "self_citations": [],
+   "similarity@asis": {
+    "leading": "G0013",
+    "kind": "actor",
+    "p": 0.9970957557179176,
+    "top5": true
+   },
+   "ach@asis": {
+    "leading": null,
+    "kind": "unknown",
+    "p": 0.5,
+    "top5": true
+   },
+   "ach-top5@asis": {
+    "leading": null,
+    "kind": "unknown",
+    "p": 0.5,
+    "top5": true
+   },
+   "similarity@leakfree": {
+    "leading": "G0013",
+    "kind": "actor",
+    "p": 0.9970957557179176,
+    "top5": true
+   },
+   "ach@leakfree": {
+    "leading": null,
+    "kind": "unknown",
+    "p": 0.5,
+    "top5": true
+   },
+   "ach-top5@leakfree": {
+    "leading": null,
+    "kind": "unknown",
+    "p": 0.5,
+    "top5": true
+   }
+  },
+  {
    "report": "2015/the-black-vine-cyberespionage-group.pdf",
    "group": "G0009",
    "label_source": "group",
@@ -3280,9 +3454,9 @@
     "Spring Dragon Jun 2015"
    ],
    "similarity@asis": {
-    "leading": "G0073",
+    "leading": "G0063",
     "kind": "actor",
-    "p": 0.1227088484729203,
+    "p": 0.07907368534139551,
     "top5": false
    },
    "ach@asis": {
@@ -3294,13 +3468,13 @@
    "ach-top5@asis": {
     "leading": null,
     "kind": "unknown",
-    "p": 0.675,
+    "p": 0.5,
     "top5": false
    },
    "similarity@leakfree": {
-    "leading": "G0073",
+    "leading": "G0063",
     "kind": "actor",
-    "p": 0.1227088484729203,
+    "p": 0.07907368534139551,
     "top5": false
    },
    "ach@leakfree": {
@@ -3312,7 +3486,7 @@
    "ach-top5@leakfree": {
     "leading": null,
     "kind": "unknown",
-    "p": 0.675,
+    "p": 0.5,
     "top5": false
    }
   },
@@ -3505,5 +3679,43 @@
    }
   }
  ],
- "runtime_s": 471.1
+ "runtime_s": 87.4,
+ "provenance": {
+  "git_commit": "09cde531bd880cd890ccb6a92763ae14a1db6c46",
+  "git_describe": "v1.1.0-13-g09cde53",
+  "git_dirty": false,
+  "generated_utc": "2026-10-03T03:42:20+00:00",
+  "argv": [
+   "bench_aptnotes.py",
+   "--model",
+   "/home/runner/work/_temp/model.pkl",
+   "--top-k",
+   "10",
+   "--paired-with",
+   "out/results/aptnotes.json",
+   "--out",
+   "out/results"
+  ],
+  "platform": "Linux x86_64",
+  "versions": {
+   "python": "3.12.14",
+   "numpy": "2.5.3",
+   "scikit-learn": "1.9.1",
+   "networkx": "3.7",
+   "pypdf": "6.19.0",
+   "nltk": "3.10.3",
+   "matplotlib": "3.11.2"
+  },
+  "inputs": {
+   "enterprise-attack-19.2.json": "dc1639caa5501d720e280cf1cbd8fbe009884a0c9b3e6e9ed9d0c25166c3d8f4",
+   "index.json": "0dbab7be4010b44c262dd44dcaa0bca65e0558ac80278295b12ee8c7f3cae94b",
+   "APTnotes.csv": "dac4579a78ad0ad644d6f57670f31ac54f0424b3ab2619c8119d8f65e48adf0b",
+   "model.pkl": "1420d7c022f1e0bf6cf8fddf1f1006503699285fe11e7b078512fec455f60583"
+  },
+  "github_run_id": "37093689060",
+  "github_run_attempt": "1",
+  "github_workflow": "bench",
+  "run_url": "https://github.com/rakshit-737/occam/actions/runs/37093689060"
+ },
+ "paired_with_sha256": "1ef740755a16b57e9528823e60af6e5bd5bb71d790ff3f6d5a84e4138df624c8"
 }

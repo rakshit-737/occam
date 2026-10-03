@@ -18,31 +18,101 @@
    "purity": 0.5111111111111111,
    "nmi": 0.6420272284769856,
    "ari": 0.24866274557444784,
-   "clusters": 37
+   "clusters": 37,
+   "ci95": {
+    "ari": [
+     0.17475941540054996,
+     0.3225660757483457
+    ],
+    "nmi": [
+     0.595237979415932,
+     0.6888164775380391
+    ],
+    "purity": [
+     0.43725645499628957,
+     0.5849657672259326
+    ]
+   }
   },
   "Louvain, dense graph (no kNN, res=5.0; dev-tuned)": {
    "purity": 0.6592592592592592,
    "nmi": 0.7045913078746233,
    "ari": 0.20298496475827676,
-   "clusters": 84
+   "clusters": 84,
+   "ci95": {
+    "ari": [
+     0.14471856026836882,
+     0.2612513692481847
+    ],
+    "nmi": [
+     0.6559868287176878,
+     0.7531957870315589
+    ],
+    "purity": [
+     0.5710347333734511,
+     0.7474837851450673
+    ]
+   }
   },
   "Louvain, dense graph (no kNN, default res=1.0)": {
    "purity": 0.17777777777777778,
    "nmi": 0.25508243806821335,
    "ari": 0.047161909830036625,
-   "clusters": 4
+   "clusters": 4,
+   "ci95": {
+    "ari": [
+     -0.0029618263204855763,
+     0.09728564598055883
+    ],
+    "nmi": [
+     0.17967559139545453,
+     0.33048928474097217
+    ],
+    "purity": [
+     0.092086621407058,
+     0.2634689341484976
+    ]
+   }
   },
   "Single-linkage Jaccard (t=0.3; dev-tuned = default)": {
    "purity": 0.8,
    "nmi": 0.6943670289596251,
    "ari": 0.10660985303476675,
-   "clusters": 181
+   "clusters": 181,
+   "ci95": {
+    "ari": [
+     -0.032953147581026965,
+     0.24617285365056046
+    ],
+    "nmi": [
+     0.6375380196450428,
+     0.7511960382742074
+    ],
+    "purity": [
+     0.7133715771638723,
+     0.8866284228361277
+    ]
+   }
   },
   "Trivial: one cluster per event": {
    "purity": 1.0,
    "nmi": 0.7525425100677244,
    "ari": 0.0,
-   "clusters": 270
+   "clusters": 270,
+   "ci95": {
+    "ari": [
+     0.0,
+     0.0
+    ],
+    "nmi": [
+     0.7176546371585368,
+     0.787430382976912
+    ],
+    "purity": [
+     1.0,
+     1.0
+    ]
+   }
   }
  },
  "dev_ari": {
@@ -56,5 +126,37 @@
   "min": 0.22831705061343632,
   "max": 0.26729929907690075
  },
- "runtime_s": 101.3
+ "ari_paired_knn_minus_dense": [
+  -0.01911140585193412,
+  0.11046696748427627
+ ],
+ "runtime_s": 19.6,
+ "provenance": {
+  "git_commit": "09cde531bd880cd890ccb6a92763ae14a1db6c46",
+  "git_describe": "v1.1.0-13-g09cde53",
+  "git_dirty": false,
+  "generated_utc": "2026-10-03T03:35:51+00:00",
+  "argv": [
+   "bench_clustering.py",
+   "--out",
+   "out/results"
+  ],
+  "platform": "Linux x86_64",
+  "versions": {
+   "python": "3.12.14",
+   "numpy": "2.5.3",
+   "scikit-learn": "1.9.1",
+   "networkx": "3.7",
+   "pypdf": "6.19.0",
+   "nltk": "3.10.3",
+   "matplotlib": "3.11.2"
+  },
+  "inputs": {
+   "enterprise-attack-19.2.json": "dc1639caa5501d720e280cf1cbd8fbe009884a0c9b3e6e9ed9d0c25166c3d8f4"
+  },
+  "github_run_id": "37093689060",
+  "github_run_attempt": "1",
+  "github_workflow": "bench",
+  "run_url": "https://github.com/rakshit-737/occam/actions/runs/37093689060"
+ }
 }

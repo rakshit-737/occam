@@ -539,30 +539,48 @@
      0.45323741007194246,
      0.608058608058608
     ],
+    "accuracy_wilson": false,
     "brier": [
      0.1472936458493576,
      0.21001593524628492
-    ]
+    ],
+    "overconfident_errors": [
+     0.0,
+     0.02527075812274368
+    ],
+    "overconfident_errors_wilson": false
    },
    "open": {
     "accuracy": [
      0.0,
-     0.0
+     0.03595603210734395
     ],
+    "accuracy_wilson": true,
     "brier": [
      0.061073744412319865,
      0.09400086169605286
-    ]
+    ],
+    "overconfident_errors": [
+     0.0035842293906810036,
+     0.02973977695167286
+    ],
+    "overconfident_errors_wilson": false
    },
    "false_flag": {
     "accuracy": [
      0.06405693950177936,
      0.16906474820143885
     ],
+    "accuracy_wilson": false,
     "brier": [
      0.6519456131760498,
      0.7480201311794583
-    ]
+    ],
+    "overconfident_errors": [
+     0.6390977443609023,
+     0.7753623188405797
+    ],
+    "overconfident_errors_wilson": false
    }
   },
   "ach": {
@@ -571,30 +589,48 @@
      0.22878228782287824,
      0.37050359712230213
     ],
+    "accuracy_wilson": false,
     "brier": [
      0.22408490566037736,
      0.249195110701107
-    ]
+    ],
+    "overconfident_errors": [
+     0.0,
+     0.03595603210734395
+    ],
+    "overconfident_errors_wilson": true
    },
    "open": {
     "accuracy": [
      0.39285714285714285,
      0.5305343511450382
     ],
+    "accuracy_wilson": false,
     "brier": [
      0.23921651785714287,
      0.2574431818181818
-    ]
+    ],
+    "overconfident_errors": [
+     0.0,
+     0.011152416356877323
+    ],
+    "overconfident_errors_wilson": false
    },
    "false_flag": {
     "accuracy": [
      0.6691449814126395,
      0.7956989247311828
     ],
+    "accuracy_wilson": false,
     "brier": [
      0.18617831541218635,
      0.21344109195402297
-    ]
+    ],
+    "overconfident_errors": [
+     0.0,
+     0.03595603210734395
+    ],
+    "overconfident_errors_wilson": true
    }
   },
   "ach-top5": {
@@ -603,30 +639,48 @@
      0.2656826568265683,
      0.40714285714285714
     ],
+    "accuracy_wilson": false,
     "brier": [
      0.24493156934306567,
      0.2824295112781955
-    ]
+    ],
+    "overconfident_errors": [
+     0.0,
+     0.01845018450184502
+    ],
+    "overconfident_errors_wilson": false
    },
    "open": {
     "accuracy": [
      0.5833333333333334,
      0.702054794520548
     ],
+    "accuracy_wilson": false,
     "brier": [
      0.2201236510791367,
      0.24708333333333332
-    ]
+    ],
+    "overconfident_errors": [
+     0.0,
+     0.022641509433962263
+    ],
+    "overconfident_errors_wilson": false
    },
    "false_flag": {
     "accuracy": [
      0.6090225563909775,
      0.7481751824817519
     ],
+    "accuracy_wilson": false,
     "brier": [
      0.19283333333333333,
      0.21984145220588236
-    ]
+    ],
+    "overconfident_errors": [
+     0.0,
+     0.03595603210734395
+    ],
+    "overconfident_errors_wilson": true
    }
   },
   "ach-balanced": {
@@ -635,30 +689,48 @@
      0.3210332103321033,
      0.46953405017921146
     ],
+    "accuracy_wilson": false,
     "brier": [
      0.20391712454212454,
      0.24164943609022557
-    ]
+    ],
+    "overconfident_errors": [
+     0.0,
+     0.011278195488721804
+    ],
+    "overconfident_errors_wilson": false
    },
    "open": {
     "accuracy": [
      0.02888086642599278,
      0.08518518518518518
     ],
+    "accuracy_wilson": false,
     "brier": [
      0.28992954545454547,
      0.31610239852398525
-    ]
+    ],
+    "overconfident_errors": [
+     0.0035587188612099642,
+     0.029304029304029304
+    ],
+    "overconfident_errors_wilson": false
    },
    "false_flag": {
     "accuracy": [
      0.8475177304964538,
      0.924187725631769
     ],
+    "accuracy_wilson": false,
     "brier": [
      0.16172045454545453,
      0.17895522388059698
-    ]
+    ],
+    "overconfident_errors": [
+     0.0,
+     0.03595603210734395
+    ],
+    "overconfident_errors_wilson": true
    }
   }
  },
@@ -961,7 +1033,13 @@
     "brier": 0.3154050436497774,
     "ece": 0.3208003826471139,
     "overconfident_errors": 0.0,
-    "high_conf_rate": 0.2116788321167883
+    "high_conf_rate": 0.2116788321167883,
+    "overconfident_count": 0,
+    "overconfident_ci95": [
+     0.0,
+     0.03595603210734395
+    ],
+    "overconfident_wilson": true
    },
    "open": {
     "n": 274,
@@ -976,7 +1054,13 @@
     "brier": 0.032170747518949654,
     "ece": 0.13907087310033958,
     "overconfident_errors": 0.0,
-    "high_conf_rate": 0.014598540145985401
+    "high_conf_rate": 0.014598540145985401,
+    "overconfident_count": 0,
+    "overconfident_ci95": [
+     0.0,
+     0.03595603210734395
+    ],
+    "overconfident_wilson": true
    },
    "false_flag": {
     "n": 274,
@@ -991,7 +1075,13 @@
     "brier": 0.13138364850174247,
     "ece": 0.17816993616734922,
     "overconfident_errors": 0.0,
-    "high_conf_rate": 0.7737226277372263
+    "high_conf_rate": 0.7737226277372263,
+    "overconfident_count": 0,
+    "overconfident_ci95": [
+     0.0,
+     0.03595603210734395
+    ],
+    "overconfident_wilson": true
    }
   },
   "ach": {
@@ -1008,7 +1098,13 @@
     "brier": 0.18885911760894183,
     "ece": 0.17414994755588442,
     "overconfident_errors": 0.0,
-    "high_conf_rate": 0.029197080291970802
+    "high_conf_rate": 0.029197080291970802,
+    "overconfident_count": 0,
+    "overconfident_ci95": [
+     0.0,
+     0.03595603210734395
+    ],
+    "overconfident_wilson": true
    },
    "open": {
     "n": 274,
@@ -1023,7 +1119,13 @@
     "brier": 0.24917387458878146,
     "ece": 0.066626004421338,
     "overconfident_errors": 0.0036496350364963502,
-    "high_conf_rate": 0.0036496350364963502
+    "high_conf_rate": 0.0036496350364963502,
+    "overconfident_count": 1,
+    "overconfident_ci95": [
+     0.0,
+     0.011152416356877323
+    ],
+    "overconfident_wilson": false
    },
    "false_flag": {
     "n": 274,
@@ -1038,7 +1140,13 @@
     "brier": 0.20499279425826125,
     "ece": 0.15837974767410615,
     "overconfident_errors": 0.0,
-    "high_conf_rate": 0.0
+    "high_conf_rate": 0.0,
+    "overconfident_count": 0,
+    "overconfident_ci95": [
+     0.0,
+     0.03595603210734395
+    ],
+    "overconfident_wilson": true
    }
   },
   "ach-top5": {
@@ -1055,7 +1163,13 @@
     "brier": 0.2532040604923313,
     "ece": 0.21723055121107074,
     "overconfident_errors": 0.0072992700729927005,
-    "high_conf_rate": 0.058394160583941604
+    "high_conf_rate": 0.058394160583941604,
+    "overconfident_count": 2,
+    "overconfident_ci95": [
+     0.0,
+     0.01845018450184502
+    ],
+    "overconfident_wilson": false
    },
    "open": {
     "n": 274,
@@ -1070,7 +1184,13 @@
     "brier": 0.2403594147769884,
     "ece": 0.11043978138910301,
     "overconfident_errors": 0.0072992700729927005,
-    "high_conf_rate": 0.010948905109489052
+    "high_conf_rate": 0.010948905109489052,
+    "overconfident_count": 2,
+    "overconfident_ci95": [
+     0.0,
+     0.01845018450184502
+    ],
+    "overconfident_wilson": false
    },
    "false_flag": {
     "n": 274,
@@ -1085,7 +1205,13 @@
     "brier": 0.20931879601085712,
     "ece": 0.12336555838092673,
     "overconfident_errors": 0.0,
-    "high_conf_rate": 0.0
+    "high_conf_rate": 0.0,
+    "overconfident_count": 0,
+    "overconfident_ci95": [
+     0.0,
+     0.03595603210734395
+    ],
+    "overconfident_wilson": true
    }
   },
   "ach-balanced": {
@@ -1102,7 +1228,13 @@
     "brier": 0.17121160261289098,
     "ece": 0.10796173063714119,
     "overconfident_errors": 0.0036496350364963502,
-    "high_conf_rate": 0.15693430656934307
+    "high_conf_rate": 0.15693430656934307,
+    "overconfident_count": 1,
+    "overconfident_ci95": [
+     0.0,
+     0.011278195488721804
+    ],
+    "overconfident_wilson": false
    },
    "open": {
     "n": 274,
@@ -1117,7 +1249,13 @@
     "brier": 0.1864921778610711,
     "ece": 0.3162364259923525,
     "overconfident_errors": 0.014598540145985401,
-    "high_conf_rate": 0.014598540145985401
+    "high_conf_rate": 0.014598540145985401,
+    "overconfident_count": 4,
+    "overconfident_ci95": [
+     0.0035587188612099642,
+     0.029304029304029304
+    ],
+    "overconfident_wilson": false
    },
    "false_flag": {
     "n": 274,
@@ -1132,7 +1270,13 @@
     "brier": 0.2522530787797756,
     "ece": 0.3937975134361533,
     "overconfident_errors": 0.0,
-    "high_conf_rate": 0.0
+    "high_conf_rate": 0.0,
+    "overconfident_count": 0,
+    "overconfident_ci95": [
+     0.0,
+     0.03595603210734395
+    ],
+    "overconfident_wilson": true
    }
   }
  },
@@ -1311,5 +1455,35 @@
    }
   }
  },
- "runtime_s": 224.4
+ "runtime_s": 21.4,
+ "provenance": {
+  "git_commit": "09cde531bd880cd890ccb6a92763ae14a1db6c46",
+  "git_describe": "v1.1.0-13-g09cde53",
+  "git_dirty": false,
+  "generated_utc": "2026-10-03T03:35:50+00:00",
+  "argv": [
+   "bench_attribution.py",
+   "--out",
+   "out/results",
+   "--figures",
+   "out/figures"
+  ],
+  "platform": "Linux x86_64",
+  "versions": {
+   "python": "3.12.14",
+   "numpy": "2.5.3",
+   "scikit-learn": "1.9.1",
+   "networkx": "3.7",
+   "pypdf": "6.19.0",
+   "nltk": "3.10.3",
+   "matplotlib": "3.11.2"
+  },
+  "inputs": {
+   "enterprise-attack-19.2.json": "dc1639caa5501d720e280cf1cbd8fbe009884a0c9b3e6e9ed9d0c25166c3d8f4"
+  },
+  "github_run_id": "37093689060",
+  "github_run_attempt": "1",
+  "github_workflow": "bench",
+  "run_url": "https://github.com/rakshit-737/occam/actions/runs/37093689060"
+ }
 }
