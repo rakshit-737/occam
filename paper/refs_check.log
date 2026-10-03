@@ -1,0 +1,44 @@
+# refs.bib identifier check, 2026-10-03T03:36:18+00:00
+# script: scripts/check_refs.py; 13 entries
+
+[heuer1999] book: psychology of intelligence analysis
+  OK     url https://www.cia.gov/resources/csi/books-monographs/psychology-of-intelligence-analysis-2/: HTTP 200 text/html, page title 'Psychology of Intelligence Analysis - CSI', entry title found on page
+
+[steffens2020] book: attribution of advanced persistent threats how to identify the actors behind cyber espiona
+  OK     doi 10.1007/978-3-662-61313-9: HTTP 200, title match ('Attribution of Advanced Persistent Threats: How to Identify the Actors Behind Cyber-Espionage'), first author match (steffens), year match (registry dates: 2020), venue 'Springer Berlin Heidelberg'
+
+[rid2015] article: attributing cyber attacks
+  OK     doi 10.1080/01402390.2014.977382: HTTP 200, title match ('Attributing Cyber Attacks'), first author match (rid), year match (registry dates: 2014, 2015), venue 'Journal of Strategic Studies'
+
+[skopik2020] article: under false flag using technical artifacts for cyber attack attribution
+  OK     doi 10.1186/s42400-020-00048-4: HTTP 200, title match ('Under false flag: using technical artifacts for cyber attack attribution'), first author match (skopik), year match (registry dates: 2020), venue 'Cybersecurity'
+
+[noor2019] article: a machine learning based fintech cyber threat attribution framework using high level indic
+  OK     doi 10.1016/j.future.2019.02.013: HTTP 200, title match ('A machine learning-based FinTech cyber threat attribution framework using high-level indicators of compromise'), first author match (noor), year match (registry dates: 2019), venue 'Future Generation Computer Systems'
+
+[legoy2020] misc: automated retrieval of att ck tactics and techniques for cyber threat reports
+  OK     arXiv 2004.14322 (arXiv abstract page): title match ('Automated Retrieval of ATT&CK Tactics and Techniques for Cyber Threat Reports'), first author match (Legoy, Valentine), year match (2020)
+
+[orbinato2022] misc: automatic mapping of unstructured cyber threat intelligence an experimental study
+  OK     arXiv 2208.12144 (arXiv abstract page): title match ('Automatic Mapping of Unstructured Cyber Threat Intelligence: An Experimental Study'), first author match (Orbinato, Vittorio), year match (2022)
+
+[caltagirone2013] techreport: the diamond model of intrusion analysis
+  OK     url https://www.activeresponse.org/wp-content/uploads/2013/07/diamond.pdf: HTTP 200 application/pdf, 1920651 bytes
+
+[strom2018] techreport: mitre att ck design and philosophy
+  OK     url https://attack.mitre.org/docs/ATTACK_Design_and_Philosophy_March_2020.pdf: HTTP 200 application/pdf, 1135163 bytes
+
+[brier1950] article: verification of forecasts expressed in terms of probability
+  OK     doi 10.1175/1520-0493(1950)078<0001:VOFEIT>2.0.CO;2: HTTP 200, title match ('VERIFICATION OF FORECASTS EXPRESSED IN TERMS OF PROBABILITY'), first author match (brier), year match (registry dates: 1950), venue 'Monthly Weather Review'
+
+[guo2017] inproceedings: on calibration of modern neural networks
+  OK     arXiv 1706.04599 (arXiv abstract page): title match ('On Calibration of Modern Neural Networks'), first author match (Guo, Chuan), year match (2017)
+  OK     url https://proceedings.mlr.press/v70/guo17a.html: HTTP 200 text/html, page title 'On Calibration of Modern Neural Networks', entry title found on page
+
+[nunes2015] misc: cyber deception and attribution in capture the flag exercises
+  OK     arXiv 1507.01922 (arXiv abstract page): title match ('Cyber-Deception and Attribution in Capture-the-Flag Exercises'), first author match (Nunes, Eric), year match (2015)
+
+[nunes2016] misc: argumentation models for cyber attribution
+  OK     arXiv 1607.02171 (arXiv abstract page): title match ('Argumentation Models for Cyber Attribution'), first author match (Nunes, Eric), year match (2016)
+
+# summary: 13 entries; failed: none; manual check needed: none; without identifier: none

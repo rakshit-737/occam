@@ -51,3 +51,4 @@ layer.json
 *.synctex.gz
 *.fls
 *.fdb_latexmk
+!paper/refs_check.log
