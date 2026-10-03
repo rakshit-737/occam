@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Harder / larger attribution evaluations (v1.1).
 
-Protocols (all against ATT&CK Enterprise; see docs/benchmarks.md):
+Protocols (all against ATT&CK Enterprise; see docs/evaluation.md):
 
 * ``loro-all``   -- leave-one-report-out over *every* (group, report) pair
   with >= 4 items (no per-group cap), i.e. all groups ATT&CK documents.

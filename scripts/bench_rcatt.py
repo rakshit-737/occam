@@ -36,7 +36,7 @@ differs from the paper text (tokenisation and class weighting), plus OCCAM.
 
 Usage::
 
-    python scripts/bench_rcatt.py               # ~25 min, writes results/rcatt_reproduction.{json,md}
+    python scripts/bench_rcatt.py               # ~7 min on a GitHub runner; results/rcatt_reproduction.{json,md}
     python scripts/bench_rcatt.py --limit 300   # smoke run on the first 300 reports
 """
 from __future__ import annotations

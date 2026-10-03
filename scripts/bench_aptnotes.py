@@ -128,7 +128,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--paired-with", type=Path, default=None,
                     help="another aptnotes*.json run: McNemar-compare its per-report outcomes with this run's")
     ap.add_argument("--out", type=Path, default=REPO / "results")
+    ap.add_argument("--render", type=Path, default=None, metavar="JSON",
+                    help="only re-render the Markdown next to an existing aptnotes*.json")
     a = ap.parse_args(argv)
+    if a.render:
+        a.render.with_suffix(".md").write_text(render(json.loads(a.render.read_text(encoding="utf-8"))), encoding="utf-8")
+        return 0
     t0 = time.time()
 
     attack = a.data / "enterprise-attack-19.2.json"
@@ -256,37 +261,49 @@ def main(argv: list[str] | None = None) -> int:
     suffix = ("_clf" + (f"_top{a.top_k}" if a.top_k else "")) if clf else ""
     suffix += "" if a.evidence == "all" else f"_{a.evidence}only"
     (a.out / f"aptnotes{suffix}.json").write_text(json.dumps(out, indent=1), encoding="utf-8")
-    md = [f"### End-to-end on APTnotes ({n} real reports, {out['groups']} groups; extractor: keyword"
-          f"{' + classifier' if clf else ''}{f', top-{a.top_k} per report' if clf and a.top_k else ''})", "",
-          source_line(prov), "",
-          f"Mean per report: {out['mean_techniques']:.1f} techniques, {out['mean_software']:.1f} software, "
-          f"{out['mean_indicators']:.1f} IOCs (all span-anchored). Evidence used: {a.evidence}. "
-          f"{out['no_items_extracted']} reports with nothing extracted are scored as declines. "
-          f"{out['reports_with_self_citation']} of {n} reports matched an ATT&CK citation of their own group "
-          f"(held out in the leak-controlled rows). {out['groups_with_items']} groups among the reports with extracted "
-          f"items (clustered below). Skipped: {len(skipped)} ({'; '.join(f'{p}: {r}' for p, r in skipped) or 'none'}).", "",
-          "| Attributor | Profiles | Top-1 [Wilson 95%] | Top-5 | Names someone | Brier | Wrong at p>=0.8 |",
-          "|---|---|---|---|---|---|---|"]
-    names = {"similarity": "TTP-similarity baseline", "ach": "OCCAM ACH", "ach-top5": "OCCAM ACH, top-5 shortlist"}
-    vname = {"asis": "as-is (upper bound)", "leakfree": "leak-controlled"}
-    for k, v in summary.items():
-        b, var = k.split("@")
-        lo, hi = v["top1_ci95"]
-        md.append(f"| {names[b]} | {vname[var]} | {v['top1']:.3f} [{lo:.2f}-{hi:.2f}] | {v['top5']:.3f} | "
-                  f"{v['named_rate']:.3f} | {v['brier']:.3f} | {v['high_conf_wrong_count']}/{n} |")
-    md += ["", "| Exact McNemar test (same reports) | Correct only first | Correct only second | Both | p |",
-           "|---|---|---|---|---|"]
-    for k, v in tests.items():
-        label = {"ach_vs_similarity@asis": "ACH vs similarity, as-is", "ach_vs_similarity@leakfree":
-                 "ACH vs similarity, leak-controlled"}.get(k, k.replace("_this_vs_", " (this run) vs ").replace("@leakfree", ", leak-controlled"))
-        md.append(f"| {label} | {v['only_first']} | {v['only_second']} | {v['both']} | {v['p_exact']:.3f} |")
-    md += ["", "| Clustering of the reports | Purity | NMI | ARI | #clusters |", "|---|---|---|---|---|"]
-    for k, v in clus.items():
-        md.append(f"| {k} | {v['purity']:.3f} | {v['nmi']:.3f} | {v['ari']:.3f} | {v['clusters']} |")
-    text = "\n".join(md) + "\n"
+    text = render(out)
     (a.out / f"aptnotes{suffix}.md").write_text(text, encoding="utf-8")
     print(text)
     return 0
+
+
+def _p(p: float) -> str:
+    return f"{p:.3f}" if p >= 0.001 else f"{p:.1e}"
+
+
+def render(out: dict) -> str:
+    """Markdown for one run (a pure function of its JSON)."""
+    n, clf, top_k, skipped = out["reports"], out["classifier"], out.get("top_k"), out["skipped"]
+    md = [f"### End-to-end on APTnotes ({n} real reports, {out['groups']} groups; extractor: keyword"
+          f"{' + classifier' if clf else ''}{f', top-{top_k} per report' if clf and top_k else ''})", "",
+          source_line(out.get("provenance")), "",
+          f"Mean per report: {out['mean_techniques']:.1f} techniques, {out['mean_software']:.1f} software, "
+          f"{out['mean_indicators']:.1f} IOCs (all span-anchored). Evidence used: {out['evidence']}. "
+          f"{out['no_items_extracted']} reports with nothing extracted are scored as declines. "
+          f"{out['reports_with_self_citation']} of {n} reports matched an ATT&CK citation of their own group "
+          f"(held out in the leak-controlled rows). {out.get('groups_with_items', out['groups'])} groups among the reports "
+          f"with extracted items (clustered below). Skipped: {len(skipped)} "
+          f"({'; '.join(f'{p}: {r}' for p, r in skipped) or 'none'}).", "",
+          "| Attributor | Profiles | Top-1 [Wilson 95%] | Top-5 | Names someone | Brier | Wrong at p>=0.8 [Wilson 95%] |",
+          "|---|---|---|---|---|---|---|"]
+    names = {"similarity": "TTP-similarity baseline", "ach": "OCCAM ACH", "ach-top5": "OCCAM ACH, top-5 shortlist"}
+    vname = {"asis": "as-is (upper bound)", "leakfree": "leak-controlled"}
+    for k, v in out["attribution"].items():
+        b, var = k.split("@")
+        lo, hi = v["top1_ci95"]
+        wlo, whi = wilson(v["high_conf_wrong_count"], n)
+        md.append(f"| {names[b]} | {vname[var]} | {v['top1']:.3f} [{lo:.2f}-{hi:.2f}] | {v['top5']:.3f} | "
+                  f"{v['named_rate']:.3f} | {v['brier']:.3f} | {v['high_conf_wrong_count']}/{n} [{wlo:.2f}-{whi:.2f}] |")
+    md += ["", "| Exact McNemar test (same reports) | Correct only first | Correct only second | Both | p (two-sided) |",
+           "|---|---|---|---|---|"]
+    for k, v in out.get("mcnemar", {}).items():
+        label = {"ach_vs_similarity@asis": "ACH vs similarity, as-is", "ach_vs_similarity@leakfree":
+                 "ACH vs similarity, leak-controlled"}.get(k, k.replace("_this_vs_", " (this run) vs ").replace("@leakfree", ", leak-controlled"))
+        md.append(f"| {label} | {v['only_first']} | {v['only_second']} | {v['both']} | {_p(v['p_exact'])} |")
+    md += ["", "| Clustering of the reports | Purity | NMI | ARI | #clusters |", "|---|---|---|---|---|"]
+    for k, v in out["clustering"].items():
+        md.append(f"| {k} | {v['purity']:.3f} | {v['nmi']:.3f} | {v['ari']:.3f} | {v['clusters']} |")
+    return "\n".join(md) + "\n"
 
 
 if __name__ == "__main__":

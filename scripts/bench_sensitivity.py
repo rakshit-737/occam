@@ -17,7 +17,7 @@ Intervals: group-cluster bootstrap 95% CI.
 
 Usage::
 
-    python scripts/bench_sensitivity.py            # ~10 min, writes results/sensitivity.{json,md}
+    python scripts/bench_sensitivity.py            # ~1 min on a GitHub runner; results/sensitivity.{json,md}
     python scripts/bench_sensitivity.py --limit 20 # smoke run
 """
 from __future__ import annotations

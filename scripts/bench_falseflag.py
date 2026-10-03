@@ -40,7 +40,7 @@ interval with the number of groups as the sample size (marked with a dagger).
 
 Usage::
 
-    python scripts/bench_falseflag.py            # ~15-20 min, writes results/falseflag.{json,md}
+    python scripts/bench_falseflag.py            # ~2 min on a GitHub runner, ~13 min on a laptop; results/falseflag.{json,md}
     python scripts/bench_falseflag.py --limit 30 # smoke run
 """
 from __future__ import annotations
@@ -254,7 +254,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--out", type=Path, default=REPO / "results")
     ap.add_argument("--figures", type=Path, default=REPO / "docs" / "figures")
+    ap.add_argument("--render", action="store_true", help="only re-render the Markdown and figure from the existing JSON")
     a = ap.parse_args(argv)
+    if a.render:
+        o = json.loads((a.out / "falseflag.json").read_text(encoding="utf-8"))
+        (a.out / "falseflag.md").write_text(render(o), encoding="utf-8")
+        plot_frontier(o, a.figures)
+        return 0
     t0 = time.time()
     attack = a.data / "enterprise-attack-19.2.json"
     prov = provenance([attack], argv)
@@ -349,8 +355,8 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 
-def _pct(lo: float, hi: float) -> str:
-    return f"[{lo:.2f}-{hi:.2f}]"
+def _pct(lo: float, hi: float, digits: int = 2) -> str:
+    return f"[{lo:.{digits}f}-{hi:.{digits}f}]"
 
 
 def _ci(o, s, m, k):
@@ -388,7 +394,7 @@ def render(o: dict) -> str:
         olo, ohi = C["overconfident_ci95"][m]["pooled"]
         diff = "" if m == "ach" else _d(*C["brier_paired_vs_ach"][m]["pooled"])
         L.append(f"| {NAMES[m]} | {_ci(o, 'closed', m, 'accuracy')} | {_ci(o, 'closed', m, 'declined')} | "
-                 f"{_ci(o, 'open', m, 'accuracy')} | {b:.3f} {_pct(lo, hi)} | {diff} | {k}/{n} {_pct(olo, ohi)} |")
+                 f"{_ci(o, 'open', m, 'accuracy')} | {b:.3f} {_pct(lo, hi)} | {diff} | {k}/{n} {_pct(olo, ohi, 3)} |")
     L += ["", "#### Brier score under the pooled map, per setting: ACH minus method (paired 95% CI)", "",
           "| Method | Closed | Open | False flag | All three pooled |", "|---|---|---|---|---|"]
     L.append("| OCCAM ACH (full), value | " + " | ".join(f"{C['brier']['ach'][s]:.3f}" for s in POOL + ("pooled",)) + " |")
