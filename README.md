@@ -1,8 +1,8 @@
 # OCCAM
 
-[![ci](https://github.com/rakshit-737/occam/actions/workflows/ci.yml/badge.svg)](https://github.com/rakshit-737/occam/actions/workflows/ci.yml)
-[![docs](https://github.com/rakshit-737/occam/actions/workflows/docs.yml/badge.svg)](https://rakshit-737.github.io/occam/)
-[![release](https://img.shields.io/github/v/release/rakshit-737/occam)](https://github.com/rakshit-737/occam/releases)
+[![ci](https://github.com/rakshit-737/occam-cti-attribution/actions/workflows/ci.yml/badge.svg)](https://github.com/rakshit-737/occam-cti-attribution/actions/workflows/ci.yml)
+[![docs](https://github.com/rakshit-737/occam-cti-attribution/actions/workflows/docs.yml/badge.svg)](https://rakshit-737.github.io/occam-cti-attribution/)
+[![release](https://img.shields.io/github/v/release/rakshit-737/occam-cti-attribution)](https://github.com/rakshit-737/occam-cti-attribution/releases)
 ![python](https://img.shields.io/badge/python-3.10%E2%80%933.14-blue)
 [![license: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 ![core deps](https://img.shields.io/badge/core%20dependencies-0-brightgreen)
@@ -11,9 +11,9 @@
 
 **Contribution.** An open, leakage-controlled benchmark for attack attribution under planted, authentic and mimicked false-flag evidence, plus an auditable ACH engine measured on it; the numbers, including where ACH loses, are in the table below.
 
-[![The OCCAM workbench on the false_flag_games scenario](docs/figures/workbench.png)](https://rakshit-737.github.io/occam/demo/)
+[![The OCCAM workbench on the false_flag_games scenario](docs/figures/workbench.png)](https://rakshit-737.github.io/occam-cti-attribution/demo/)
 
-**Docs:** <https://rakshit-737.github.io/occam/> · **Live demo:** <https://rakshit-737.github.io/occam/demo/> · **Evaluation:** [docs/evaluation.md](docs/evaluation.md) · **Preprint (PDF):** <https://rakshit-737.github.io/occam/preprint.pdf> ([source](paper/))
+**Docs:** <https://rakshit-737.github.io/occam-cti-attribution/> · **Live demo:** <https://rakshit-737.github.io/occam-cti-attribution/demo/> · **Evaluation:** [docs/evaluation.md](docs/evaluation.md) · **Preprint (PDF):** <https://rakshit-737.github.io/occam-cti-attribution/preprint.pdf> ([source](paper/))
 
 ## Research question and answer
 
@@ -41,22 +41,22 @@ Mostly no. Its remaining advantage is an inspectable matrix with span-anchored e
 | Wrong at stated p ≥ 0.8, planted markers, raw outputs | **0/274** | 3/274 (similarity ignoring spoofable rows) | 194/274 |
 | Closed / open / planted on 575 incidents, 21 campaigns, temporal splits | open and planted: same direction; closed: lower on 575 incidents (39.0% vs 47.8%), tied in temporal splits ([extended](results/attribution_extended.md)); controls and mimicry not re-run there | | |
 
-Brackets are 95% group-cluster bootstrap intervals, and paired differences use the same resamples. † marks a rate of exactly 0 or 1, where the bootstrap interval is degenerate; a Wilson interval with the 103 groups as the sample size is shown instead. Sources: [`results/falseflag.md`](results/falseflag.md) / `.json` and [`results/attribution.md`](results/attribution.md). Both were produced by bench run [37093689060](https://github.com/rakshit-737/occam/actions/runs/37093689060) at commit `09cde53`, and every benchmark result JSON records its run in `provenance` (the fitted map `results/grade_calibration.json` has none; it is written by the same `bench_attribution.py` run as `results/attribution.json`).
+Brackets are 95% group-cluster bootstrap intervals, and paired differences use the same resamples. † marks a rate of exactly 0 or 1, where the bootstrap interval is degenerate; a Wilson interval with the 103 groups as the sample size is shown instead. Sources: [`results/falseflag.md`](results/falseflag.md) / `.json` and [`results/attribution.md`](results/attribution.md). Both were produced by bench run [37093689060](https://github.com/rakshit-737/occam-cti-attribution/actions/runs/37093689060) at commit `09cde53`, and every benchmark result JSON records its run in `provenance` (the fitted map `results/grade_calibration.json` has none; it is written by the same `bench_attribution.py` run as `results/attribution.json`).
 
 ## Try it in 60 seconds
 
-**Browser:** open the [live workbench demo](https://rakshit-737.github.io/occam/demo/) and click any matrix cell.
+**Browser:** open the [live workbench demo](https://rakshit-737.github.io/occam-cti-attribution/demo/) and click any matrix cell.
 
 **Docker** (API + workbench on loopback only):
 
 ```bash
-docker run --rm -p 127.0.0.1:8000:8000 ghcr.io/rakshit-737/occam:latest    # then open http://127.0.0.1:8000/
+docker run --rm -p 127.0.0.1:8000:8000 ghcr.io/rakshit-737/occam-cti-attribution:latest    # then open http://127.0.0.1:8000/
 ```
 
 **Python, zero dependencies:**
 
 ```bash
-git clone --depth 1 https://github.com/rakshit-737/occam && cd occam
+git clone --depth 1 https://github.com/rakshit-737/occam-cti-attribution && cd occam
 python -m pip install -e . && occam demo          # or: python -m occam demo
 occam ach false_flag_games                         # one bundled scenario
 ```
@@ -106,7 +106,7 @@ A step-by-step walkthrough with the matrix is on [How it works](docs/how-it-work
 
 ## Results
 
-Every table is generated by `scripts/bench_*.py` from pinned public data. The JSON and Markdown are in [`results/`](results/), and each file names the GitHub Actions run and commit that produced it: bench run [37093689060](https://github.com/rakshit-737/occam/actions/runs/37093689060) for all of them. The [`bench` workflow](.github/workflows/bench.yml) regenerates them and lists any value that changed. The [Evaluation page](https://rakshit-737.github.io/occam/evaluation/) has every table with its methodology.
+Every table is generated by `scripts/bench_*.py` from pinned public data. The JSON and Markdown are in [`results/`](results/), and each file names the GitHub Actions run and commit that produced it: bench run [37093689060](https://github.com/rakshit-737/occam-cti-attribution/actions/runs/37093689060) for all of them. The [`bench` workflow](.github/workflows/bench.yml) regenerates them and lists any value that changed. The [Evaluation page](https://rakshit-737.github.io/occam-cti-attribution/evaluation/) has every table with its methodology.
 
 **False flags, controls and ablations** ([`results/falseflag.md`](results/falseflag.md)).
 - *What blocks the frame.* Removing ACH's false-flag hypotheses leaves the framed-group rate at 1.1% and raises "names the true group" from 2.2% to 20.1%. With the hypotheses, the x0.5 spoofable discount and the caps all removed, it is still only 2.6%. The resistance therefore comes from hard evidence contradicting the framed group, which both ranking rules honour (support-aware ranking is framed 1.5%). For the baselines, ignoring spoofable rows is enough. The false-flag hypotheses only turn outcomes into explicit "framed" conclusions.

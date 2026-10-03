@@ -7,7 +7,7 @@ conclusion. Every step can be reproduced with
 occam ach false_flag_games          # or: python -m occam ach false_flag_games
 ```
 
-and explored interactively in the [live workbench demo](https://rakshit-737.github.io/occam/demo/),
+and explored interactively in the [live workbench demo](https://rakshit-737.github.io/occam-cti-attribution/demo/),
 which opens on this scenario.
 
 ![The workbench on false_flag_games](figures/workbench.png)

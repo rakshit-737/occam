@@ -2,7 +2,7 @@
 
 274 held-out incidents from 103 groups, 3 markers. `cX-rY`: a technique used by at least X of all groups is non-diagnostic, one used by at most Y groups is rare (CC on a match). Shipped: `c0.3-r3` (hand-set). *Cross-fitted*: each group fold uses the configuration with the best mean accuracy over the five settings on the other fold (chosen: {0: 'c0.2-r5', 1: 'c0.2-r3'}).
 
-*Source: GitHub Actions run [37093689060](https://github.com/rakshit-737/occam/actions/runs/37093689060), commit `09cde53`, 2026-10-03T03:35:51+00:00.*
+*Source: GitHub Actions run [37093689060](https://github.com/rakshit-737/occam-cti-attribution/actions/runs/37093689060), commit `09cde53`, 2026-10-03T03:35:51+00:00.*
 
 | Thresholds | Closed correct | Open correct decline | False flag correct | False flag names framed | Authentic: calls it a frame | Mimicry correct | Mimicry names framed |
 |---|---|---|---|---|---|---|---|

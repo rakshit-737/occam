@@ -2,7 +2,7 @@
 
 Hyper-parameters chosen on 239 dev events from 26 disjoint groups (dev ARI: kNN 0.369, dense 0.373). Brackets: 95% leave-one-group-out jackknife interval with each clustering held fixed (sampling variation of the test set only; estimate +- 1.96 SE).
 
-*Source: GitHub Actions run [37093689060](https://github.com/rakshit-737/occam/actions/runs/37093689060), commit `09cde53`, 2026-10-03T03:35:51+00:00.*
+*Source: GitHub Actions run [37093689060](https://github.com/rakshit-737/occam-cti-attribution/actions/runs/37093689060), commit `09cde53`, 2026-10-03T03:35:51+00:00.*
 
 | Method | Purity [95% CI] | NMI [95% CI] | ARI [95% CI] | #clusters |
 |---|---|---|---|---|

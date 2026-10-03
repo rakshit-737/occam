@@ -1,6 +1,6 @@
 ### End-to-end on APTnotes (75 real reports, 33 groups; extractor: keyword)
 
-*Source: GitHub Actions run [37093689060](https://github.com/rakshit-737/occam/actions/runs/37093689060), commit `09cde53`, 2026-10-03T03:38:43+00:00.*
+*Source: GitHub Actions run [37093689060](https://github.com/rakshit-737/occam-cti-attribution/actions/runs/37093689060), commit `09cde53`, 2026-10-03T03:38:43+00:00.*
 
 Mean per report: 3.5 techniques, 2.5 software, 102.4 IOCs (all span-anchored). Evidence used: techniques. 6 reports with nothing extracted are scored as declines. 23 of 75 reports matched an ATT&CK citation of their own group (held out in the leak-controlled rows). 32 groups among the reports with extracted items (clustered below). Skipped: 1 (2014/h12756-wp-shell-crew.pdf: excluded: its converted text quotes webshell code and is quarantined by Windows Defender on the author's machine; skipped everywhere so local and CI runs match).
 

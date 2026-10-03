@@ -40,7 +40,7 @@ from difflib import SequenceMatcher
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-UA = "occam-refcheck/1.0 (+https://github.com/rakshit-737/occam)"
+UA = "occam-refcheck/1.0 (+https://github.com/rakshit-737/occam-cti-attribution)"
 PAUSE = 3.0  # seconds between requests (arXiv asks for >= 3 s)
 
 

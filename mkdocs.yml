@@ -1,8 +1,8 @@
 site_name: OCCAM
 site_description: Auditable TTP extraction, campaign clustering and ACH attribution with confidence grading
-site_url: https://rakshit-737.github.io/occam/
-repo_url: https://github.com/rakshit-737/occam
-repo_name: rakshit-737/occam
+site_url: https://rakshit-737.github.io/occam-cti-attribution/
+repo_url: https://github.com/rakshit-737/occam-cti-attribution
+repo_name: rakshit-737/occam-cti-attribution
 edit_uri: edit/main/docs/
 
 theme:
@@ -26,7 +26,7 @@ nav:
   - Evaluation: evaluation.md
   - Reproduce: reproduce.md
   - Datasets: data.md
-  - Live demo: https://rakshit-737.github.io/occam/demo/
+  - Live demo: https://rakshit-737.github.io/occam-cti-attribution/demo/
   - Reference:
       - CLI & HTTP: reference/cli.md
       - Python API: reference/api.md

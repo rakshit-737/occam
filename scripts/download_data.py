@@ -92,7 +92,7 @@ CHECKSUMS = {
 
 GROUPS = ["attack", "tram", "attack-history", "rcatt", "aptnotes"]
 
-UA = {"User-Agent": "occam-data-fetch/0.2 (+https://github.com/rakshit-737/occam)", "Accept-Encoding": "gzip"}
+UA = {"User-Agent": "occam-data-fetch/0.2 (+https://github.com/rakshit-737/occam-cti-attribution)", "Accept-Encoding": "gzip"}
 
 
 def _headers(url: str) -> dict[str, str]:

@@ -2,7 +2,7 @@
 
 274 leave-one-report-out incidents from 103 groups; 176 candidate group profiles; 3 planted markers in the false-flag setting. 95% CIs: group-cluster bootstrap; † = the rate is exactly 0 or 1, so the bootstrap interval is degenerate and a Wilson interval with the number of groups as the sample size is shown.
 
-*Source: GitHub Actions run [37093689060](https://github.com/rakshit-737/occam/actions/runs/37093689060), commit `09cde53`, 2026-10-03T03:35:50+00:00.*
+*Source: GitHub Actions run [37093689060](https://github.com/rakshit-737/occam-cti-attribution/actions/runs/37093689060), commit `09cde53`, 2026-10-03T03:35:50+00:00.*
 
 | Setting | Method | Correct [95% CI] | Names true group | Framed | Brier [95% CI] | ECE | Overconfident errors [95% CI] | Brier (recal.) | ECE (recal.) |
 |---|---|---|---|---|---|---|---|---|---|

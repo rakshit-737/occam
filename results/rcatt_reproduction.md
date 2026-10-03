@@ -2,7 +2,7 @@
 
 1490 reports, 5-fold CV (KFold, shuffle, seed 42, as in the released code), binary relevance; mean ± SD over folds (dispersion of the 5 folds, not a confidence interval), percent.
 
-*Source: GitHub Actions run [37093689060](https://github.com/rakshit-737/occam/actions/runs/37093689060), commit `09cde53`, 2026-10-03T03:35:46+00:00.*
+*Source: GitHub Actions run [37093689060](https://github.com/rakshit-737/occam-cti-attribution/actions/runs/37093689060), commit `09cde53`, 2026-10-03T03:35:46+00:00.*
 
 #### Tactics (12 labels)
 

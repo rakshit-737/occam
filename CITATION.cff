@@ -8,8 +8,8 @@ type: software
 version: 1.1.2
 date-released: 2026-10-03
 license: MIT
-repository-code: "https://github.com/rakshit-737/occam"
-url: "https://rakshit-737.github.io/occam/"
+repository-code: "https://github.com/rakshit-737/occam-cti-attribution"
+url: "https://rakshit-737.github.io/occam-cti-attribution/"
 keywords: [threat-intelligence, attribution, analysis-of-competing-hypotheses, false-flag, mitre-attack]
 preferred-citation:
   type: unpublished
@@ -20,5 +20,5 @@ preferred-citation:
   year: 2026
   month: 10
   notes: "Preprint, not peer reviewed"
-  url: "https://rakshit-737.github.io/occam/preprint.pdf"
-  repository-code: "https://github.com/rakshit-737/occam"
+  url: "https://rakshit-737.github.io/occam-cti-attribution/preprint.pdf"
+  repository-code: "https://github.com/rakshit-737/occam-cti-attribution"

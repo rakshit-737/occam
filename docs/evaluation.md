@@ -2,12 +2,12 @@
 
 Every number on this page comes from a script in `scripts/` run on pinned,
 checksummed public data. The result files in
-[`results/`](https://github.com/rakshit-737/occam/tree/main/results) are
+[`results/`](https://github.com/rakshit-737/occam-cti-attribution/tree/main/results) are
 included here verbatim.
 
 **Provenance.** Each table names the GitHub Actions run and the commit that
 produced it. All current files come from bench run
-[37093689060](https://github.com/rakshit-737/occam/actions/runs/37093689060)
+[37093689060](https://github.com/rakshit-737/occam-cti-attribution/actions/runs/37093689060)
 of the manual `bench` workflow. That workflow regenerates every file and lists
 any value that differs from the committed one. [Reproduce](reproduce.md) gives
 the commands and runtimes.

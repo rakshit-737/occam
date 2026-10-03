@@ -2,7 +2,7 @@
 
 Protocol: 5-fold CV grouped by document, seed 13; thresholds tuned on inner 20% doc split. ATT&CK v19.2.
 
-*Source: GitHub Actions run [37093689060](https://github.com/rakshit-737/occam/actions/runs/37093689060), commit `09cde53`, 2026-10-03T03:35:44+00:00.*
+*Source: GitHub Actions run [37093689060](https://github.com/rakshit-737/occam-cti-attribution/actions/runs/37093689060), commit `09cde53`, 2026-10-03T03:35:44+00:00.*
 
 | Method | Sent. P | Sent. R | Sent. micro-F1 | Sent. macro-F1 | Doc P | Doc R | Doc micro-F1 | Doc macro-F1 |
 |---|---|---|---|---|---|---|---|---|

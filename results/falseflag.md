@@ -2,7 +2,7 @@
 
 274 held-out incidents from 103 groups, 3 markers per incident. Brackets: group-cluster bootstrap 95% CI (1000 resamples); † = the rate is exactly 0 or 1, so the bootstrap interval is degenerate and a Wilson interval with the number of groups as the sample size is shown. Cross-fitted parameters (per group fold): tau = {0: 0.38, 1: 0.36}, k = {0: 15, 1: 10}; tau matched to ACH's open-world decline = {0: 0.25, 1: 0.255}, to ACH's closed-world accuracy = {0: 0.35, 1: 0.37}.
 
-*Source: GitHub Actions run [37093689060](https://github.com/rakshit-737/occam/actions/runs/37093689060), commit `09cde53`, 2026-10-03T03:35:51+00:00.*
+*Source: GitHub Actions run [37093689060](https://github.com/rakshit-737/occam-cti-attribution/actions/runs/37093689060), commit `09cde53`, 2026-10-03T03:35:51+00:00.*
 
 #### Planted markers (false_flag) vs authentic markers (control) vs TTP mimicry
 

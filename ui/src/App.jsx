@@ -128,8 +128,8 @@ export default function App() {
       <header>
         <h1>OCCAM analyst workbench</h1>
         <nav className="links">
-          <a href="https://rakshit-737.github.io/occam/">docs</a>
-          <a href="https://github.com/rakshit-737/occam">GitHub</a>
+          <a href="https://rakshit-737.github.io/occam-cti-attribution/">docs</a>
+          <a href="https://github.com/rakshit-737/occam-cti-attribution">GitHub</a>
         </nav>
         <span className={`badge ${mode}`}>
           {mode === "live" ? "live API" : mode === "static" ? "static demo (no server)" : mode === "auth" ? "API token required" : "loading"}

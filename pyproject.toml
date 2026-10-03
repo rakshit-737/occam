@@ -39,8 +39,8 @@ dev = ["pytest>=9.0.3", "ruff==0.16.10", "build>=1.2", "occam[ml,graph,stix,api]
 occam = "occam.cli:main"
 
 [project.urls]
-Homepage = "https://rakshit-737.github.io/occam/"
-Source = "https://github.com/rakshit-737/occam"
+Homepage = "https://rakshit-737.github.io/occam-cti-attribution/"
+Source = "https://github.com/rakshit-737/occam-cti-attribution"
 
 [tool.setuptools]
 packages = ["occam", "occam.data", "occam.demo", "occam.demo.reports", "occam.demo.scenarios", "occam.web"]

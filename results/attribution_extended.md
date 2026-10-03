@@ -1,6 +1,6 @@
 ### Extended attribution evaluation (profiles/incidents from ATT&CK, current release v19.2)
 
-*Source: GitHub Actions run [37093689060](https://github.com/rakshit-737/occam/actions/runs/37093689060), commit `09cde53`, 2026-10-03T03:35:44+00:00.*
+*Source: GitHub Actions run [37093689060](https://github.com/rakshit-737/occam-cti-attribution/actions/runs/37093689060), commit `09cde53`, 2026-10-03T03:35:44+00:00.*
 
 | Protocol | Incidents | Groups | Candidate profiles |
 |---|---|---|---|

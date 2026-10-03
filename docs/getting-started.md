@@ -3,7 +3,7 @@
 ## Install
 
 ```bash
-git clone https://github.com/rakshit-737/occam && cd occam
+git clone https://github.com/rakshit-737/occam-cti-attribution && cd occam
 python -m pip install -e ".[dev,pdf,bench]"   # the core alone (pip install -e .) has zero dependencies
 python -m pytest -q                            # real-data tests skip when the datasets are absent
 python -m occam demo                           # synthetic scenarios, incl. an Olympic-Destroyer-style false flag
@@ -13,7 +13,7 @@ Or run the API and workbench in a container. It is published on loopback only, b
 
 ```bash
 docker compose up --build                      # http://127.0.0.1:8000/
-docker run --rm -p 127.0.0.1:8000:8000 ghcr.io/rakshit-737/occam:latest
+docker run --rm -p 127.0.0.1:8000:8000 ghcr.io/rakshit-737/occam-cti-attribution:latest
 ```
 
 ## Synthetic scenarios
@@ -43,7 +43,7 @@ uvicorn occam.api:app --host 127.0.0.1 --port 8000
 cd ui && npm ci && npm run dev         # proxies /ach, /scenarios, /stix, /extract to the API
 ```
 
-Without an API, as in this site's [demo](https://rakshit-737.github.io/occam/demo/), the workbench loads snapshots of the bundled scenarios (`python scripts/export_demo.py`) and recomputes the ranking in the browser when you edit a cell.
+Without an API, as in this site's [demo](https://rakshit-737.github.io/occam-cti-attribution/demo/), the workbench loads snapshots of the bundled scenarios (`python scripts/export_demo.py`) and recomputes the ranking in the browser when you edit a cell.
 
 ## Reproduce the benchmarks
 

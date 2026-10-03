@@ -9,7 +9,7 @@ Network access happens in only three places:
 - The optional FastAPI service listens on 127.0.0.1 by default.
 
 ## Reporting a vulnerability
-Please use GitHub private vulnerability reporting (Security tab -> "Report a vulnerability", https://github.com/rakshit-737/occam/security/advisories/new). Do not open a public issue. Include reproduction steps and the input that triggers the problem. We aim to acknowledge reports within 7 days.
+Please use GitHub private vulnerability reporting (Security tab -> "Report a vulnerability", https://github.com/rakshit-737/occam-cti-attribution/security/advisories/new). Do not open a public issue. Include reproduction steps and the input that triggers the problem. We aim to acknowledge reports within 7 days.
 
 ## Safe-use guidance
 - Treat all ingested reports as untrusted. Keep defanged IOCs defanged in anything you republish.

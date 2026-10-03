@@ -1,8 +1,8 @@
 # Reproduce
 
-Each result file in [`results/`](https://github.com/rakshit-737/occam/tree/main/results) is written by one script. Every benchmark JSON has a `provenance` block with the code commit, a dirty flag, the command, package versions, input checksums and, when it ran in GitHub Actions, the run id and URL. Each Markdown table names that run on its source line. The exception is `grade_calibration.json`, a fitted model file with no provenance block; it comes from the same `bench_attribution.py` run as `attribution.json`.
+Each result file in [`results/`](https://github.com/rakshit-737/occam-cti-attribution/tree/main/results) is written by one script. Every benchmark JSON has a `provenance` block with the code commit, a dirty flag, the command, package versions, input checksums and, when it ran in GitHub Actions, the run id and URL. Each Markdown table names that run on its source line. The exception is `grade_calibration.json`, a fitted model file with no provenance block; it comes from the same `bench_attribution.py` run as `attribution.json`.
 
-The committed results come from bench run [37093689060](https://github.com/rakshit-737/occam/actions/runs/37093689060), an ubuntu-24.04 GitHub-hosted runner with Python 3.12. All randomness is seeded. Dataset commits and SHA-256 hashes are pinned in `scripts/download_data.py`, and `python scripts/dataset_stats.py` writes the dataset counts quoted in the docs to `results/datasets.json`.
+The committed results come from bench run [37093689060](https://github.com/rakshit-737/occam-cti-attribution/actions/runs/37093689060), an ubuntu-24.04 GitHub-hosted runner with Python 3.12. All randomness is seeded. Dataset commits and SHA-256 hashes are pinned in `scripts/download_data.py`, and `python scripts/dataset_stats.py` writes the dataset counts quoted in the docs to `results/datasets.json`.
 
 ## 0. Rerun everything in GitHub Actions
 
@@ -23,7 +23,7 @@ The workflow:
 ## 1. Setup for a local run
 
 ```bash
-git clone https://github.com/rakshit-737/occam && cd occam
+git clone https://github.com/rakshit-737/occam-cti-attribution && cd occam
 python -m pip install -e ".[dev,pdf,bench]" nltk
 python scripts/download_data.py          # ~400 MB into ../../datasets/occam (or $OCCAM_DATA), ~15 min
 python scripts/dataset_stats.py          # -> results/datasets.json
@@ -73,4 +73,4 @@ cd ui && npm ci && npm test && npm run build
 cd paper && latexmk -pdf occam.tex       # MiKTeX or TeX Live
 ```
 
-The docs workflow builds the same PDF and publishes it at <https://rakshit-737.github.io/occam/preprint.pdf>.
+The docs workflow builds the same PDF and publishes it at <https://rakshit-737.github.io/occam-cti-attribution/preprint.pdf>.
