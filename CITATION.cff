@@ -6,7 +6,19 @@ authors:
     affiliation: "Vellore Institute of Technology, Chennai"
 type: software
 version: 1.1.0
+date-released: 2026-10-02
 license: MIT
 repository-code: "https://github.com/rakshit-737/occam"
 url: "https://rakshit-737.github.io/occam/"
 keywords: [threat-intelligence, attribution, analysis-of-competing-hypotheses, false-flag, mitre-attack]
+preferred-citation:
+  type: unpublished
+  title: "What Does Analysis of Competing Hypotheses Add to Attack Attribution? A Leakage-Controlled Benchmark with Planted, Authentic and Mimicked False Flags"
+  authors:
+    - given-names: Rakshit
+      affiliation: "Vellore Institute of Technology, Chennai"
+  year: 2026
+  month: 10
+  notes: "Preprint, not peer reviewed"
+  url: "https://rakshit-737.github.io/occam/preprint.pdf"
+  repository-code: "https://github.com/rakshit-737/occam"
