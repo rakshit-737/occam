@@ -1,7 +1,7 @@
 PYTHON ?= python
 # Datasets live OUTSIDE the repo (default: ../../datasets/occam); override with OCCAM_DATA.
 
-.PHONY: install data test lint bench bench-extraction bench-attribution bench-clustering bench-aptnotes demo api docker clean
+.PHONY: install data test lint bench bench-falseflag bench-sensitivity bench-extraction bench-attribution bench-extended bench-rcatt bench-clustering bench-aptnotes refs demo api docker clean
 
 install:
 	$(PYTHON) -m pip install -e ".[dev,pdf,bench]"
@@ -15,7 +15,20 @@ test:
 lint:
 	$(PYTHON) -m ruff check .
 
-bench: bench-extraction bench-attribution bench-clustering bench-aptnotes
+# the same set the manual `bench` GitHub workflow runs (it also trains the classifier for the top-10 APTnotes run)
+bench: bench-falseflag bench-sensitivity bench-extraction bench-attribution bench-extended bench-rcatt bench-clustering bench-aptnotes
+
+bench-falseflag:
+	$(PYTHON) scripts/bench_falseflag.py
+
+bench-sensitivity:
+	$(PYTHON) scripts/bench_sensitivity.py
+
+bench-extended:
+	$(PYTHON) scripts/bench_attribution_extended.py
+
+bench-rcatt:
+	$(PYTHON) scripts/bench_rcatt.py
 
 bench-extraction:
 	$(PYTHON) scripts/bench_extraction.py
@@ -28,6 +41,11 @@ bench-clustering:
 
 bench-aptnotes:
 	$(PYTHON) scripts/bench_aptnotes.py
+	$(PYTHON) scripts/bench_aptnotes.py --evidence software
+	$(PYTHON) scripts/bench_aptnotes.py --evidence techniques
+
+refs:
+	$(PYTHON) scripts/check_refs.py
 
 demo:
 	$(PYTHON) -m occam demo
