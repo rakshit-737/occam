@@ -4,9 +4,15 @@
 Writes ``ui/public/demo-data.json``: the same payload ``POST /ach`` returns,
 plus each evidence row's Admiralty base weight so the browser can recompute
 the ranking after cell edits when no API is running (GitHub Pages).
+
+Usage::
+
+    python scripts/export_demo.py                    # -> ui/public/demo-data.json
+    python scripts/export_demo.py --out /tmp/demo.json
 """
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -29,10 +35,14 @@ def snapshot(path: Path) -> dict:
     return out
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--out", type=Path, default=REPO / "ui" / "public" / "demo-data.json", help="output JSON file")
+    a = ap.parse_args(argv)
     scen = sorted((REPO / "occam" / "demo" / "scenarios").glob("*.json"))
     data = {"spoofable_discount": SPOOFABLE_DISCOUNT, "scenarios": {p.stem: snapshot(p) for p in scen}}
-    out = REPO / "ui" / "public" / "demo-data.json"
+    out = a.out
+    out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(data, indent=1), encoding="utf-8")
     print(f"wrote {out} ({len(data['scenarios'])} scenarios)")
     return 0
