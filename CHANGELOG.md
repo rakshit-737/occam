@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-10-03
+
 ### Added
 - `scripts/check_refs.py` resolves every DOI, arXiv id and URL in `paper/refs.bib` and writes `paper/refs_check.log` (13 of 13 resolve and match). It adds a DOI or URL for Brier, Guo, Heuer, Caltagirone and Strom, and cites Nunes et al. (2015, 2016) on attribution under deception.
 - Every result JSON has a `provenance` block (commit, dirty flag, command, package versions, input sha256, GitHub run id), and every table names its source run. A manual `bench` workflow regenerates all results on a GitHub runner and diffs them against the committed files. All committed results now come from bench run 37093689060.
@@ -32,6 +34,9 @@ All notable changes to this project are documented here. The format follows [Kee
 - Docs builds for pull requests shared the Pages concurrency group and cancelled each other.
 - setuptools warned about undeclared demo-data packages. The release image job now attests the pushed image.
 - Numbers without a committed source were removed: the old temporal-split decline rate ("0.68" / "67.7%") and the ReDoS timings ("69 s on 16 KB", "8 s per MB").
+### Build
+- `make bench` runs the same set as the `bench` workflow; new `make refs`.
+- Dependency floors raised: httpx 0.28.1, networkx 3.4.2, matplotlib 3.10.9, mkdocstrings 1.0.6, setuptools 84.
 
 ## [1.1.0] - 2026-10-02
 
@@ -46,7 +51,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - CODEOWNERS, dependabot, issue/PR templates, CITATION.cff.
 
 ### Changed
-- Headline claims restated against marker-aware baselines: planted-marker resistance is not specific to ACH. Under mimicry ACH is framed less often but is correct less often, and an abstaining baseline declines more often (wording corrected after release; see Unreleased).
+- Headline claims restated against marker-aware baselines: planted-marker resistance is not specific to ACH. Under mimicry ACH is framed less often but is correct less often, and an abstaining baseline declines more often (wording corrected after release; see 1.1.1).
 - Attribution CIs use a group-cluster bootstrap; the realistic calibration number is a setting-agnostic (pooled) map (closed-world ACH Brier 0.189, not the per-setting 0.156).
 - Temporal splits: correct decline is 0.506 (v12.1) after mapping ids unknown to the old release; release dates corrected.
 - APTnotes labels from software "exclusive" to one group are no longer used (circular; FinFisher would be labelled Dark Caracal).
@@ -56,7 +61,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Fixed
 - `occam demo` failed from any non-editable install (fixtures not packaged); demo data now ships in `occam/demo`.
 - ReDoS in the domain and email IOC regexes (nested unbounded repeats) and quadratic IOC overlap check.
-- The README research-question answer states that ACH is less well calibrated under a pooled map and that its advantage is mainly auditability (the preprint only gained this in Unreleased). The unverified rcATT table number was removed (Table 4 is cited from Unreleased on), and the preprint's reference-check sentence was softened.
+- The README research-question answer states that ACH is less well calibrated under a pooled map and that its advantage is mainly auditability (the preprint only gained this in 1.1.1). The unverified rcATT table number was removed (Table 4 is cited from 1.1.1 on), and the preprint's reference-check sentence was softened.
 - API: Host allow-list (DNS rebinding), body and field size limits, capped TAXII store, 422 instead of 500 on malformed input, docs UI off by default, optional bearer token.
 
 ## [1.0.0] - 2026-09-26

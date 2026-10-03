@@ -5,8 +5,8 @@ authors:
   - given-names: Rakshit
     affiliation: "Vellore Institute of Technology, Chennai"
 type: software
-version: 1.1.0
-date-released: 2026-10-02
+version: 1.1.1
+date-released: 2026-10-03
 license: MIT
 repository-code: "https://github.com/rakshit-737/occam"
 url: "https://rakshit-737.github.io/occam/"
