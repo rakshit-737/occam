@@ -15,19 +15,32 @@ Methods:
 
 * the marker-trusting TTP-similarity baseline and a sweep of its marker boost
   (0 = ignores spoofable evidence), a plain IDF-coverage baseline;
-* two *marker-aware* baselines derived from the boost-0 similarity run:
+* *marker-aware* baselines derived from the boost-0 similarity run:
   ``abstain`` (decline when the best hard-evidence cosine < tau) and
   ``gate`` ("framed" when the marker target is not in the hard-evidence top-k,
   otherwise trust the markers); tau and k are cross-fitted over a 2-fold
-  split by group (each fold's value is tuned on the other fold);
+  split by group (each fold's value is tuned on the other fold). Two more
+  abstention operating points are cross-fitted to *match* ACH: tau chosen so
+  the baseline declines on untracked actors as often as ACH does, and so it is
+  as accurate as ACH in the closed world (a like-for-like comparison on the
+  abstention frontier);
 * OCCAM ACH and one-at-a-time ablations of each mechanism.
 
+Calibration: one setting-agnostic map (histogram binning of the stated
+probability, or the learned grade map for ACH variants) fitted on
+closed + open + false_flag together and cross-fitted by group. Its Brier score
+gets a paired group-cluster bootstrap interval (ACH minus each method, same
+resamples), pooled and per setting; *overconfident errors* are wrong answers
+with calibrated probability >= 0.8.
+
 All intervals are group-cluster bootstrap 95% CIs (incidents of one group are
-resampled together); paired differences use the same resamples.
+resampled together); paired differences use the same resamples. A rate of
+exactly 0 or 1 has a degenerate bootstrap interval; it is replaced by a Wilson
+interval with the number of groups as the sample size (marked with a dagger).
 
 Usage::
 
-    python scripts/bench_falseflag.py            # ~40 min, writes results/falseflag.{json,md}
+    python scripts/bench_falseflag.py            # ~15-20 min, writes results/falseflag.{json,md}
     python scripts/bench_falseflag.py --limit 30 # smoke run
 """
 from __future__ import annotations
@@ -43,10 +56,13 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
+sys.path.insert(0, str(REPO / "scripts"))
+
+from _benchutil import degenerate_safe, provenance, source_line  # noqa: E402
 
 from occam.attribution import ACHAttributor, IDFCoverageAttributor, SimilarityAttributor  # noqa: E402
 from occam.calibration import GradeCalibrator  # noqa: E402
-from occam.evaluation import ALL_SETTINGS, _fold, crossfit_calibrate, evaluate, incidents  # noqa: E402
+from occam.evaluation import ALL_SETTINGS, _fold, evaluate, incidents  # noqa: E402
 from occam.knowledge import AttackData  # noqa: E402
 from occam.metrics import brier  # noqa: E402
 
@@ -66,6 +82,7 @@ FACTORIES = {
     "ach-no-diag": partial(ACHAttributor, diagnosticity=False),
     "ach-none": partial(ACHAttributor, false_flag_hypotheses=False, spoofable_discount=1.0, confidence_caps=False),
     "ach-balanced": partial(ACHAttributor, ranking_rule="balanced"),
+    "ach-top5": partial(ACHAttributor, shortlist=5),
 }
 NAMES = {
     "similarity": "TTP-similarity, marker boost 0.15 (shipped baseline)",
@@ -74,6 +91,8 @@ NAMES = {
     "sim-boost-0": "TTP-similarity, ignores spoofable rows",
     "coverage": "IDF coverage, ignores spoofable rows",
     "abstain": "Similarity + decline if cosine < tau (tau cross-fitted)",
+    "abstain-decline": "Similarity + decline, tau matched to ACH's open-world decline rate",
+    "abstain-closed": "Similarity + decline, tau matched to ACH's closed-world accuracy",
     "gate": "Similarity + consistency gate (k cross-fitted)",
     "ach": "OCCAM ACH (full)",
     "ach-no-ff": "ACH without false-flag hypotheses",
@@ -83,10 +102,16 @@ NAMES = {
     "ach-no-diag": "ACH without diagnosticity weighting",
     "ach-none": "ACH without FF hypotheses, discount and caps",
     "ach-balanced": "ACH, support-aware ranking",
+    "ach-top5": "ACH, top-5 similarity shortlist",
 }
 METRICS = ("accuracy", "named_true", "framed", "detected", "declined")
 TAUS = [round(0.10 + 0.02 * i, 2) for i in range(21)]
+FINE_TAUS = [round(0.005 * i, 3) for i in range(161)]  # 0 .. 0.8, for the frontier and matched operating points
 KS = [1, 2, 3, 5, 8, 10, 15, 20, 30, 40, 60]
+POOL = ("closed", "open", "false_flag")
+MAIN = ["similarity", "sim-boost-0.05", "sim-boost-0.3", "sim-boost-0", "coverage", "abstain", "abstain-decline",
+        "abstain-closed", "gate", "ach"]
+N_BOOT = 1000
 
 
 def rec(o, leading=..., flagged=..., prob=None) -> dict:
@@ -138,21 +163,86 @@ def crossfit(base: dict[str, list], fn, grid, objective) -> tuple[dict[str, list
     return out, chosen
 
 
-def cluster_boot(recs_by_method: dict[str, list[dict]], key: str, n: int = 1000, seed: int = 0) -> dict[str, tuple[float, float]]:
-    """Group-cluster bootstrap CI of the mean of ``key`` for every method (same resamples)."""
+def crossfit_match(base: dict[str, list], target: dict[str, list[dict]], setting: str, key: str,
+                   grid=FINE_TAUS) -> tuple[dict[str, list[dict]], dict[int, float]]:
+    """Abstention threshold whose ``key`` rate in ``setting`` matches the target
+    method's on the *other* group fold, applied to this fold (cross-fitted)."""
+    chosen = {}
+    for f in (0, 1):
+        goal = mean([r for r in target[setting] if _fold(r["group"]) != f], key)
+        tr = [o for o in base[setting] if _fold(o.incident.group) != f]
+        chosen[f] = min(grid, key=lambda t: (abs(mean([abstain(o, t) for o in tr], key) - goal), t))
+    out = {s: [abstain(o, chosen[_fold(o.incident.group)]) for o in oc] for s, oc in base.items()}
+    return out, chosen
+
+
+def cluster_boot(recs_by_method: dict[str, list[dict]], key: str, n: int = N_BOOT, seed: int = 0):
+    """Group-cluster bootstrap of the mean of ``key`` for every method (the same
+    resamples for all methods, so differences are paired)."""
     groups = sorted({r["group"] for rs in recs_by_method.values() for r in rs})
-    rng = random.Random(seed)
-    idx = {m: {} for m in recs_by_method}
+    gi = {g: i for i, g in enumerate(groups)}
+    sums = {m: [0.0] * len(groups) for m in recs_by_method}
+    cnts = {m: [0] * len(groups) for m in recs_by_method}
     for m, rs in recs_by_method.items():
         for r in rs:
-            idx[m].setdefault(r["group"], []).append(r[key])
+            sums[m][gi[r["group"]]] += r[key]
+            cnts[m][gi[r["group"]]] += 1
+    rng = random.Random(seed)
     draws = {m: [] for m in recs_by_method}
     for _ in range(n):
-        sample = [groups[rng.randrange(len(groups))] for _ in groups]
+        sample = [rng.randrange(len(groups)) for _ in groups]
         for m in recs_by_method:
-            vals = [v for g in sample for v in idx[m].get(g, ())]
-            draws[m].append(sum(vals) / len(vals) if vals else 0.0)
-    return {m: (sorted(d)[int(0.025 * n)], sorted(d)[int(0.975 * n) - 1]) for m, d in draws.items()}, draws
+            c = sum(cnts[m][i] for i in sample)
+            draws[m].append(sum(sums[m][i] for i in sample) / c if c else 0.0)
+    ci = {m: (sorted(d)[int(0.025 * n)], sorted(d)[int(0.975 * n) - 1]) for m, d in draws.items()}
+    return ci, draws
+
+
+def paired(draws: dict[str, list[float]], a: str, b: str, n: int = N_BOOT) -> tuple[float, float]:
+    """95% interval of mean(a) - mean(b) over the shared resamples."""
+    d = sorted(x - y for x, y in zip(draws[a], draws[b]))
+    return d[int(0.025 * n)], d[int(0.975 * n) - 1]
+
+
+def hist_crossfit(pool: list[dict], bins: int = 10, prior: float = 1.0) -> list[float]:
+    """Histogram-binning recalibration of ``prob``, 2-fold cross-fitted by group
+    (the same map as :func:`occam.evaluation.crossfit_calibrate`, on records)."""
+    def b(p: float) -> int:
+        return min(int(p * bins), bins - 1)
+
+    stats = {f: [[0.0, 0.0] for _ in range(bins)] for f in (0, 1)}
+    for r in pool:
+        s = stats[_fold(r["group"])][b(r["prob"])]
+        s[0] += r["accuracy"]
+        s[1] += 1
+    base = {f: (sum(x[0] for x in stats[f]) + prior) / (sum(x[1] for x in stats[f]) + 2 * prior) for f in (0, 1)}
+    out = []
+    for r in pool:
+        other = 1 - _fold(r["group"])
+        hit, n = stats[other][b(r["prob"])]
+        out.append((hit + prior * base[other]) / (n + prior))
+    return out
+
+
+def grade_crossfit(pool: list[dict]) -> list[float]:
+    """Learned grade -> probability map, 2-fold cross-fitted by group."""
+    cal = {}
+    for f in (0, 1):
+        tr = [r for r in pool if _fold(r["group"]) != f]
+        cal[f] = GradeCalibrator().fit([r["grade"] for r in tr], [bool(r["accuracy"]) for r in tr])
+    return [cal[_fold(r["group"])][r["grade"]] for r in pool]
+
+
+def pooled_records(recs: dict[str, dict[str, list[dict]]]) -> dict[str, list[dict]]:
+    """Per method: closed + open + false_flag records with the setting-agnostic
+    calibrated probability, its squared error and the overconfident-error flag."""
+    out = {}
+    for m, per in recs.items():
+        pool = [r for s in POOL for r in per[s]]
+        p = grade_crossfit(pool) if m.startswith("ach") else hist_crossfit(pool)
+        out[m] = [{"group": r["group"], "setting": r["setting"], "p": pi, "sq": (pi - r["accuracy"]) ** 2,
+                   "oc": float(not r["accuracy"] and pi >= 0.8)} for r, pi in zip(pool, p)]
+    return out
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -163,9 +253,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--seed", type=int, default=7)
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--out", type=Path, default=REPO / "results")
+    ap.add_argument("--figures", type=Path, default=REPO / "docs" / "figures")
     a = ap.parse_args(argv)
     t0 = time.time()
-    data = AttackData.load(a.data / "enterprise-attack-19.2.json")
+    attack = a.data / "enterprise-attack-19.2.json"
+    prov = provenance([attack], argv)
+    data = AttackData.load(attack)
     incs = incidents(data, min_items=4, max_per_group=3)
 
     def progress(i: int, n: int) -> None:
@@ -180,41 +273,56 @@ def main(argv: list[str] | None = None) -> int:
                                     lambda r: (mean(r["closed"], "accuracy") + mean(r["open"], "accuracy")) / 2)
     recs["gate"], kk = crossfit(base, gate, KS,
                                 lambda r: (mean(r["false_flag"], "accuracy") + mean(r["authentic"], "accuracy")) / 2)
+    recs["abstain-decline"], tau_d = crossfit_match(base, recs["ach"], "open", "accuracy")
+    recs["abstain-closed"], tau_c = crossfit_match(base, recs["ach"], "closed", "accuracy")
 
-    # calibration: pooled over closed/open/false_flag, cross-fitted by group (setting-agnostic)
-    pooled_brier = {}
-    for m, per in res.items():
-        pool = [o for s in ("closed", "open", "false_flag") for o in per[s]]
-        if m.startswith("ach"):
-            cal = {}
-            for f in (0, 1):
-                tr = [o for o in pool if _fold(o.incident.group) != f]
-                cal[f] = GradeCalibrator().fit([o.attribution.confidence for o in tr], [o.correct for o in tr])
-            p = [cal[_fold(o.incident.group)][o.attribution.confidence] for o in pool]
-        else:
-            p = crossfit_calibrate(pool)
-        y = [o.correct for o in pool]
-        pooled_brier[m] = {"pooled": brier(p, y)}
-        for s in ("closed", "open", "false_flag"):
-            sel = [i for i, o in enumerate(pool) if o.setting == s]
-            pooled_brier[m][s] = brier([p[i] for i in sel], [y[i] for i in sel])
+    # the abstention frontier (in-sample, for the figure): closed accuracy vs open decline as tau moves
+    frontier = []
+    for t in FINE_TAUS:
+        frontier.append([t, mean([abstain(o, t) for o in base["closed"]], "accuracy"),
+                         mean([abstain(o, t) for o in base["open"]], "accuracy")])
 
-    out: dict = {"attack_version": data.version, "n_incidents": len(res["ach"]["closed"]),
-                 "n_groups": len({o.incident.group for o in res["ach"]["closed"]}), "markers": a.markers,
-                 "seed": a.seed, "tau": tau, "k": kk, "summary": {}, "ci95": {}, "paired_vs_ach": {},
-                 "brier_pooled_calibration": pooled_brier, "brier_raw": {}}
+    n_groups = len({o.incident.group for o in res["ach"]["closed"]})
+    out: dict = {"attack_version": data.version, "n_incidents": len(res["ach"]["closed"]), "n_groups": n_groups,
+                 "markers": a.markers, "seed": a.seed, "n_boot": N_BOOT,
+                 "tau": tau, "k": kk, "tau_matched_decline": tau_d, "tau_matched_closed": tau_c,
+                 "summary": {}, "ci95": {}, "wilson_replaced": {}, "paired_vs_ach": {}, "brier_raw": {},
+                 "overconfident_raw": {}}
+    keys = ("accuracy", "framed", "named_true", "detected", "declined")
     for s in ALL_SETTINGS:
         by_m = {m: recs[m][s] for m in recs}
         out["summary"][s] = {m: {k: mean(rs, k) for k in METRICS} for m, rs in by_m.items()}
-        out["ci95"][s], out["paired_vs_ach"][s] = {}, {}
-        for k in ("accuracy", "framed", "named_true", "detected"):
+        out["ci95"][s], out["paired_vs_ach"][s], out["wilson_replaced"][s] = {}, {}, {}
+        for k in keys:
             ci, draws = cluster_boot(by_m, k)
-            out["ci95"][s][k] = ci
+            out["ci95"][s][k] = {}
             for m in by_m:
-                d = sorted(x - y for x, y in zip(draws["ach"], draws[m]))
-                out["paired_vs_ach"][s].setdefault(m, {})[k] = (d[25], d[974])
+                out["ci95"][s][k][m], repl = degenerate_safe(ci[m], out["summary"][s][m][k], n_groups)
+                if repl:
+                    out["wilson_replaced"][s].setdefault(k, []).append(m)
+                out["paired_vs_ach"][s].setdefault(m, {})[k] = paired(draws, "ach", m)
         out["brier_raw"][s] = {m: brier([r["prob"] for r in recs[m][s]], [r["accuracy"] for r in recs[m][s]])
                                for m in FACTORIES}
+        out["overconfident_raw"][s] = {m: sum(1 for r in recs[m][s] if not r["accuracy"] and r["prob"] >= 0.8)
+                                       for m in FACTORIES}
+
+    # setting-agnostic calibration: Brier and overconfident errors, with paired intervals
+    pooled = pooled_records(recs)
+    cal: dict = {"n": {m: len(v) for m, v in pooled.items()}, "brier": {}, "brier_ci95": {}, "brier_paired_vs_ach": {},
+                 "overconfident": {}, "overconfident_count": {}, "overconfident_ci95": {}}
+    for scope in ("pooled",) + POOL:
+        sel = {m: [r for r in rs if scope == "pooled" or r["setting"] == scope] for m, rs in pooled.items()}
+        ci, draws = cluster_boot(sel, "sq")
+        oci, _ = cluster_boot(sel, "oc")
+        for m, rs in sel.items():
+            cal["brier"].setdefault(m, {})[scope] = mean(rs, "sq")
+            cal["brier_ci95"].setdefault(m, {})[scope] = ci[m]
+            cal["brier_paired_vs_ach"].setdefault(m, {})[scope] = paired(draws, "ach", m)
+            rate = mean(rs, "oc")
+            cal["overconfident"].setdefault(m, {})[scope] = rate
+            cal["overconfident_count"].setdefault(m, {})[scope] = [int(sum(r["oc"] for r in rs)), len(rs)]
+            cal["overconfident_ci95"].setdefault(m, {})[scope] = degenerate_safe(oci[m], rate, n_groups)[0]
+    out["pooled_calibration"] = cal
 
     sweep = {}
     for nm in [int(x) for x in a.sweep.split(",") if x.strip()]:
@@ -226,58 +334,91 @@ def main(argv: list[str] | None = None) -> int:
         sweep[nm] = {s: {m: {k: mean(rr[m][s], k) for k in METRICS} for m in rr} for s in ("false_flag", "authentic", "mimicry")}
         print(f"  sweep n_markers={nm} done ({time.time() - t0:.0f}s)", flush=True)
     out["marker_sweep"] = sweep
+    out["frontier"] = {"abstain_in_sample": frontier,
+                       "points": {m: [out["summary"]["closed"][m]["accuracy"], out["summary"]["open"][m]["accuracy"]]
+                                  for m in ("ach", "ach-top5", "ach-balanced", "abstain", "abstain-decline",
+                                            "abstain-closed", "similarity")}}
     out["runtime_s"] = round(time.time() - t0, 1)
+    out["provenance"] = prov
     a.out.mkdir(parents=True, exist_ok=True)
     (a.out / "falseflag.json").write_text(json.dumps(out, indent=1), encoding="utf-8")
     md = render(out)
     (a.out / "falseflag.md").write_text(md, encoding="utf-8")
     print(md)
+    plot_frontier(out, a.figures)
     return 0
+
+
+def _pct(lo: float, hi: float) -> str:
+    return f"[{lo:.2f}-{hi:.2f}]"
 
 
 def _ci(o, s, m, k):
     lo, hi = o["ci95"][s][k][m]
-    return f"{o['summary'][s][m][k]:.3f} [{lo:.2f}-{hi:.2f}]"
+    dag = "†" if m in o.get("wilson_replaced", {}).get(s, {}).get(k, []) else ""
+    return f"{o['summary'][s][m][k]:.3f} {_pct(lo, hi)}{dag}"
+
+
+def _d(lo: float, hi: float) -> str:
+    return f"[{lo:+.3f}, {hi:+.3f}]"
 
 
 def render(o: dict) -> str:
+    C = o["pooled_calibration"]
     L = [f"### False-flag robustness: baselines, controls and ablations (ATT&CK v{o['attack_version']})", "",
          f"{o['n_incidents']} held-out incidents from {o['n_groups']} groups, {o['markers']} markers per incident. "
-         "Brackets: group-cluster bootstrap 95% CI. "
-         f"Cross-fitted parameters: tau = {o['tau']}, k = {o['k']} (per group fold).", ""]
-    main_m = ["similarity", "sim-boost-0.05", "sim-boost-0", "coverage", "abstain", "gate", "ach"]
+         f"Brackets: group-cluster bootstrap 95% CI ({o['n_boot']} resamples); † = the rate is exactly 0 or 1, so the "
+         "bootstrap interval is degenerate and a Wilson interval with the number of groups as the sample size is shown. "
+         f"Cross-fitted parameters (per group fold): tau = {o['tau']}, k = {o['k']}; tau matched to ACH's open-world "
+         f"decline = {o['tau_matched_decline']}, to ACH's closed-world accuracy = {o['tau_matched_closed']}.", "",
+         source_line(o.get("provenance")), ""]
     L += ["#### Planted markers (false_flag) vs authentic markers (control) vs TTP mimicry", "",
           "| Method | False flag: correct | False flag: names framed | Authentic: names true | Authentic: calls it a frame "
           "| Mimicry: correct | Mimicry: names framed |", "|---|---|---|---|---|---|---|"]
-    for m in main_m:
+    for m in MAIN:
         L.append(f"| {NAMES[m]} | {_ci(o, 'false_flag', m, 'accuracy')} | {_ci(o, 'false_flag', m, 'framed')} | "
                  f"{_ci(o, 'authentic', m, 'named_true')} | {_ci(o, 'authentic', m, 'detected')} | "
                  f"{_ci(o, 'mimicry', m, 'accuracy')} | {_ci(o, 'mimicry', m, 'framed')} |")
-    L += ["", "#### Closed and open world (abstention)", "",
-          "| Method | Closed: correct | Closed: declines | Open: correct decline | Brier, pooled calibration |",
-          "|---|---|---|---|---|"]
-    for m in main_m:
-        pb = o["brier_pooled_calibration"].get(m, {}).get("pooled")
-        L.append(f"| {NAMES[m]} | {_ci(o, 'closed', m, 'accuracy')} | {o['summary']['closed'][m]['declined']:.3f} | "
-                 f"{_ci(o, 'open', m, 'accuracy')} | {'' if pb is None else f'{pb:.3f}'} |")
+    L += ["", "#### Closed and open world (abstention) and setting-agnostic calibration", "",
+          "| Method | Closed: correct | Closed: declines | Open: correct decline | Brier, pooled map | "
+          "Brier, ACH minus method (paired) | Overconfident errors, pooled map |", "|---|---|---|---|---|---|---|"]
+    for m in MAIN:
+        b, (lo, hi) = C["brier"][m]["pooled"], C["brier_ci95"][m]["pooled"]
+        k, n = C["overconfident_count"][m]["pooled"]
+        olo, ohi = C["overconfident_ci95"][m]["pooled"]
+        diff = "" if m == "ach" else _d(*C["brier_paired_vs_ach"][m]["pooled"])
+        L.append(f"| {NAMES[m]} | {_ci(o, 'closed', m, 'accuracy')} | {_ci(o, 'closed', m, 'declined')} | "
+                 f"{_ci(o, 'open', m, 'accuracy')} | {b:.3f} {_pct(lo, hi)} | {diff} | {k}/{n} {_pct(olo, ohi)} |")
+    L += ["", "#### Brier score under the pooled map, per setting: ACH minus method (paired 95% CI)", "",
+          "| Method | Closed | Open | False flag | All three pooled |", "|---|---|---|---|---|"]
+    L.append("| OCCAM ACH (full), value | " + " | ".join(f"{C['brier']['ach'][s]:.3f}" for s in POOL + ("pooled",)) + " |")
+    for m in [x for x in MAIN if x != "ach"]:
+        vals = " / ".join(f"{C['brier'][m][s]:.3f}" for s in POOL + ("pooled",))
+        L.append(f"| {NAMES[m]} ({vals}) | " + " | ".join(_d(*C["brier_paired_vs_ach"][m][s]) for s in POOL + ("pooled",)) + " |")
     L += ["", "#### Ablations of ACH (each row removes one mechanism)", "",
           "| Variant | Closed correct | Open correct | False flag correct | names framed | names true "
-          "| Authentic: names true | Authentic: calls frame | Mimicry: names framed |", "|---|---|---|---|---|---|---|---|---|"]
-    for m in [x for x in o["summary"]["closed"] if x.startswith("ach")]:
-        S = o["summary"]
+          "| Authentic: names true | Authentic: calls frame | Mimicry: correct | Mimicry: names framed "
+          "| Brier, pooled map | Brier, variant minus full ACH (paired) | Overconfident errors, pooled map |",
+          "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+    S = o["summary"]
+    for m in [x for x in S["closed"] if x.startswith("ach")]:
+        lo, hi = C["brier_paired_vs_ach"][m]["pooled"]
+        diff = "" if m == "ach" else _d(-hi, -lo)
+        k, n = C["overconfident_count"][m]["pooled"]
         L.append(f"| {NAMES[m]} | {S['closed'][m]['accuracy']:.3f} | {S['open'][m]['accuracy']:.3f} | "
                  f"{S['false_flag'][m]['accuracy']:.3f} | {S['false_flag'][m]['framed']:.3f} | {S['false_flag'][m]['named_true']:.3f} | "
-                 f"{S['authentic'][m]['named_true']:.3f} | {S['authentic'][m]['detected']:.3f} | {S['mimicry'][m]['framed']:.3f} |")
+                 f"{S['authentic'][m]['named_true']:.3f} | {S['authentic'][m]['detected']:.3f} | "
+                 f"{S['mimicry'][m]['accuracy']:.3f} | {S['mimicry'][m]['framed']:.3f} | "
+                 f"{C['brier'][m]['pooled']:.3f} | {diff} | {k}/{n} |")
     L += ["", "#### Paired difference ACH minus method, 95% cluster-bootstrap interval", "",
-          "| Method | False flag: names framed | Authentic: names true | Mimicry: names framed | Closed: correct |",
-          "|---|---|---|---|---|"]
+          "| Method | Closed: correct | Open: correct decline | False flag: correct | False flag: names framed "
+          "| Authentic: names true | Authentic: calls it a frame | Mimicry: correct | Mimicry: names framed |",
+          "|---|---|---|---|---|---|---|---|---|"]
     P = o["paired_vs_ach"]
-    for m in main_m[:-1]:
-        def d(s, k, m=m):
-            lo, hi = P[s][m][k]
-            return f"[{lo:+.2f}, {hi:+.2f}]"
-        L.append(f"| {NAMES[m]} | {d('false_flag', 'framed')} | {d('authentic', 'named_true')} | {d('mimicry', 'framed')} | "
-                 f"{d('closed', 'accuracy')} |")
+    cols = [("closed", "accuracy"), ("open", "accuracy"), ("false_flag", "accuracy"), ("false_flag", "framed"),
+            ("authentic", "named_true"), ("authentic", "detected"), ("mimicry", "accuracy"), ("mimicry", "framed")]
+    for m in [x for x in MAIN if x != "ach"]:
+        L.append(f"| {NAMES[m]} | " + " | ".join(_d(*P[s][m][k]) for s, k in cols) + " |")
     if o.get("marker_sweep"):
         L += ["", "#### Number of planted / mimicked items", "",
               "| n | Method | False flag: names framed | Authentic: names true | Authentic: calls frame | Mimicry: names framed |",
@@ -286,16 +427,63 @@ def render(o: dict) -> str:
             for m in per["false_flag"]:
                 L.append(f"| {n} | {NAMES[m]} | {per['false_flag'][m]['framed']:.3f} | {per['authentic'][m]['named_true']:.3f} | "
                          f"{per['authentic'][m]['detected']:.3f} | {per['mimicry'][m]['framed']:.3f} |")
+    raw = o["overconfident_raw"]
+    ff_sim, ff_ach = raw["false_flag"]["similarity"], raw["false_flag"]["ach"]
+    b03 = C["brier"]["sim-boost-0.3"]
+    per_sim = " / ".join(f"{C['brier']['similarity'][s]:.3f}" for s in POOL)
+    per_ach = " / ".join(f"{C['brier']['ach'][s]:.3f}" for s in POOL)
     L += ["", "*Correct*: closed/authentic = names the true group; open = declines; false_flag/mimicry = names the true "
           "group or concludes the framed group was framed. *Calls it a frame* under authentic markers is a false alarm. "
           "Mimicry items are ordinary technique/software rows, so the gate cannot see them (it equals plain similarity there). "
-          "*Brier, pooled calibration*: one grade/probability map fitted on closed+open+false_flag together and "
-          "cross-fitted by group, i.e. without knowing which setting an incident comes from. "
-          "The same map and cross-fitting as the per-setting rows in `results/attribution.md` (which this column "
-          "reproduces exactly: e.g. similarity 0.315 / 0.032 / 0.131 and ACH 0.189 / 0.249 / 0.205 for closed / open / "
-          "false_flag); this column is the single Brier over all three settings together, attribution.md gives the per-"
-          "setting breakdown and is the canonical table."]
+          "*Pooled map*: one probability map (histogram binning; the learned grade map for ACH variants) fitted on "
+          "closed + open + false_flag together and cross-fitted by group, i.e. without knowing which setting an incident "
+          "comes from; Brier and overconfident errors (wrong with calibrated probability >= 0.8) are over all three "
+          f"settings ({C['n']['ach']} answers). Per setting it gives similarity {per_sim} and ACH {per_ach} "
+          "(closed / open / false_flag), the same map as the "
+          "pooled table in `results/attribution.md`. The pooled number depends on the equal 1:1:1 mix of settings. "
+          f"Raw (uncalibrated) overconfident errors under planted markers: similarity {ff_sim}/{o['n_incidents']}, "
+          f"ACH {ff_ach}/{o['n_incidents']}. Brier rewards a matcher that is always framed but states low probabilities: "
+          f"marker boost 0.3 is framed {o['summary']['false_flag']['sim-boost-0.3']['framed']:.3f} of the time under planted "
+          f"markers, yet has the lowest pooled Brier ({b03['pooled']:.3f}; false flag {b03['false_flag']:.3f}), so Brier "
+          "alone does not measure resistance to framing."]
     return "\n".join(L) + "\n"
+
+
+def plot_frontier(o: dict, fig_dir: Path) -> None:
+    try:
+        import matplotlib
+
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+    except ImportError:
+        print("matplotlib not installed: skipping figures")
+        return
+    fig_dir.mkdir(parents=True, exist_ok=True)
+    fr = o["frontier"]
+    xs = [p[2] for p in fr["abstain_in_sample"]]
+    ys = [p[1] for p in fr["abstain_in_sample"]]
+    fig, ax = plt.subplots(figsize=(6.4, 4.4))
+    ax.plot(xs, ys, c="#c2412d", lw=1.6, label="Similarity + decline below cosine tau (all tau, in-sample)")
+    style = {"ach": ("#2b59c3", "o", "OCCAM ACH"), "ach-top5": ("#1f7a3a", "s", "ACH, top-5 shortlist"),
+             "ach-balanced": ("#8a4fbf", "D", "ACH, support-aware ranking"),
+             "abstain": ("#c2412d", "^", "Abstain, tau cross-fitted"),
+             "abstain-decline": ("#c2412d", "v", "Abstain, tau matched to ACH's decline"),
+             "abstain-closed": ("#c2412d", "P", "Abstain, tau matched to ACH's accuracy"),
+             "similarity": ("#555555", "x", "Similarity (never declines)")}
+    for m, (c, mk, lab) in style.items():
+        cl, op = fr["points"][m]
+        ax.scatter([op], [cl], c=c, marker=mk, s=46, zorder=3, label=lab)
+    ax.set_xlabel("correct decline when the true group is untracked (open world)")
+    ax.set_ylabel("top-1 accuracy when it is tracked (closed world)")
+    ax.set_xlim(-0.02, 1.02)
+    ax.set_ylim(0, 0.6)
+    ax.grid(alpha=0.25)
+    ax.legend(fontsize=7, loc="lower left", frameon=False)
+    ax.set_title(f"Abstention trade-off, {o['n_incidents']} held-out ATT&CK incidents", fontsize=10)
+    fig.tight_layout()
+    fig.savefig(fig_dir / "abstention_frontier.png", dpi=110)
+    plt.close(fig)
+    print(f"wrote {fig_dir / 'abstention_frontier.png'}")
 
 
 if __name__ == "__main__":
