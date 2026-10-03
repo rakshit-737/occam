@@ -51,8 +51,18 @@ def export(extraction: ExtractionResult | None = None, assessment: Assessment | 
                              "created": now, "modified": now, "pattern": p, "pattern_type": "stix",
                              "valid_from": now, "description": f"extracted from {i.span.source_id}@{i.span.start}"})
     if assessment:
-        ref_ids = [o["id"] for o in objs] or [_id("report", assessment.question)]
-        objs.append({"type": "note", "spec_version": "2.1", "id": _id("note", assessment.question + now),
+        note_id = _id("note", assessment.question + now)
+        ref_ids = [o["id"] for o in objs]
+        if not ref_ids:
+            # an assessment without an extraction still needs something in the bundle for the note to annotate:
+            # a minimal report object for the question, so every reference resolves inside the bundle
+            report_id = _id("report", assessment.question)
+            objs.append({"type": "report", "spec_version": "2.1", "id": report_id, "created": now, "modified": now,
+                         "name": assessment.question, "published": now, "report_types": ["threat-report"],
+                         "description": "OCCAM ACH assessment (decision support; requires human review)",
+                         "object_refs": [note_id]})
+            ref_ids = [report_id]
+        objs.append({"type": "note", "spec_version": "2.1", "id": note_id,
                      "created": now, "modified": now,
                      "abstract": f"ACH assessment: {assessment.leading.hypothesis.label} ({assessment.confidence} confidence)",
                      "content": json.dumps(assessment.to_dict(), indent=1),
