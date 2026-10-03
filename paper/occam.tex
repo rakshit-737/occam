@@ -7,6 +7,7 @@
 \usepackage{graphicx}
 \usepackage[hidelinks]{hyperref}
 \usepackage{natbib}
+\graphicspath{{../docs/figures/}}
 
 \title{What Does Analysis of Competing Hypotheses Add to Attack Attribution?\\
 \large A Leakage-Controlled Benchmark with Planted, Authentic and Mimicked False Flags}
@@ -22,27 +23,25 @@ techniques and software against actor profiles. Such matching is easy to
 steer: an adversary who plants code, language or metadata artefacts of
 another actor can have that actor named. Heuer's Analysis of Competing
 Hypotheses (ACH), which ranks hypotheses by how much evidence contradicts
-them and which practitioners already recommend for false flags, is a natural
-remedy, but it has not been measured against sensible baselines. We
-implement ACH over MITRE ATT\&CK with mandatory ``unknown actor'' and
-``false flag'' hypotheses and evaluate it on 274 held-out ATT\&CK incidents
-(103 groups) in five settings: closed world, open world, planted spoofable
-markers, \emph{authentic} markers (a false-alarm control) and \emph{mimicry},
-where the adversary copies the framed group's rare techniques as hard
-evidence. Against a marker-trusting similarity matcher, ACH reduces the rate
-at which the framed group is named from 88.0\% to 1.1\%. However, a baseline
-that simply ignores spoofable evidence is never framed either, a simple
-consistency gate is correct more often under planted markers (92.0\% vs
-73.4\%), and an ablation shows ACH's false-flag hypotheses are not what blocks
-the frame. Under mimicry ACH names the framed group less often (27.0\%
-vs 76.3\% for TTP similarity and 32.1\% for IDF coverage; paired difference
-against IDF coverage $-9$ to $-2$ points), but it is also correct less often
-(17.9\% vs 28.8\%), and removing diagnosticity weighting lowers framing further
-(18.2\%), so the gain is not attributable to ACH's weighting. On untracked
-actors ACH declines 46.0\% of the time; the 0\% comparator cannot abstain, and
-a cosine-threshold similarity baseline that can abstain declines 94.5\% (and 69.0\% when the true group \emph{is} tracked, vs 36.5\% for ACH) with
-closed-world accuracy (26.6\%) not significantly different from ACH's. The costs are closed-world accuracy (29.9\% vs 53.3\%) and an 18.6\% rate of calling genuine
-overlap a frame-up. We release the benchmark, code and all result files.
+them, is a natural remedy; to our knowledge, automated ACH over ATT\&CK has
+not been evaluated against marker-aware baselines and controls. We implement
+ACH over MITRE ATT\&CK with mandatory ``unknown actor'' and ``false flag''
+hypotheses and evaluate it on 274 held-out ATT\&CK incidents (103 groups) in
+five settings: closed world, open world, planted spoofable markers,
+\emph{authentic} markers (a false-alarm control) and \emph{mimicry}, where the
+adversary copies the framed group's rare techniques as hard evidence. Against
+a marker-trusting similarity matcher, ACH reduces the rate at which the framed
+group is named from 88.0\% to 1.1\%, but a baseline that ignores spoofable
+evidence is never framed, a consistency gate is correct more often under
+planted markers (92.0\% vs 73.4\%), and the resistance survives removing all
+of ACH's false-flag mechanisms. Under mimicry ACH is framed less often than
+IDF coverage (27.0\% vs 32.1\%) but is correct less often (17.9\% vs 28.8\%;
+paired difference $-16.0$ to $-6.6$ points). An abstaining similarity baseline
+tuned to ACH's closed-world accuracy declines on untracked actors 93.4\% of the
+time against ACH's 46.0\%. Under one setting-agnostic calibration map ACH is
+less well calibrated overall (pooled Brier 0.214 vs 0.160, paired difference
+$+0.031$ to $+0.080$); its advantage is mainly auditability. We release the
+benchmark, code and all result files, each tied to the run that produced it.
 \end{abstract}
 
 \section{Introduction}
@@ -57,10 +56,11 @@ weakness of the evidence they consume.
 
 Heuer's ACH \citep{heuer1999} asks the analyst to list all reasonable
 hypotheses, rate every piece of evidence against every hypothesis, and prefer
-the hypothesis with the least inconsistent evidence. \citet{steffens2020}
-recommends ACH for reasoning about planted evidence in advanced persistent
-threat attribution. We ask a narrower, measurable question: \emph{does
-automated ACH with mandatory disconfirming-evidence weighting give
+the hypothesis with the least inconsistent evidence. False flags are a
+recognised problem in the attribution of advanced persistent threats
+\citep[Ch.~10]{steffens2020}, and ACH is designed for exactly the case where
+some evidence may be deceptive. We ask a narrower, measurable question:
+\emph{does automated ACH with mandatory disconfirming-evidence weighting give
 better-calibrated, less overconfident attribution than TTP-similarity
 matching, especially under false flags, and which of its mechanisms is
 responsible?}
@@ -70,24 +70,35 @@ from ATT\&CK \citep{strom2018} with five settings, including an authentic-marker
 control and a TTP-mimicry attack, plus campaign, unattributed and temporal
 protocols. (2) An auditable ACH engine with span-anchored evidence and
 confidence caps. (3) Baselines a reviewer would ask for (spoofable-blind
-similarity, IDF coverage, abstention, a consistency gate) with thresholds
-cross-fitted by group, one-at-a-time ablations, and group-cluster bootstrap
-intervals. (4) A reproduction of a published TTP-extraction result
-\citep{legoy2020}. The novelty claimed is the measurement, not ACH or
-false-flag reasoning.
+similarity, IDF coverage, abstention at matched operating points, a
+consistency gate) with thresholds cross-fitted by group, one-at-a-time
+ablations, a threshold-sensitivity grid, and group-cluster bootstrap
+intervals with paired comparisons. (4) A reproduction and ablation of a
+published TTP-extraction result \citep{legoy2020}. The novelty claimed is the
+measurement, not ACH or false-flag reasoning.
 
 \section{Related work}
-\citet{heuer1999} introduced ACH for intelligence analysis;
-\citet{steffens2020} applies it to planted evidence in APT attribution, and
-\citet{rid2015} describe attribution as a layered process that must state its
-uncertainty. \citet{skopik2020} survey technical artefacts along the kill chain
-and rate how easily each can be spoofed; we use their distinction between
-spoofable and hard evidence. The Diamond Model \citep{caltagirone2013}
+\citet{heuer1999} introduced ACH for intelligence analysis. \citet{steffens2020}
+covers the attribution of advanced persistent threats, including false flags,
+and \citet{rid2015} describe attribution as a layered process that must state
+its uncertainty. \citet{skopik2020} survey technical artefacts along the kill
+chain and rate how easily each can be spoofed; we use their distinction
+between spoofable and hard evidence. The Diamond Model \citep{caltagirone2013}
 organises intrusion events by adversary, capability, infrastructure and
 victim. \citet{noor2019} profile actors by TTPs and software extracted from
-327 reports and report 94\% accuracy for a neural classifier; their data and
-protocol differ from ours, so the figure is context only. Report-level TTP
-extraction has been studied by \citet{legoy2020} (rcATT) and
+threat reports and attribute them with machine learning; their data and
+protocol differ from ours.
+
+Closest to our question, Nunes et al.\ use DEFCON capture-the-flag data, where
+the true attacker is known. They find that deceptive activity accounts for
+most misattributions by standard classifiers \citep{nunes2015}, and that an
+argumentation model in defeasible logic programming, which narrows the set of
+candidate culprits, raises classification accuracy from 37\% to 62\%
+\citep{nunes2016}. Their data are network traffic from a competition rather
+than reported intrusions, their reasoning is argumentation rather than ACH,
+and they have no authentic-marker or mimicry controls.
+
+Report-level TTP extraction has been studied by \citet{legoy2020} (rcATT) and
 \citet{orbinato2022}. Calibration is measured with the Brier score
 \citep{brier1950} and expected calibration error \citep{guo2017}.
 
@@ -131,95 +142,211 @@ $b=0$ ignores spoofable rows); IDF coverage; similarity that declines below a
 cosine threshold $\tau$; and a consistency gate that concludes a frame when
 the marker target is not among the top-$k$ groups by hard-evidence similarity.
 $\tau$ and $k$ are chosen on one half of the groups and applied to the other
-(2-fold, by group). Intervals are 95\% group-cluster bootstrap intervals; paired
-differences use the same resamples.
+(2-fold, by group). Besides the $\tau$ that maximises mean closed- and
+open-world accuracy, two more abstention operating points are cross-fitted to
+match ACH: one declines on untracked actors as often as ACH, the other is as
+accurate as ACH in the closed world.
+\paragraph{Calibration.} A deployed system does not know which setting an
+incident comes from, so the main calibration result uses one map (histogram
+binning of the stated probability, or a learned grade-to-probability map for
+ACH) fitted on closed, open and false-flag incidents together and
+cross-fitted by group. Its Brier score is reported for that equal 1:1:1 mix and
+per setting; an \emph{overconfident error} is a wrong answer at probability
+$\ge 0.8$.
+\paragraph{Intervals.} 95\% group-cluster bootstrap intervals (1{,}000
+resamples; the incidents of a group are resampled together); paired
+differences use the same resamples. A rate of exactly 0 or 1 has a degenerate
+bootstrap interval and is given a Wilson interval with the number of groups as
+the sample size. Every result file records the code commit and the GitHub
+Actions run that produced it; all numbers here come from bench run
+37093689060.
 
 \section{Results}
 \begin{table}[t]
-\centering\small
-\begin{tabular}{lrrrrr}
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrr}
 \toprule
-Method & \multicolumn{2}{c}{Planted markers} & \multicolumn{2}{c}{Authentic} & Mimicry\\
- & correct & framed & names true & false alarm & framed\\
+Method & \multicolumn{2}{c}{Planted markers} & \multicolumn{2}{c}{Authentic markers} & \multicolumn{2}{c}{Mimicry}\\
+ & correct & framed & names true & false alarm & correct & framed\\
 \midrule
-Similarity, $b=0.15$ & 0.113 & 0.880 & 1.000 & 0.000 & 0.763\\
-Similarity, $b=0.05$ & 0.496 & 0.124 & 0.854 & 0.000 & 0.763\\
-Similarity, $b=0$ & 0.533 & 0.000 & 0.533 & 0.000 & 0.763\\
-IDF coverage & 0.420 & 0.000 & 0.420 & 0.000 & 0.321\\
-Similarity + abstain & 0.266 & 0.000 & 0.266 & 0.000 & 0.445\\
-Consistency gate & \textbf{0.920} & 0.080 & 0.770 & 0.230 & 0.763\\
-OCCAM ACH & 0.734 & 0.011 & 0.358 & 0.186 & \textbf{0.270}\\
+Similarity, $b=0.15$ & 11.3 {\scriptsize[6.4, 16.9]} & 88.0 {\scriptsize[82.3, 93.3]} & 100.0 {\scriptsize[96.4, 100.0]}$^\dagger$ & 0.0 {\scriptsize[0.0, 3.6]}$^\dagger$ & 21.2 {\scriptsize[15.5, 27.0]} & 76.3 {\scriptsize[70.9, 81.8]} \\
+Similarity, $b=0.05$ & 49.6 {\scriptsize[41.9, 57.3]} & 12.4 {\scriptsize[8.5, 16.9]} & 85.4 {\scriptsize[80.4, 90.4]} & 0.0 {\scriptsize[0.0, 3.6]}$^\dagger$ & 21.2 {\scriptsize[15.5, 27.0]} & 76.3 {\scriptsize[70.9, 81.8]} \\
+Similarity, $b=0$ & 53.3 {\scriptsize[45.3, 60.8]} & 0.0 {\scriptsize[0.0, 3.6]}$^\dagger$ & 53.3 {\scriptsize[45.3, 60.8]} & 0.0 {\scriptsize[0.0, 3.6]}$^\dagger$ & 21.2 {\scriptsize[15.5, 27.0]} & 76.3 {\scriptsize[70.9, 81.8]} \\
+IDF coverage & 42.0 {\scriptsize[34.5, 49.1]} & 0.0 {\scriptsize[0.0, 3.6]}$^\dagger$ & 42.0 {\scriptsize[34.5, 49.1]} & 0.0 {\scriptsize[0.0, 3.6]}$^\dagger$ & \textbf{28.8} {\scriptsize[21.9, 35.8]} & 32.1 {\scriptsize[25.4, 39.2]} \\
+Similarity + abstain & 26.6 {\scriptsize[19.6, 33.8]} & 0.0 {\scriptsize[0.0, 3.6]}$^\dagger$ & 26.6 {\scriptsize[19.6, 33.8]} & 0.0 {\scriptsize[0.0, 3.6]}$^\dagger$ & 10.9 {\scriptsize[6.7, 15.4]} & 44.5 {\scriptsize[38.5, 50.4]} \\
+Consistency gate & \textbf{92.0} {\scriptsize[88.4, 95.2]} & 8.0 {\scriptsize[4.8, 11.6]} & 77.0 {\scriptsize[70.8, 83.3]} & 23.0 {\scriptsize[16.7, 29.2]} & 21.2 {\scriptsize[15.5, 27.0]} & 76.3 {\scriptsize[70.9, 81.8]} \\
+OCCAM ACH & 73.4 {\scriptsize[66.9, 79.6]} & 1.1 {\scriptsize[0.0, 2.6]} & 35.8 {\scriptsize[28.8, 42.6]} & 18.6 {\scriptsize[13.8, 24.4]} & 17.9 {\scriptsize[12.2, 23.8]} & \textbf{27.0} {\scriptsize[21.3, 33.5]} \\
 \bottomrule
-\end{tabular}
-\caption{False-flag settings, 274 incidents, 3 markers or mimicked items.
-Source: \texttt{results/falseflag.md}.}
+\end{tabular}}
+\caption{False-flag settings, 274 incidents, 3 markers or mimicked items;
+percent with 95\% group-cluster bootstrap intervals ($^\dagger$: Wilson
+interval with the 103 groups as the sample size, for a rate of exactly 0 or
+100\%). Source: \texttt{results/falseflag.json}.}
 \label{tab:ff}
 \end{table}
 
+\begin{table}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrr}
+\toprule
+Method & Closed: correct (\%) & Open: correct decline (\%) & Brier, pooled map & ACH minus method\\
+\midrule
+Similarity, $b=0.15$ & 53.3 {\scriptsize[45.3, 60.8]} & 0.0 {\scriptsize[0.0, 3.6]}$^\dagger$ & 0.160 {\scriptsize[0.141, 0.178]} & [+0.031, +0.080] \\
+Similarity, $b=0$ & 53.3 {\scriptsize[45.3, 60.8]} & 0.0 {\scriptsize[0.0, 3.6]}$^\dagger$ & 0.151 {\scriptsize[0.128, 0.173]} & [+0.039, +0.087] \\
+IDF coverage & 42.0 {\scriptsize[34.5, 49.1]} & 0.0 {\scriptsize[0.0, 3.6]}$^\dagger$ & 0.167 {\scriptsize[0.143, 0.192]} & [+0.021, +0.074] \\
+Consistency gate & 53.3 {\scriptsize[45.3, 60.8]} & 0.0 {\scriptsize[0.0, 3.6]}$^\dagger$ & 0.204 {\scriptsize[0.190, 0.217]} & [$-$0.005, +0.027] \\
+Abstain, $\tau$ for closed + open & 26.6 {\scriptsize[19.6, 33.8]} & 94.5 {\scriptsize[92.0, 97.1]} & 0.214 {\scriptsize[0.203, 0.226]} & [$-$0.016, +0.017] \\
+Abstain, $\tau$ matched to ACH's declines & 47.4 {\scriptsize[39.7, 55.0]} & 47.8 {\scriptsize[41.8, 53.5]} & 0.208 {\scriptsize[0.191, 0.224]} & [$-$0.014, +0.027] \\
+Abstain, $\tau$ matched to ACH's accuracy & 29.9 {\scriptsize[22.7, 37.4]} & 93.4 {\scriptsize[90.6, 96.1]} & 0.214 {\scriptsize[0.202, 0.227]} & [$-$0.016, +0.017] \\
+OCCAM ACH & 29.9 {\scriptsize[22.9, 37.1]} & 46.0 {\scriptsize[39.3, 53.1]} & 0.214 {\scriptsize[0.202, 0.226]} & --- \\
+\bottomrule
+\end{tabular}}
+\caption{Closed and open world, and calibration under one setting-agnostic
+map fitted on closed + open + false-flag incidents (822 answers; lower Brier is
+better). Last column: paired 95\% interval of ACH's Brier minus the method's.
+Source: \texttt{results/falseflag.json}.}
+\label{tab:open}
+\end{table}
+
 \paragraph{Planted markers.} Table~\ref{tab:ff}: the marker-trusting matcher
-names the framed group 88.0\% of the time, ACH 1.1\% (95\% CI 0.0--3.0\%). The
+names the framed group 88.0\% of the time, ACH 1.1\% (95\% CI 0.0--2.6\%). The
 result depends on how strongly the matcher trusts markers: at $b=0.05$ it is
 framed 12.4\% of the time and at $b=0$ never. The consistency gate is correct
-92.0\% of the time against ACH's 73.4\%.
+92.0\% of the time against ACH's 73.4\% (paired difference $-25.6$ to $-12.2$
+points).
 \paragraph{Authentic markers.} With genuine markers ACH calls the overlap a
 frame-up in 18.6\% of incidents (CI 13.8--24.4\%) and names the true group only
 35.8\% of the time; the marker-trusting matcher names it 100\%.
 \paragraph{Mimicry.} When the adversary copies the framed group's rarest
 techniques as hard evidence, nothing is pre-typed as spoofable and the gate
 cannot help. TTP similarity names the framed group 76.3\% of the time, IDF
-coverage 32.1\%, ACH 27.0\% (CI 21.3--33.5\%; paired difference to coverage
-$-$9 to $-$2 points). With six mimicked items ACH is framed 44.2\% of the
-time against 90.9\% for similarity.
-The gain is not shown to be specific to ACH's weighting: without
-diagnosticity weighting ACH is framed less under mimicry (18.2\%), at a cost
-in closed-world accuracy, and support-aware ranking is framed more (35.4\%).
+coverage 32.1\% and ACH 27.0\% (paired difference to coverage $-8.6$ to
+$-1.8$ points). ACH is, however, \emph{correct} less often than coverage:
+17.9\% against 28.8\% (paired $-16.0$ to $-6.6$ points); against plain
+similarity (21.2\%) the difference is not significant ($-10.1$ to $+3.5$).
+With six mimicked items ACH is framed 44.2\% of the time against 90.9\% for
+similarity. The gain is not specific to ACH's weighting: without diagnosticity
+weighting ACH is framed less under mimicry (18.2\%), at a cost in closed-world
+accuracy, and support-aware ranking is framed more (35.4\%).
 \paragraph{Ablations.} Removing the false-flag hypotheses leaves ACH's framed
 rate at 1.1\% and raises ``names the true group'' from 2.2\% to 20.1\%;
-removing the 0.5 spoofable discount changes accuracy by under one point; the
-confidence caps do not change any accuracy metric. Resistance to planted
-markers therefore comes from the least-inconsistency ranking over hard
-evidence; the false-flag hypotheses convert outcomes into explicit ``framed''
-conclusions. Removing the unknown hypothesis raises closed-world accuracy
-from 29.9\% to 37.2\% but removes all declines.
-\paragraph{Closed and open world.} Similarity names the true group 53.3\% of
-the time and ACH 29.9\%. When the true group is untracked ACH declines 46.0\%
-of the time; the abstaining baseline declines 94.5\% but its closed-world
-accuracy falls to 26.6\%. With one setting-agnostic calibration map,
-cross-fitted by group, ACH's Brier score is 0.189 / 0.249 / 0.205 in the
-closed / open / false-flag settings against 0.315 / 0.032 / 0.131 for
-similarity (over all three settings together: 0.214 vs 0.160). One map cannot
-help similarity, which never declines: its open-world answers are all wrong, the
-map lowers every probability, and its closed-world Brier rises from 0.179
-uncalibrated to 0.315.
+removing the hypotheses, the 0.5 spoofable discount and the caps together
+leaves it at 2.6\%; removing only the discount changes accuracy by under two
+points. Resistance to planted markers therefore survives removing every
+false-flag-specific mechanism: it comes from hard evidence contradicting the
+framed group, which both ranking rules honour (support-aware ranking is framed
+1.5\% of the time). For the baselines, ignoring spoofable rows is sufficient.
+The false-flag hypotheses convert outcomes into explicit ``framed''
+conclusions. The confidence caps change no accuracy metric and do not improve
+calibration: pooled Brier is 0.214 with them and 0.207 without (variant minus
+full ACH $-0.010$ to $-0.005$), whereas removing the spoofable discount
+worsens it to 0.231. Removing the unknown hypothesis raises closed-world
+accuracy from 29.9\% to 37.2\% but removes all declines.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.78\textwidth]{abstention_frontier.png}
+\caption{Abstention trade-off on the 274 incidents. Red curve: the cosine
+threshold baseline over all $\tau$ (in-sample); markers: cross-fitted
+operating points and ACH variants. Every ACH variant lies inside the
+baseline's frontier. Source: \texttt{results/falseflag.json}.}
+\label{fig:frontier}
+\end{figure}
+
+\paragraph{Closed and open world.} Table~\ref{tab:open} and
+Figure~\ref{fig:frontier}. Similarity names the true group 53.3\% of the time
+and ACH 29.9\%. When the true group is untracked ACH declines 46.0\% of the
+time, and 36.5\% of the time when it is tracked. The abstaining baseline does
+better at either matched operating point: as accurate as ACH in the closed
+world, it declines 93.4\% of the time (paired $-54.8$ to $-39.6$ points);
+declining as often as ACH, it is right 47.4\% of the time in the closed world
+(paired $-25.4$ to $-10.0$). Because it ignores rarity, the same baseline is
+framed more under mimicry (44.5--71.5\% across its operating points).
+\paragraph{Calibration and overconfidence.} With one setting-agnostic map,
+ACH's Brier score over the three settings is 0.214 against 0.160 for the
+marker-trusting matcher (paired difference $+0.031$ to $+0.080$). Per setting,
+ACH is better in the closed world (0.189 vs 0.315; $-0.178$ to $-0.075$) and
+worse in the open (0.249 vs 0.032) and false-flag settings (0.205 vs 0.131),
+so the pooled number depends on the 1:1:1 mix. One map cannot help similarity,
+which never declines: its open-world answers are all wrong, the map lowers
+every probability, and its closed-world Brier rises from 0.179 uncalibrated to
+0.315. Overconfidence is a property of the raw outputs: under planted markers
+ACH's capped grades are never wrong at stated $p \ge 0.8$ (0 of 274), while the
+matcher's softmax is (194 of 274). After the setting-agnostic recalibration
+neither makes such errors (ACH 1 of 822, similarity 0 of 822). Brier alone does
+not measure framing resistance: a matcher with marker boost 0.3 is framed in
+every planted-marker incident yet has the lowest pooled Brier (0.124), because
+it states low probabilities.
+\paragraph{Threshold sensitivity.} The cell-rule thresholds (30\% of groups,
+three groups) were set by hand. Over a $3\times3$ grid (20/30/40\%; 2/3/5
+groups), closed-world accuracy ranges 27.0--35.4\%, correct declines
+36.9--59.1\%, framing under planted markers 0.7--1.1\%, false alarms
+15.0--27.4\% and framing under mimicry 24.8--36.1\%. Choosing the thresholds
+on one group fold and applying them to the other selects the 20\% cut-off,
+which raises closed-world accuracy by 4.0 points (paired $+1.5$ to $+6.9$) but
+also false alarms ($+4.2$ to $+10.8$) and mimicry framing ($+5.3$ to $+12.4$).
 \paragraph{Larger and later data.} Over all 575 report incidents, 21 held-out
 campaigns and temporal splits (profiles from ATT\&CK v12.1 or v15.1,
-activity added afterwards, renamed technique ids mapped back), the closed,
-open and planted-marker comparison with the naive matcher points the same way;
-the authentic, mimicry and simple-baseline controls were run only on the
-274-incident set. In the temporal splits both methods are weak in the closed world
-(v12.1: 21.3\% vs 20.2\%) and ACH declines 50.6\% of the time when the group is
-removed. An earlier version of this split reported 67.7\%; that figure was
-inflated by technique ids the old release did not know.
-\paragraph{Real reports.} On 72 APTnotes reports labelled by file name and
+activity added afterwards, renamed technique ids mapped back), the open-world
+and planted-marker comparisons with the naive matcher point the same way; in
+the closed world ACH is lower on the 575 incidents (39.0\% vs 47.8\%) and both
+methods are weak in the temporal splits (v12.1: 21.3\% vs 20.2\%). ACH declines
+50.6\% of the time in the v12.1 split when the group is removed. The authentic,
+mimicry and simple-baseline controls were run only on the 274-incident set.
+\paragraph{Real reports.} On 75 APTnotes reports labelled by file name and
 title, with ATT\&CK citations that match the report held out, ACH's top-1
-accuracy is 31.9\% (Wilson CI 22--43\%) against 26.4\% for similarity, with no
-answer wrong at stated probability $\ge 0.8$ (similarity: 9 of 72). Neither
-is a significant win: the top-1 difference is 23 vs 19 reports, with 12
-reports correct only for ACH and 8 only for similarity (exact McNemar
-$p=0.50$). The second figure holds almost by construction, because ACH's
-grades are capped (HIGH, 0.875, is rarely reachable; answers are capped at MODERATE, 0.675,
-whenever deception indicators fire or a same-actor false-flag hypothesis is
-not rejected), so this metric can barely fail for ACH.
-Attributing on software names alone is better for both (47.2\% and 44.4\%);
-techniques alone are near zero.
-\paragraph{Reproduction.} On rcATT's 1,490 reports, its 5-fold split and
-F$_{0.5}$ metric, the released pipeline reproduces the published tactic
-micro-F$_{0.5}$ of 65.38 \citep{legoy2020} as 64.63, and the technique
-micro-F$_{0.5}$ of 35.02 (197 techniques) as 35.81. The pipeline exactly as the
-paper text describes it, without the released code's balanced class weights,
-reaches only 28.30, so that undocumented setting accounts for the gap.
-OCCAM's TF-IDF + logistic regression gets 34.18 micro but 12.94 macro
-F$_{0.5}$ on the same folds: it is not better than rcATT on this task.
+accuracy is 32.0\% (Wilson CI 23--43\%) against 28.0\% for similarity; 12
+reports are correct only for ACH and 9 only for similarity (exact McNemar
+$p=0.66$). No ACH answer is wrong at stated probability $\ge 0.8$ (similarity:
+9 of 75), but this holds almost by construction, because ACH's grades are
+capped (HIGH, 0.875, is rarely reachable; answers are capped at MODERATE,
+0.675, whenever deception indicators fire or a same-actor false-flag
+hypothesis is not rejected). Adding the TF-IDF sentence classifier (top 10
+techniques per report) lowers ACH to 16.0\%: 12 reports lost, none gained
+($p=0.0005$); similarity is unchanged (29.3\%, $p=1.0$). Attributing on
+software names alone gives 48.0\% for similarity and 45.3\% for ACH; techniques
+alone are near zero.
+\paragraph{Reproduction.} The rcATT paper reports tactic micro-F$_{0.5}$
+$65.38\pm2.87$ and technique micro-F$_{0.5}$ $35.02\pm5.32$
+\citep[Table~4, ``Inde.'' rows; the same means are in Tables~2 and 3]{legoy2020}.
+On rcATT's 1,490 reports with the released code's 5-fold split, the released
+code gives $64.82\pm3.44$ and, for the 197 techniques that the paper's
+at-least-5-reports filter keeps in the released data, $36.33\pm1.39$. The
+released code differs from the paper text in two undocumented settings,
+stemming/lemmatisation and balanced class weights. A $2\times2$ ablation on
+the same folds attributes most of the technique difference to class
+weighting ($+5.9\pm2.5$ points, fold-paired) and little to tokenisation
+($+0.3\pm0.6$); the paper-text pipeline reaches 29.28. For tactics, balanced
+weights slightly lower micro-F$_{0.5}$ ($-1.7\pm0.9$). OCCAM's TF-IDF +
+logistic regression gets 34.18 micro but 12.94 macro F$_{0.5}$ on the same
+folds: it is not better than rcATT on this task.
+
+\section{Discussion and conclusion}
+The research question asked whether automated ACH gives better-calibrated,
+less overconfident attribution than TTP-similarity matching under false
+flags. On this benchmark the answer is mostly no.
+\emph{Calibration}: under one setting-agnostic map ACH is less well calibrated
+overall (pooled Brier 0.214 vs 0.160, $+0.031$ to $+0.080$); it is better
+only in the closed world.
+\emph{Overconfidence}: ACH's capped grades are never confidently wrong under
+planted markers, where the matcher's softmax often is, but after one
+recalibration neither method makes such errors, so the difference lies in the
+raw outputs rather than in the ranking.
+\emph{Framing}: the rate at which planted markers get the framed group named
+falls from 88.0\% to 1.1\%, but baselines that ignore spoofable evidence match
+it, and ACH's own false-flag machinery is not what produces it.
+\emph{Mimicry}: ACH is framed somewhat less often than IDF coverage but is
+correct less often.
+\emph{Abstention}: a thresholded similarity baseline declines more at similar
+closed-world accuracy, and ACH's operating point lies inside its frontier.
+What remains is auditability: every ACH conclusion comes with a matrix of
+span-anchored evidence that an analyst can inspect and override. That is a
+design property, not a measured one; measuring whether it helps analysts
+would need a user study. For practitioners, the actionable findings are
+simpler: type evidence by spoofability, let a model decline, and do not read a
+low Brier score as resistance to framing.
 
 \section{Limitations}
 False-flag evidence is synthetic: markers and mimicked items are evidence
@@ -227,20 +354,27 @@ rows, not forged binaries. Incidents are slices of ATT\&CK's reading of
 public reporting rather than telemetry. The APTnotes set is small and its
 leak control is a title-matching heuristic. ACH rarely names the true actor
 behind a detected frame (2.2\%), and its closed-world accuracy is well below
-plain similarity. Thresholds of the cell rules (30\%, three groups) were set
-by hand.
+plain similarity. The cell-rule thresholds were set by hand; the sensitivity
+grid shows the trade-offs they encode. The pooled calibration result assumes
+an equal mix of the three settings. Auditability, the advantage we claim for
+ACH, is not measured.
 
 \section{Ethics and reproducibility}
 Attribution affects people and states; OCCAM is decision support and every
 output says so. Results about real ATT\&CK groups are benchmark artefacts, not
 findings. No malware was downloaded or executed; all data are public, pinned
-to commits and checksummed. Code, result files and exact commands are at
+to commits and checksummed. Every result file records the commit, command,
+package versions, input checksums and GitHub Actions run that produced it, and
+a manual workflow regenerates all results and lists any value that changed.
+Code, result files and exact commands are at
 \url{https://github.com/rakshit-737/occam}.
 
 \section*{Acknowledgements}
 The code, experiments and this text were developed with AI assistance
-(Claude, Anthropic). Reference details were checked manually; no automated DOI/arXiv resolution log is included. The author is responsible for
-all claims.
+(Claude, Anthropic). Every DOI, arXiv identifier and URL in the bibliography
+was resolved and compared with its entry by a script whose log is in the
+repository (\texttt{paper/refs\_check.log}). The author is responsible for all
+claims.
 
 \bibliographystyle{plainnat}
 \bibliography{refs}
