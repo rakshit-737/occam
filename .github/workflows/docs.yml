@@ -9,10 +9,9 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: pages
-  cancel-in-progress: false
-
+# Builds (including pull-request builds) never share a concurrency group, so a
+# queued PR build can no longer cancel another; only the Pages deployment is
+# serialised.
 jobs:
   build:
     runs-on: ubuntu-24.04
@@ -37,6 +36,11 @@ jobs:
           npm audit --audit-level=high
           npm test
           VITE_STATIC=1 OCCAM_UI_OUT=../site/demo npm run build
+      - name: Build the preprint PDF into the site (/preprint.pdf)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends latexmk texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended texlive-bibtex-extra lmodern > /dev/null
+          (cd paper && latexmk -pdf -interaction=nonstopmode -halt-on-error occam.tex > /dev/null)
+          cp paper/occam.pdf site/preprint.pdf
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: site
@@ -45,6 +49,9 @@ jobs:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-24.04
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     permissions:
       pages: write
       id-token: write
