@@ -1,0 +1,137 @@
+name: bench
+
+# Re-runs the benchmarks on a GitHub-hosted runner from the pinned public data,
+# uploads the result files (each JSON records this run's id in `provenance`)
+# and lists every value that differs from the committed results/ files.
+# Manual only: it downloads ~400 MB and takes about an hour.
+
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Benchmarks to run, space-separated (empty = all): datasets falseflag sensitivity attribution attribution_extended clustering extraction rcatt aptnotes"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bench
+  cancel-in-progress: false
+
+env:
+  OCCAM_DATA: /home/runner/occam-data
+  PYTHONHASHSEED: "0"
+  ALL_BENCHES: "datasets falseflag sensitivity attribution attribution_extended clustering extraction rcatt aptnotes"
+
+jobs:
+  data:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - id: matrix
+        env:
+          ONLY: ${{ inputs.only }}
+        run: |
+          sel="${ONLY:-$ALL_BENCHES}"
+          printf 'matrix=%s\n' "$(python -c 'import json,sys; print(json.dumps(sys.argv[1].split()))' "$sel")" >> "$GITHUB_OUTPUT"
+      - id: cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.OCCAM_DATA }}
+          key: occam-data-v1-${{ hashFiles('scripts/download_data.py') }}
+      - name: Download the pinned, checksummed datasets (JSON, CSV and report PDFs only)
+        if: steps.cache.outputs.cache-hit != 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python -m pip install "pypdf>=6.19.0" nltk
+          python scripts/download_data.py --out "$OCCAM_DATA"
+          python -c "import nltk, sys; [nltk.download(p, download_dir=sys.argv[1], quiet=True) for p in ('stopwords', 'punkt_tab', 'wordnet', 'omw-1.4')]" "$OCCAM_DATA/nltk_data"
+          du -sh "$OCCAM_DATA"
+
+  bench:
+    needs: data
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        bench: ${{ fromJSON(needs.data.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0   # git describe in the provenance block
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install -e ".[ml,graph,pdf,bench]" nltk
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.OCCAM_DATA }}
+          key: occam-data-v1-${{ hashFiles('scripts/download_data.py') }}
+          fail-on-cache-miss: true
+      - name: Run ${{ matrix.bench }}
+        env:
+          BENCH: ${{ matrix.bench }}
+        run: |
+          mkdir -p out/results out/figures
+          R=out/results F=out/figures
+          case "$BENCH" in
+            datasets) python scripts/dataset_stats.py --data "$OCCAM_DATA" --out "$R/datasets.json" ;;
+            falseflag) python scripts/bench_falseflag.py --out "$R" --figures "$F" ;;
+            sensitivity) python scripts/bench_sensitivity.py --out "$R" ;;
+            attribution) python scripts/bench_attribution.py --out "$R" --figures "$F" ;;
+            attribution_extended) python scripts/bench_attribution_extended.py --out "$R" ;;
+            clustering) python scripts/bench_clustering.py --out "$R" ;;
+            extraction) python scripts/bench_extraction.py --out "$R" ;;
+            rcatt) python scripts/bench_rcatt.py --out "$R" ;;
+            aptnotes)
+              python scripts/bench_aptnotes.py --out "$R"
+              python scripts/bench_aptnotes.py --evidence software --out "$R"
+              python scripts/bench_aptnotes.py --evidence techniques --out "$R"
+              occam train-classifier --attack "$OCCAM_DATA/enterprise-attack-19.2.json" --tram "$OCCAM_DATA/tram/multi_label.json" --out "$RUNNER_TEMP/model.pkl"
+              python scripts/bench_aptnotes.py --model "$RUNNER_TEMP/model.pkl" --top-k 10 --paired-with "$R/aptnotes.json" --out "$R"
+              ;;
+            *) echo "unknown bench $BENCH"; exit 1 ;;
+          esac
+          ls -la "$R" "$F"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: bench-${{ matrix.bench }}
+          path: out/
+          if-no-files-found: error
+
+  compare:
+    needs: bench
+    if: always() && needs.bench.result != 'skipped'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: bench-*
+          path: merged
+          merge-multiple: true
+      - name: Diff against the committed results
+        run: python scripts/compare_results.py merged/results results | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: bench-results
+          path: merged/
