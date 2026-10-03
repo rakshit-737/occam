@@ -23,8 +23,12 @@ its source name shares a distinctive word with the report's file name/title,
 or names the group and carries the report's year (a heuristic; matches are
 listed in the JSON). Reports with no extracted technique or software are
 scored as declines, so every extractor is scored on the same reports.
-Intervals: Wilson 95%. ``--evidence software|techniques`` is an ablation
-that keeps only one kind of extracted item.
+Intervals: Wilson 95%; ACH vs similarity on the same reports is compared with
+an exact McNemar test (and ``--paired-with`` compares this run's ACH and
+similarity with another run's, e.g. classifier vs keyword extraction).
+``--evidence software|techniques`` is an ablation that keeps only one kind of
+extracted item. Reports listed in ``EXCLUDE`` are skipped everywhere so local
+and CI runs score the same reports.
 
 Usage::
 
@@ -45,6 +49,9 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
+sys.path.insert(0, str(REPO / "scripts"))
+
+from _benchutil import provenance, sha256_file, source_line  # noqa: E402
 
 from occam.attribution import ACHAttributor, SimilarityAttributor, evidence_from_items  # noqa: E402
 from occam.evaluation import HoldoutWorld, Incident  # noqa: E402
@@ -60,6 +67,24 @@ _GENERIC = {"report", "reports", "attack", "attacks", "group", "groups", "operat
             "espionage", "hackers", "behind", "linked", "activity", "january", "february", "march", "april", "june",
             "july", "august", "september", "october", "november", "december", "trend", "micro", "symantec", "fireeye",
             "kaspersky", "securelist", "crowdstrike", "mandiant", "trendmicro", "unit42", "networks", "blog"}
+
+
+#: reports skipped in every run, with the reason
+EXCLUDE = {
+    "2014/h12756-wp-shell-crew.pdf": "excluded: its converted text quotes webshell code and is quarantined by Windows "
+                                     "Defender on the author's machine; skipped everywhere so local and CI runs match",
+}
+
+
+def mcnemar(a: list[bool], b: list[bool]) -> dict:
+    """Exact (binomial) two-sided McNemar test on paired correct/incorrect outcomes."""
+    only_a = sum(1 for x, y in zip(a, b) if x and not y)
+    only_b = sum(1 for x, y in zip(a, b) if y and not x)
+    n = only_a + only_b
+    k = min(only_a, only_b)
+    p = min(1.0, 2 * sum(math.comb(n, i) for i in range(k + 1)) / 2 ** n) if n else 1.0
+    return {"only_first": only_a, "only_second": only_b, "both": sum(1 for x, y in zip(a, b) if x and y),
+            "neither": sum(1 for x, y in zip(a, b) if not x and not y), "p_exact": p}
 
 
 def wilson(k: int, n: int) -> tuple[float, float]:
@@ -100,11 +125,18 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--top-k", type=int, default=None, help="keep only the k most confident classifier techniques per report")
     ap.add_argument("--evidence", choices=["all", "software", "techniques"], default="all",
                     help="ablation: attribute on only one kind of extracted item")
+    ap.add_argument("--paired-with", type=Path, default=None,
+                    help="another aptnotes*.json run: McNemar-compare its per-report outcomes with this run's")
     ap.add_argument("--out", type=Path, default=REPO / "results")
     a = ap.parse_args(argv)
     t0 = time.time()
 
-    data = AttackData.load(a.data / "enterprise-attack-19.2.json")
+    attack = a.data / "enterprise-attack-19.2.json"
+    inputs = [attack, a.data / "aptnotes" / "index.json", a.data / "aptnotes" / "APTnotes.csv"]
+    if a.model:
+        inputs.append(a.model)
+    prov = provenance(inputs, argv)
+    data = AttackData.load(attack)
     kb = data.to_kb()
     profiles = data.actor_profiles()
     index = json.loads((a.data / "aptnotes" / "index.json").read_text(encoding="utf-8"))
@@ -135,6 +167,9 @@ def main(argv: list[str] | None = None) -> int:
         titles = {re.sub(r"[^a-z0-9]", "", r["Filename"].lower()): r["Title"] for r in csv.DictReader(f)}
     rows, events, truth, skipped = [], {}, {}, []
     for rec in index:
+        if rec["path"] in EXCLUDE:
+            skipped.append((rec["path"], EXCLUDE[rec["path"]]))
+            continue
         txt = a.data / "aptnotes" / "text" / rec["text"]
         try:
             text = txt.read_text(encoding="utf-8", errors="replace")
@@ -182,6 +217,20 @@ def main(argv: list[str] | None = None) -> int:
                 "brier": brier([row[name]["p"] for row in rows], correct),
                 "high_conf_wrong": wrong_hi / n, "high_conf_wrong_count": wrong_hi,
             }
+    tests = {}
+    for variant in ("asis", "leakfree"):
+        c_sim = [row[f"similarity@{variant}"]["leading"] == row["group"] for row in rows]
+        c_ach = [row[f"ach@{variant}"]["leading"] == row["group"] for row in rows]
+        tests[f"ach_vs_similarity@{variant}"] = mcnemar(c_ach, c_sim)
+    if a.paired_with:
+        other = json.loads(a.paired_with.read_text(encoding="utf-8"))
+        theirs = {r["report"]: r for r in other["per_report"]}
+        common = [row for row in rows if row["report"] in theirs]
+        for base in ("ach", "similarity"):
+            key = f"{base}@leakfree"
+            mine_c = [row[key]["leading"] == row["group"] for row in common]
+            their_c = [theirs[row["report"]][key]["leading"] == row["group"] for row in common]
+            tests[f"{base}_this_vs_{a.paired_with.stem}@leakfree"] = {**mcnemar(mine_c, their_c), "n": len(common)}
     ids = sorted(truth)
     t = [truth[i] for i in ids]
     clus = {}
@@ -194,11 +243,14 @@ def main(argv: list[str] | None = None) -> int:
         "reports": n, "skipped": skipped, "evidence": a.evidence,
         "reports_with_self_citation": sum(bool(r["self_citations"]) for r in rows),
         "no_items_extracted": sum(1 for r in rows if not r["items"]),
-        "groups": len(set(truth.values())), "classifier": bool(clf), "top_k": a.top_k if clf else None,
+        "groups": len({r["group"] for r in rows}), "groups_with_items": len(set(truth.values())),
+        "classifier": bool(clf), "top_k": a.top_k if clf else None,
         "mean_techniques": sum(r["techniques"] for r in rows) / n, "mean_software": sum(r["software"] for r in rows) / n,
         "mean_indicators": sum(r["indicators"] for r in rows) / n,
         "reports_per_group": dict(Counter(truth.values()).most_common()),
-        "attribution": summary, "clustering": clus, "per_report": rows, "runtime_s": round(time.time() - t0, 1),
+        "attribution": summary, "mcnemar": tests, "clustering": clus, "per_report": rows,
+        "runtime_s": round(time.time() - t0, 1), "provenance": prov,
+        "paired_with_sha256": sha256_file(a.paired_with) if a.paired_with else None,
     }
     a.out.mkdir(parents=True, exist_ok=True)
     suffix = ("_clf" + (f"_top{a.top_k}" if a.top_k else "")) if clf else ""
@@ -206,11 +258,13 @@ def main(argv: list[str] | None = None) -> int:
     (a.out / f"aptnotes{suffix}.json").write_text(json.dumps(out, indent=1), encoding="utf-8")
     md = [f"### End-to-end on APTnotes ({n} real reports, {out['groups']} groups; extractor: keyword"
           f"{' + classifier' if clf else ''}{f', top-{a.top_k} per report' if clf and a.top_k else ''})", "",
+          source_line(prov), "",
           f"Mean per report: {out['mean_techniques']:.1f} techniques, {out['mean_software']:.1f} software, "
           f"{out['mean_indicators']:.1f} IOCs (all span-anchored). Evidence used: {a.evidence}. "
           f"{out['no_items_extracted']} reports with nothing extracted are scored as declines. "
           f"{out['reports_with_self_citation']} of {n} reports matched an ATT&CK citation of their own group "
-          "(held out in the leak-controlled rows).", "",
+          f"(held out in the leak-controlled rows). {out['groups_with_items']} groups among the reports with extracted "
+          f"items (clustered below). Skipped: {len(skipped)} ({'; '.join(f'{p}: {r}' for p, r in skipped) or 'none'}).", "",
           "| Attributor | Profiles | Top-1 [Wilson 95%] | Top-5 | Names someone | Brier | Wrong at p>=0.8 |",
           "|---|---|---|---|---|---|---|"]
     names = {"similarity": "TTP-similarity baseline", "ach": "OCCAM ACH", "ach-top5": "OCCAM ACH, top-5 shortlist"}
@@ -220,6 +274,12 @@ def main(argv: list[str] | None = None) -> int:
         lo, hi = v["top1_ci95"]
         md.append(f"| {names[b]} | {vname[var]} | {v['top1']:.3f} [{lo:.2f}-{hi:.2f}] | {v['top5']:.3f} | "
                   f"{v['named_rate']:.3f} | {v['brier']:.3f} | {v['high_conf_wrong_count']}/{n} |")
+    md += ["", "| Exact McNemar test (same reports) | Correct only first | Correct only second | Both | p |",
+           "|---|---|---|---|---|"]
+    for k, v in tests.items():
+        label = {"ach_vs_similarity@asis": "ACH vs similarity, as-is", "ach_vs_similarity@leakfree":
+                 "ACH vs similarity, leak-controlled"}.get(k, k.replace("_this_vs_", " (this run) vs ").replace("@leakfree", ", leak-controlled"))
+        md.append(f"| {label} | {v['only_first']} | {v['only_second']} | {v['both']} | {v['p_exact']:.3f} |")
     md += ["", "| Clustering of the reports | Purity | NMI | ARI | #clusters |", "|---|---|---|---|---|"]
     for k, v in clus.items():
         md.append(f"| {k} | {v['purity']:.3f} | {v['nmi']:.3f} | {v['ari']:.3f} | {v['clusters']} |")
