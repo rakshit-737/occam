@@ -55,3 +55,33 @@ def test_hardening_limits_and_errors():
     assert r.status_code == 422
     assert client.get("/docs").status_code == 404
     assert client.get("/health").headers["X-Content-Type-Options"] == "nosniff"
+
+
+def test_bearer_token_guards_api_but_not_health_or_workbench(monkeypatch):
+    import occam.api as api
+
+    monkeypatch.setattr(api, "_TOKEN", "s3cret-token")
+    # liveness probe (Docker HEALTHCHECK) and the static workbench page stay open
+    assert client.get("/health").status_code == 200
+    assert client.get("/").status_code == 200
+    # every API call needs the token
+    assert client.get("/scenarios").status_code == 401
+    assert client.post("/ach", json={"scenario": "clean_attribution"}).status_code == 401
+    bad = {"Authorization": "Bearer wrong"}
+    assert client.post("/ach", json={"scenario": "clean_attribution"}, headers=bad).status_code == 401
+    ok = {"Authorization": "Bearer s3cret-token"}
+    assert client.get("/scenarios", headers=ok).status_code == 200
+    assert client.post("/ach", json={"scenario": "clean_attribution"}, headers=ok).status_code == 200
+
+
+def test_stix_accepts_inline_scenarios():
+    import json
+
+    from conftest import DEMO
+
+    sc = json.loads((DEMO / "scenarios" / "clean_attribution.json").read_text(encoding="utf-8"))
+    actors = json.loads((DEMO / "actors.json").read_text(encoding="utf-8"))["actors"]
+    r = client.post("/stix", json={"actors": actors, "evidence": sc["evidence"], "question": "Who?"})
+    assert r.status_code == 200
+    assert any(o["type"] == "note" for o in r.json()["objects"])
+    assert client.post("/stix", json={}).status_code == 422

@@ -7,7 +7,10 @@ Run::
     uvicorn occam.api:app --reload        # http://127.0.0.1:8000
 
 Localhost-only by default. Optional bearer-token auth: set ``OCCAM_API_TOKEN``
-and send ``Authorization: Bearer <token>``. Requests whose Host header is not in
+and send ``Authorization: Bearer <token>`` (the workbench has a token field).
+``GET /health`` and the static workbench page ``GET /`` stay open so container
+health checks and the token prompt work; every API call needs the token.
+Requests whose Host header is not in
 ``OCCAM_ALLOWED_HOSTS`` (default: loopback names) are rejected, which blocks DNS
 rebinding. Interactive API docs are off unless ``OCCAM_API_DOCS=1``.
 """
@@ -46,8 +49,12 @@ _TOKEN = os.environ.get("OCCAM_API_TOKEN") or None
 _DOCS = os.environ.get("OCCAM_API_DOCS") == "1"
 
 
+#: unauthenticated even with a token set: liveness probe and the static workbench shell
+_OPEN = {("GET", "/health"), ("HEAD", "/health"), ("GET", "/"), ("HEAD", "/")}
+
+
 def _auth(request: Request) -> None:
-    if _TOKEN is None:
+    if _TOKEN is None or (request.method, request.url.path) in _OPEN:
         return
     got = request.headers.get("authorization", "")
     if not hmac.compare_digest(got, f"Bearer {_TOKEN}"):
@@ -127,8 +134,8 @@ def scenarios() -> list[str]:
     return sorted(p.stem for p in (FIXTURES / "scenarios").glob("*.json"))
 
 
-@app.post("/ach")
-def api_ach(body: AchIn) -> dict[str, Any]:
+def _engine(body: AchIn) -> tuple[ACHEngine, list[Evidence]]:
+    """Build the ACH engine for a bundled scenario name or an inline scenario, with overrides applied."""
     try:
         if body.scenario:
             q, actors, evidence, _ = load_scenario(_scenario_path(body.scenario))
@@ -141,6 +148,15 @@ def api_ach(body: AchIn) -> dict[str, Any]:
         eng = ACHEngine(actors, evidence, q, kb=_kb)
         for o in body.overrides:
             eng.override(o.evidence, o.hypothesis, o.rating)
+    except (ValueError, KeyError, TypeError) as exc:
+        raise HTTPException(422, f"invalid scenario: {exc}") from exc
+    return eng, evidence
+
+
+@app.post("/ach")
+def api_ach(body: AchIn) -> dict[str, Any]:
+    eng, evidence = _engine(body)
+    try:
         a = eng.assess()
     except (ValueError, KeyError, TypeError) as exc:
         raise HTTPException(422, f"invalid scenario: {exc}") from exc
@@ -159,15 +175,12 @@ def api_ach(body: AchIn) -> dict[str, Any]:
 
 @app.post("/stix")
 def api_stix(body: AchIn) -> dict[str, Any]:
-    body.publish = False
-    q, actors, evidence, _ = load_scenario(_scenario_path(body.scenario or ""))
+    """STIX 2.1 bundle of an assessment (bundled scenario or inline actors + evidence)."""
+    eng, _ = _engine(body)
     try:
-        eng = ACHEngine(actors, evidence, q, kb=_kb)
-        for o in body.overrides:
-            eng.override(o.evidence, o.hypothesis, o.rating)
         return export(assessment=eng.assess())
     except (ValueError, KeyError, TypeError) as exc:
-        raise HTTPException(422, f"invalid override: {exc}") from exc
+        raise HTTPException(422, f"invalid scenario: {exc}") from exc
 
 
 # -- minimal read-only TAXII 2.1 ---------------------------------------------
